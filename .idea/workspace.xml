@@ -161,8 +161,8 @@
           <file leaf-file-name="EditableView.java" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/src/main/java/com/luxoft/mpp/controllers/EditableView.java">
               <provider selected="true" editor-type-id="text-editor">
-                <state vertical-scroll-proportion="0.41428572">
-                  <caret line="80" column="0" selection-start-line="80" selection-start-column="0" selection-end-line="80" selection-end-column="0" />
+                <state vertical-scroll-proportion="0.4952381">
+                  <caret line="91" column="0" selection-start-line="91" selection-start-column="0" selection-end-line="91" selection-end-column="0" />
                   <folding>
                     <element signature="imports" expanded="true" />
                     <element signature="e#3300#3301#0" expanded="true" />
@@ -927,12 +927,12 @@
       <workItem from="1450800802094" duration="690000" />
       <workItem from="1450964542342" duration="80000" />
       <workItem from="1458227621253" duration="1485000" />
-      <workItem from="1459437506258" duration="21105000" />
+      <workItem from="1459437506258" duration="21673000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="102752000" />
+    <option name="totallyTimeSpent" value="103320000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-9" y="-9" width="1938" height="1050" extended-state="7" />
@@ -1494,8 +1494,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/luxoft/mpp/controllers/EditableView.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.41428572">
-          <caret line="80" column="0" selection-start-line="80" selection-start-column="0" selection-end-line="80" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.4952381">
+          <caret line="91" column="0" selection-start-line="91" selection-start-column="0" selection-end-line="91" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="e#3300#3301#0" expanded="true" />
