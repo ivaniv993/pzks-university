@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+
+    <title>PZCS</title>
+
+</h:head>
+
+
+<h:body>
+
+    <f:view>
+        <ui:include src="../mppmenu.xhtml"/>
+    </f:view>
+
+    <p:layout>
+        <p:layoutUnit position="west" resizable="true" size="550" minSize="500" maxSize="600" style="height: 400px">
+
+        </p:layoutUnit>
+
+        <p:layoutUnit position="center">
+            <h:form>
+                <h:commandButton action="#{menuView.save}" value="Welcome" />
+            </h:form>
+        </p:layoutUnit>
+        <p:layoutUnit position="north" size="150" resizable="true" closable="true" collapsible="true">
+
+            <h:form id="control_form">
+
+                <h:panelGroup>
+                    <p:commandButton value="New graph" icon="ui-icon-disk"
+                                     actionListener="#{diagramEditableView1.onNewDiagram}"
+                                     update="diagram, element_panel"/>
+
+                    <p:commandButton value="Open" icon="ui-icon-arrowrefresh-1-w"  />
+
+                    <p:commandButton value="Save" actionListener="#{diagramEditableView1.saveGraph}"/>
+                </h:panelGroup>
+            </h:form>
+        </p:layoutUnit>
+    </p:layout>
+
+    <h:form id="form">
+        <p:growl id="msgs" showDetail="true" />
+
+        <p:diagram value="#{diagramEditableView1.model}" style="height:600px" styleClass="ui-widget-content" var="el">
+            <f:facet name="element">
+                <h:outputText value="#{el.name}" style="display:block;margin-top:1em;"/>
+            </f:facet>
+            <p:ajax event="connect" listener="#{diagramEditableView1.onConnect}" />
+            <p:ajax event="disconnect" listener="#{diagramEditableView1.onDisconnect}" />
+            <p:ajax event="connectionChange" listener="#{diagramEditableView1.onConnectionChange}" />
+        </p:diagram>
+    </h:form>
+
+    /* Demo CSS */
+    <style type="text/css">
+        .ui-diagram-element {
+            border:0.1em dotted #E5E4E2;
+            background-color: #EFEEEC;
+            border-radius: 50%;
+            width:6em;
+            height:6em;
+            text-align: center;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.8);
+        }
+
+        .ui-diagram-element:hover {
+            background-color: #C7C6C4;
+        }
+    </style>
+</h:body>
+</html>
