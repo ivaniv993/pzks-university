@@ -5,6 +5,7 @@ import com.luxoft.mpp.entity.model.TaskVertex;
 import com.luxoft.mpp.entity.model.enumeration.TaskType;
 import com.luxoft.mpp.service.TaskService;
 import com.luxoft.mpp.service.TaskVertexServiceImpl;
+import org.apache.log4j.Logger;
 import org.primefaces.context.RequestContext;
 import org.primefaces.event.diagram.ConnectEvent;
 import org.primefaces.event.diagram.ConnectionChangeEvent;
@@ -18,6 +19,7 @@ import org.primefaces.model.diagram.endpoint.EndPoint;
 import org.primefaces.model.diagram.endpoint.EndPointAnchor;
 import org.primefaces.model.diagram.endpoint.RectangleEndPoint;
 import org.primefaces.model.diagram.overlay.ArrowOverlay;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 
@@ -29,7 +31,6 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import java.io.Serializable;
 import java.util.List;
-
 /**
  * Created by iivaniv on 18.03.2016.
  */
@@ -39,6 +40,8 @@ public class TaskView implements Serializable {
     private DefaultDiagramModel model;
 
     private boolean suspendEvent;
+
+    final static Logger logger = Logger.getLogger(TaskView.class);
 
     @PostConstruct
     public void init() {
@@ -51,28 +54,28 @@ public class TaskView implements Serializable {
         connector.setHoverPaintStyle("{strokeStyle:'#5C738B'}");
         model.setDefaultConnector(connector);
 
-        Element computerA = new Element(new NetworkElement("Computer A", "computer-icon.png"), "10em", "6em");
+        Element computerA = new Element(new NetworkElement("1", "computer-icon.png"), "10em", "6em");
         EndPoint endPointCA = createRectangleEndPoint(EndPointAnchor.BOTTOM);
         endPointCA.setSource(true);
         computerA.addEndPoint(endPointCA);
 
-        Element computerB = new Element(new NetworkElement("Computer B", "computer-icon.png"), "25em", "6em");
+        Element computerB = new Element(new NetworkElement("2", "computer-icon.png"), "25em", "6em");
         EndPoint endPointCB = createRectangleEndPoint(EndPointAnchor.BOTTOM);
         endPointCB.setSource(true);
         computerB.addEndPoint(endPointCB);
 
-        Element computerC = new Element(new NetworkElement("Computer C", "computer-icon.png"), "40em", "6em");
+        Element computerC = new Element(new NetworkElement("3", "computer-icon.png"), "40em", "6em");
         EndPoint endPointCC = createRectangleEndPoint(EndPointAnchor.BOTTOM);
         endPointCC.setSource(true);
         computerC.addEndPoint(endPointCC);
 
-        Element serverA = new Element(new NetworkElement("Server A", "server-icon.png"), "15em", "24em");
+        Element serverA = new Element(new NetworkElement("4", "server-icon.png"), "15em", "24em");
         EndPoint endPointSA = createDotEndPoint(EndPointAnchor.AUTO_DEFAULT);
         serverA.setDraggable(false);
         endPointSA.setTarget(true);
         serverA.addEndPoint(endPointSA);
 
-        Element serverB = new Element(new NetworkElement("Server B", "server-icon.png"), "35em", "24em");
+        Element serverB = new Element(new NetworkElement("5", "server-icon.png"), "35em", "24em");
         EndPoint endPointSB = createDotEndPoint(EndPointAnchor.AUTO_DEFAULT);
         serverB.setDraggable(false);
         endPointSB.setTarget(true);
@@ -83,6 +86,9 @@ public class TaskView implements Serializable {
         model.addElement(computerC);
         model.addElement(serverA);
         model.addElement(serverB);
+
+
+        logger.info("Init bean (View scope)");
     }
 
     public DiagramModel getModel() {
@@ -127,7 +133,7 @@ public class TaskView implements Serializable {
 
 
     public void onNewDiagram(){
-        System.out.println("on New diagram");
+        logger.info("On new diagram");
     }
 
     public void saveGraph(){

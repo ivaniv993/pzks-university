@@ -21,60 +21,67 @@
     </f:view>
 
     <p:layout>
-        <p:layoutUnit position="west" resizable="true" size="550" minSize="500" maxSize="600" style="height: 400px">
-
-        </p:layoutUnit>
-
-        <p:layoutUnit position="center">
-            <h:form>
-                <h:commandButton action="#{menuView.save}" value="Welcome" />
-            </h:form>
-        </p:layoutUnit>
-        <p:layoutUnit position="north" size="150" resizable="true" closable="true" collapsible="true">
-
+        <p:layoutUnit position="west"  size="550" minSize="500" maxSize="600" style="height: 400px">
             <h:form id="control_form">
 
-                <h:panelGroup>
+                <h:panelGroup style="width: 200px;height: 50px">
                     <p:commandButton value="New graph" icon="ui-icon-disk"
                                      actionListener="#{diagramEditableView1.onNewDiagram}"
-                                     update="diagram, element_panel"/>
+                                     update="form"/>
 
                     <p:commandButton value="Open" icon="ui-icon-arrowrefresh-1-w"  />
 
                     <p:commandButton value="Save" actionListener="#{diagramEditableView1.saveGraph}"/>
                 </h:panelGroup>
             </h:form>
+
+            <h:form id="edit_panel">
+
+                <h:panelGroup style="width: 200px;height: 50px">
+                    <p:commandButton value="Add vertex" icon="ui-icon-disk"
+                                     actionListener="#{diagramEditableView1.onNewDiagram}"
+                                     update="form"/>
+                </h:panelGroup>
+            </h:form>
+        </p:layoutUnit>
+
+        <p:layoutUnit position="center" size="550" minSize="500" maxSize="600">
+
+            <h:form id="form">
+                <p:growl id="msgs" showDetail="true" />
+
+                <p:diagram value="#{diagramEditableView1.model}" style="height:600px" styleClass="ui-widget-content" var="el">
+                    <f:facet name="element">
+                        <h:outputText value="#{el.name}" style="display:block;margin-top:1em;"/>
+                    </f:facet>
+                    <p:ajax event="connect" listener="#{diagramEditableView1.onConnect}" />
+                    <p:ajax event="disconnect" listener="#{diagramEditableView1.onDisconnect}" />
+                    <p:ajax event="connectionChange" listener="#{diagramEditableView1.onConnectionChange}" />
+                </p:diagram>
+            </h:form>
+
+            <style type="text/css">
+                .ui-diagram-element {
+                    border:0.1em dotted #E5E4E2;
+                    background-color: #EFEEEC;
+                    border-radius: 50%;
+                    width:6em;
+                    height:6em;
+                    text-align: center;
+                    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.8);
+                }
+
+                .ui-diagram-element:hover {
+                    background-color: #C7C6C4;
+                }
+            </style>
+        </p:layoutUnit>
+        <p:layoutUnit position="north" size="120" resizable="true" closable="true" collapsible="true">
+
+
         </p:layoutUnit>
     </p:layout>
 
-    <h:form id="form">
-        <p:growl id="msgs" showDetail="true" />
 
-        <p:diagram value="#{diagramEditableView1.model}" style="height:600px" styleClass="ui-widget-content" var="el">
-            <f:facet name="element">
-                <h:outputText value="#{el.name}" style="display:block;margin-top:1em;"/>
-            </f:facet>
-            <p:ajax event="connect" listener="#{diagramEditableView1.onConnect}" />
-            <p:ajax event="disconnect" listener="#{diagramEditableView1.onDisconnect}" />
-            <p:ajax event="connectionChange" listener="#{diagramEditableView1.onConnectionChange}" />
-        </p:diagram>
-    </h:form>
-
-    /* Demo CSS */
-    <style type="text/css">
-        .ui-diagram-element {
-            border:0.1em dotted #E5E4E2;
-            background-color: #EFEEEC;
-            border-radius: 50%;
-            width:6em;
-            height:6em;
-            text-align: center;
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.8);
-        }
-
-        .ui-diagram-element:hover {
-            background-color: #C7C6C4;
-        }
-    </style>
 </h:body>
 </html>
