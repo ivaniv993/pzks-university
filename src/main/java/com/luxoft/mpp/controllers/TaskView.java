@@ -34,7 +34,7 @@ import java.util.List;
 /**
  * Created by iivaniv on 18.03.2016.
  */
-@ManagedBean(name = "diagramEditableView1")
+@ManagedBean(name = "diagramEditableView")
 @ViewScoped
 public class TaskView implements Serializable {
     private DefaultDiagramModel model;
@@ -54,7 +54,7 @@ public class TaskView implements Serializable {
         connector.setHoverPaintStyle("{strokeStyle:'#5C738B'}");
         model.setDefaultConnector(connector);
 
-        Element computerA = new Element(new NetworkElement("1", "computer-icon.png"), "10em", "6em");
+        Element computerA = new Element(new NetworkElement("1", "computer-icon.png"), "10px", "60px");
         EndPoint endPointCA = createRectangleEndPoint(EndPointAnchor.BOTTOM);
         endPointCA.setSource(true);
         computerA.addEndPoint(endPointCA);
@@ -95,6 +95,7 @@ public class TaskView implements Serializable {
         return model;
     }
 
+
     public void onConnect(ConnectEvent event) {
         if(!suspendEvent) {
             FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "Connected",
@@ -131,9 +132,40 @@ public class TaskView implements Serializable {
         suspendEvent = true;
     }
 
+    public void orderVertex(DefaultDiagramModel model){
+
+        List<Element> elements = model.getElements();
+        int x = 6, y = 6;
+
+        for( int i =0; i < elements.size(); i ++ ) {
+
+            elements.get(i).setX(x + "em");
+            elements.get(i).setY(y + "em");
+            if (i != 0 && i % 4 == 0) {
+
+                x = 6;
+                y += 5;
+
+            }
+
+            x += 4;
+
+        }
+
+    }
 
     public void onNewDiagram(){
         logger.info("On new diagram");
+
+        Element serverA = new Element(new NetworkElement("4", "server-icon.png"), "15em", "24em");
+        EndPoint endPointSA = createDotEndPoint(EndPointAnchor.AUTO_DEFAULT);
+        serverA.setDraggable(false);
+        endPointSA.setTarget(true);
+        serverA.addEndPoint(endPointSA);
+
+        model.addElement(serverA);
+
+        orderVertex(model);
     }
 
     public void saveGraph(){

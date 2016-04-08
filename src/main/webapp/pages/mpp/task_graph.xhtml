@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+
+    <title>PZCS</title>
+
+</h:head>
+
+
+<h:body>
+
+    <f:view>
+        <ui:include src="../mppmenu.xhtml"/>
+    </f:view>
+
+    <p:layout>
+        <p:layoutUnit position="west"  size="550" minSize="500" maxSize="600" style="height: 400px">
+            <h:form id="control_form">
+
+                <h:panelGroup style="width: 200px;height: 50px">
+                    <p:commandButton value="New graph" icon="ui-icon-disk"
+                                     actionListener="#{diagramEditableView.onNewDiagram}"
+                                     update="form"/>
+
+                    <p:commandButton value="Open" icon="ui-icon-arrowrefresh-1-w"  />
+
+                    <p:commandButton value="Save" actionListener="#{diagramEditableView.saveGraph}"/>
+                </h:panelGroup>
+            </h:form>
+
+            <h:form id="edit_panel">
+
+                <h:panelGroup style="width: 200px;height: 50px">
+                    <p:commandButton value="Add vertex" icon="ui-icon-disk"
+                                     actionListener="#{diagramEditableView.onNewDiagram}"
+                                     update="form"/>
+                </h:panelGroup>
+            </h:form>
+        </p:layoutUnit>
+
+        <p:layoutUnit position="center" size="550" minSize="500" maxSize="600">
+
+            <h:form id="form" onclick="createVertexElement()">
+                <p:growl id="msgs" showDetail="true" />
+
+                <p:diagram value="#{diagramEditableView.model}" style="height:600px" styleClass="ui-widget-content" var="el" >
+                    <f:facet name="element" >
+                        <h:outputText value="#{el.name}" style="display:block;margin-top:1em;"/>
+                    </f:facet>
+                    <p:ajax event="connect" listener="#{diagramEditableView.onConnect}" />
+                    <p:ajax event="disconnect" listener="#{diagramEditableView.onDisconnect}" />
+                    <p:ajax event="connectionChange" listener="#{diagramEditableView.onConnectionChange}" />
+                </p:diagram>
+            </h:form>
+
+            <script type="text/javascript">
+                function createVertexElement(e){
+                    console.log("Click "+ e.clientX);
+
+                }
+                document.addEventListener("click", createVertexElement)
+            </script>
+
+            <style type="text/css">
+                .ui-diagram-element {
+                    border:0.1em dotted #E5E4E2;
+                    background-color: #EFEEEC;
+                    border-radius: 50%;
+                    width:6em;
+                    height:6em;
+                    text-align: center;
+                    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.8);
+                }
+
+                .ui-diagram-element:hover {
+                    background-color: #C7C6C4;
+                }
+            </style>
+        </p:layoutUnit>
+        <p:layoutUnit position="north" size="120" resizable="true" closable="true" collapsible="true">
+
+
+        </p:layoutUnit>
+    </p:layout>
+
+
+</h:body>
+</html>

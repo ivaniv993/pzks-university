@@ -25,7 +25,7 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import java.io.Serializable;
 
-@ManagedBean(name = "diagramEditableView")
+@ManagedBean(name = "diagramEditableViewBlaBla")
 @ViewScoped
 public class EditableView implements Serializable {
 
