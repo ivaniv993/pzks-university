@@ -9,9 +9,11 @@ import java.util.List;
 /**
  * Created by iivaniv on 22.03.2016.
  */
-@Component
 public interface TaskService {
 
     void saveVertex(List<Element> elements);
+
+
+
 
 }

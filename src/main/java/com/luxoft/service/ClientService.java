@@ -12,11 +12,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class ClientService {
 
-    @Autowired
+//    @Autowired
     ClientRepository clientRepository;
 
-    public Client saveClient(Client client){
-        System.out.println("RegistrationUserBean:: Registering user " + client.getFirstName() + " " + client.getLastName());
-        return clientRepository.save(client);
+    public void saveClient(){
+//        System.out.println("RegistrationUserBean:: Registering user " + client.getFirstName() + " " + client.getLastName());
+//        return clientRepository.save(client);
     }
 }

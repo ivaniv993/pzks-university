@@ -1,10 +1,7 @@
 package com.luxoft.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.*;
 import org.springframework.core.env.Environment;
 
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
@@ -36,9 +33,10 @@ import java.util.logging.Level;
  * Created by iivaniv on 02.07.2015.
  */
 @Configuration
-@EnableTransactionManagement
-@PropertySource({"classpath:app.properties"})
-@EnableJpaRepositories("com.luxoft.persistence.repository")
+//@EnableTransactionManagement
+//@PropertySource({"classpath:app.properties"})
+//@EnableJpaRepositories("com.luxoft.persistence.repository")
+@EnableAspectJAutoProxy
 @ComponentScan(basePackages = {"com.luxoft"})
 public class PersistenceConfig {
 
@@ -50,30 +48,30 @@ public class PersistenceConfig {
     @Resource
     private Environment env;
 
-    @Bean
-    public DataSource dataSource() {
-        DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName(env.getRequiredProperty(PROP_DATABASE_DRIVER));
-        dataSource.setUrl(env.getRequiredProperty(PROP_DATABASE_URL));
-        dataSource.setUsername(env.getRequiredProperty(PROP_DATABASE_USERNAME));
-        dataSource.setPassword(env.getRequiredProperty(PROP_DATABASE_PASSWORD));
-        return dataSource;
-    }
+//    @Bean
+//    public DataSource dataSource() {
+//        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+//        dataSource.setDriverClassName(env.getRequiredProperty(PROP_DATABASE_DRIVER));
+//        dataSource.setUrl(env.getRequiredProperty(PROP_DATABASE_URL));
+//        dataSource.setUsername(env.getRequiredProperty(PROP_DATABASE_USERNAME));
+//        dataSource.setPassword(env.getRequiredProperty(PROP_DATABASE_PASSWORD));
+//        return dataSource;
+//    }
 
-    @Autowired
-    @Bean
-    public JpaTransactionManager transactionManager(EntityManagerFactory entityManagerFactory, DataSource dataSource) {
-        JpaTransactionManager bean = new JpaTransactionManager(entityManagerFactory);
-        bean.setDataSource(dataSource);
-        return bean;
-    }
+//    @Autowired
+//    @Bean
+//    public JpaTransactionManager transactionManager(EntityManagerFactory entityManagerFactory, DataSource dataSource) {
+//        JpaTransactionManager bean = new JpaTransactionManager(entityManagerFactory);
+//        bean.setDataSource(dataSource);
+//        return bean;
+//    }
 
-    @Bean
+//    @Bean
     public HibernateExceptionTranslator hibernateExceptionTranslator() {
         return new HibernateExceptionTranslator();
     }
 
-    @Bean
+//    @Bean
     public EntityManagerFactory entityManagerFactory() {
         java.util.logging.Logger.getLogger("org.hibernate").setLevel(Level.INFO);
         HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
@@ -83,8 +81,8 @@ public class PersistenceConfig {
         LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
         factory.setJpaVendorAdapter(vendorAdapter);
         factory.setPackagesToScan("com.luxoft.entity");
-        factory.setDataSource(dataSource());
-        factory.afterPropertiesSet();
+//        factory.setDataSource(dataSource());
+//        factory.afterPropertiesSet();
         return factory.getObject();
     }
 

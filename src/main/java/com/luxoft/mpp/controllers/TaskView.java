@@ -1,15 +1,12 @@
 package com.luxoft.mpp.controllers;
 
-import com.luxoft.mpp.entity.model.Etl;
-import com.luxoft.mpp.entity.model.TaskVertex;
-import com.luxoft.mpp.entity.model.enumeration.TaskType;
-import com.luxoft.mpp.service.TaskService;
-import com.luxoft.mpp.service.TaskVertexServiceImpl;
+import com.luxoft.mpp.utils.LRUCache;
 import org.apache.log4j.Logger;
 import org.primefaces.context.RequestContext;
 import org.primefaces.event.diagram.ConnectEvent;
 import org.primefaces.event.diagram.ConnectionChangeEvent;
 import org.primefaces.event.diagram.DisconnectEvent;
+import org.primefaces.model.diagram.Connection;
 import org.primefaces.model.diagram.DefaultDiagramModel;
 import org.primefaces.model.diagram.DiagramModel;
 import org.primefaces.model.diagram.Element;
@@ -19,29 +16,40 @@ import org.primefaces.model.diagram.endpoint.EndPoint;
 import org.primefaces.model.diagram.endpoint.EndPointAnchor;
 import org.primefaces.model.diagram.endpoint.RectangleEndPoint;
 import org.primefaces.model.diagram.overlay.ArrowOverlay;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jmx.export.annotation.ManagedOperation;
+import org.primefaces.model.diagram.overlay.LabelOverlay;
+import org.primefaces.model.diagram.overlay.Overlay;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import java.io.Serializable;
-import java.util.List;
+import java.util.*;
+
 /**
  * Created by iivaniv on 18.03.2016.
+ *
  */
 @ManagedBean(name = "diagramEditableView")
 @ViewScoped
 public class TaskView implements Serializable {
+
     private DefaultDiagramModel model;
 
     private boolean suspendEvent;
 
+    private int taskDuration;
+
+    private int linkDuration;
+
+    private String description;
+
     final static Logger logger = Logger.getLogger(TaskView.class);
+
+    private LRUCache<Integer, Connection> connectionLRUCache = new LRUCache<Integer, Connection>(3);
+
+    private static int id=0;
 
     @PostConstruct
     public void init() {
@@ -54,61 +62,74 @@ public class TaskView implements Serializable {
         connector.setHoverPaintStyle("{strokeStyle:'#5C738B'}");
         model.setDefaultConnector(connector);
 
-        Element computerA = new Element(new NetworkElement("1", "computer-icon.png"), "10px", "60px");
-        EndPoint endPointCA = createRectangleEndPoint(EndPointAnchor.BOTTOM);
-        endPointCA.setSource(true);
-        computerA.addEndPoint(endPointCA);
+        id = 0;
 
-        Element computerB = new Element(new NetworkElement("2", "computer-icon.png"), "25em", "6em");
-        EndPoint endPointCB = createRectangleEndPoint(EndPointAnchor.BOTTOM);
-        endPointCB.setSource(true);
-        computerB.addEndPoint(endPointCB);
+        Element element = new Element(new NetworkElement(id++, taskDuration), "35em", "24em");
+        EndPoint endPoint = createDotEndPoint(EndPointAnchor.AUTO_DEFAULT);
+        element.setDraggable(true);
+        endPoint.setTarget(true);
+        element.addEndPoint(endPoint);
 
-        Element computerC = new Element(new NetworkElement("3", "computer-icon.png"), "40em", "6em");
-        EndPoint endPointCC = createRectangleEndPoint(EndPointAnchor.BOTTOM);
-        endPointCC.setSource(true);
-        computerC.addEndPoint(endPointCC);
+        EndPoint beginPoint = createRectangleEndPoint(EndPointAnchor.BOTTOM);
+        beginPoint.setSource(true);
+        element.addEndPoint(beginPoint);
 
-        Element serverA = new Element(new NetworkElement("4", "server-icon.png"), "15em", "24em");
-        EndPoint endPointSA = createDotEndPoint(EndPointAnchor.AUTO_DEFAULT);
-        serverA.setDraggable(false);
-        endPointSA.setTarget(true);
-        serverA.addEndPoint(endPointSA);
+        model.addElement(element);
 
-        Element serverB = new Element(new NetworkElement("5", "server-icon.png"), "35em", "24em");
-        EndPoint endPointSB = createDotEndPoint(EndPointAnchor.AUTO_DEFAULT);
-        serverB.setDraggable(false);
-        endPointSB.setTarget(true);
-        serverB.addEndPoint(endPointSB);
+        Element element1 = new Element(new NetworkElement(id++, taskDuration), "50em", "24em");
+        EndPoint endPoint1 = createDotEndPoint(EndPointAnchor.AUTO_DEFAULT);
+        element1.setDraggable(true);
+        endPoint1.setTarget(true);
+        element1.addEndPoint(endPoint1);
 
-        model.addElement(computerA);
-        model.addElement(computerB);
-        model.addElement(computerC);
-        model.addElement(serverA);
-        model.addElement(serverB);
+        EndPoint beginPoint1 = createRectangleEndPoint(EndPointAnchor.BOTTOM);
+        beginPoint1.setSource(true);
+        element1.addEndPoint(beginPoint1);
+
+        model.addElement(element1);
 
 
         logger.info("Init bean (View scope)");
     }
 
-    public DiagramModel getModel() {
-        return model;
-    }
 
+    public void updateConnection(){
+
+        Connection conn = connectionLRUCache.get(1);
+
+        conn.setOverlays(Collections.<Overlay>singletonList(new LabelOverlay(String.valueOf(getLinkDuration()), "flow-label", 0.5)));
+        RequestContext.getCurrentInstance().update("form");
+
+    }
 
     public void onConnect(ConnectEvent event) {
         if(!suspendEvent) {
             FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "Connected",
                     "From " + event.getSourceElement().getData()+ " To " + event.getTargetElement().getData());
-
             FacesContext.getCurrentInstance().addMessage(null, msg);
-
-            RequestContext.getCurrentInstance().update("form:msgs");
         }
         else {
             suspendEvent = false;
         }
+
+        Connection connection = createConnection(event.getSourceElement().getEndPoints().get(1), event.getTargetElement().getEndPoints().get(0), "0");
+        connectionLRUCache.put(1, connection);
+        model.connect(connection);
+        RequestContext.getCurrentInstance().update("form");
+
+
     }
+    private Connection createConnection(EndPoint from, EndPoint to, String label) {
+        Connection conn = new Connection(from, to);
+        conn.getOverlays().add(new ArrowOverlay(20, 20, 1, 1));
+
+        if(label != null) {
+            conn.getOverlays().add(new LabelOverlay(label, "flow-label", 0.5));
+        }
+
+        return conn;
+    }
+
 
     public void onDisconnect(DisconnectEvent event) {
         FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "Disconnected",
@@ -135,7 +156,7 @@ public class TaskView implements Serializable {
     public void orderVertex(DefaultDiagramModel model){
 
         List<Element> elements = model.getElements();
-        int x = 6, y = 6;
+        int x = 9, y = 6;
 
         for( int i =0; i < elements.size(); i ++ ) {
 
@@ -144,28 +165,38 @@ public class TaskView implements Serializable {
             if (i != 0 && i % 4 == 0) {
 
                 x = 6;
-                y += 5;
+                y += 9;
 
             }
-
-            x += 4;
-
+            x += 9;
         }
 
     }
 
-    public void onNewDiagram(){
-        logger.info("On new diagram");
+    public void addTask(){
 
-        Element serverA = new Element(new NetworkElement("4", "server-icon.png"), "15em", "24em");
-        EndPoint endPointSA = createDotEndPoint(EndPointAnchor.AUTO_DEFAULT);
-        serverA.setDraggable(false);
-        endPointSA.setTarget(true);
-        serverA.addEndPoint(endPointSA);
+        Element element = new Element(new NetworkElement(id++, getTaskDuration()), "35em", "24em");
+        EndPoint endPoint = createDotEndPoint(EndPointAnchor.AUTO_DEFAULT);
+        element.setDraggable(true);
+        endPoint.setTarget(true);
+        element.addEndPoint(endPoint);
 
-        model.addElement(serverA);
+        EndPoint beginPoint = createRectangleEndPoint(EndPointAnchor.BOTTOM);
+        beginPoint.setSource(true);
+        element.addEndPoint(beginPoint);
+
+        model.addElement(element);
 
         orderVertex(model);
+    }
+
+    public void editTask(){
+
+    }
+
+    public void onNewDiagram() {
+        logger.info("On new diagram");
+
     }
 
     public void saveGraph(){
@@ -194,39 +225,70 @@ public class TaskView implements Serializable {
 
     public class NetworkElement implements Serializable {
 
-        private String name;
-        private String image;
+        private int id;
+
+        private int taskDuration;
 
         public NetworkElement() {
         }
 
-        public NetworkElement(String name, String image) {
-            this.name = name;
-            this.image = image;
+        public NetworkElement(int id, int duratuion) {
+            this.id = id;
+            this.taskDuration = duratuion;
         }
 
-        public String getName() {
-            return name;
+        public int getId() {
+            return id;
         }
 
-        public void setName(String name) {
-            this.name = name;
+        public void setId(int id) {
+            this.id = id;
         }
 
-        public String getImage() {
-            return image;
+        public int getTaskDuration() {
+            return taskDuration;
         }
 
-        public void setImage(String image) {
-            this.image = image;
+        public void setTaskDuration(int taskDuration) {
+            this.taskDuration = taskDuration;
         }
 
         @Override
         public String toString() {
-            return name;
+            return String.valueOf(id);
         }
 
     }
+
+    public DiagramModel getModel() {
+        return model;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+
+    public int getLinkDuration() {
+        return linkDuration;
+    }
+
+    public void setLinkDuration(int linkDuration) {
+        this.linkDuration = linkDuration;
+    }
+
+    public int getTaskDuration() {
+        return taskDuration;
+    }
+
+    public void setTaskDuration(int taskDuration) {
+        this.taskDuration = taskDuration;
+    }
+
 }
 
 

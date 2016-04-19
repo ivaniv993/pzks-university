@@ -20,7 +20,7 @@ public class StartupListener implements ServletContextListener {
 
         DOMConfigurator.configure(servletContextEvent.getServletContext().getRealPath(logFile));
         Logger logger = LogManager.getLogger(StartupListener.class.getName());
-        logger.debug("Loaded");
+        logger.info("Loaded");
     }
 
     @Override
