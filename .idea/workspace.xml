@@ -2,9 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a0fa3c23-44a1-44bf-932a-63c54e598c51" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/com/luxoft/mpp/utils/LRUCache.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/com/luxoft/mpp/aspects/LogAspect.java" />
-      <change type="DELETED" beforePath="C:\Users\iivaniv\IdeaProjects\IS1\IS\.idea\libraries\Maven__org_aspectj_aspectjrt_1_8_5.xml" afterPath="" />
       <change type="DELETED" beforePath="C:\Users\iivaniv\IdeaProjects\IS1\IS\src\.idea\.name" afterPath="" />
       <change type="DELETED" beforePath="C:\Users\iivaniv\IdeaProjects\IS1\IS\src\.idea\compiler.xml" afterPath="" />
       <change type="DELETED" beforePath="C:\Users\iivaniv\IdeaProjects\IS1\IS\src\.idea\copyright\profiles_settings.xml" afterPath="" />
@@ -13,40 +10,13 @@
       <change type="DELETED" beforePath="C:\Users\iivaniv\IdeaProjects\IS1\IS\src\.idea\src.iml" afterPath="" />
       <change type="DELETED" beforePath="C:\Users\iivaniv\IdeaProjects\IS1\IS\src\.idea\vcs.xml" afterPath="" />
       <change type="DELETED" beforePath="C:\Users\iivaniv\IdeaProjects\IS1\IS\src\.idea\workspace.xml" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\iivaniv\IdeaProjects\IS1\IS\src\main\java\com\luxoft\controller\AuthenticationService.java" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\iivaniv\IdeaProjects\IS1\IS\src\main\java\com\luxoft\controller\MenuView.java" afterPath="" />
       <change type="DELETED" beforePath="C:\Users\iivaniv\IdeaProjects\IS1\IS\target\IS\WEB-INF\classes\com\luxoft\controller\MenuView.class" afterPath="" />
       <change type="DELETED" beforePath="C:\Users\iivaniv\IdeaProjects\IS1\IS\target\IS\WEB-INF\classes\com\luxoft\mpp\service\TaskVertexServiceImpl.class" afterPath="" />
       <change type="DELETED" beforePath="C:\Users\iivaniv\IdeaProjects\IS1\IS\target\IS\WEB-INF\lib\aspectjrt-1.8.5.jar" afterPath="" />
       <change type="DELETED" beforePath="C:\Users\iivaniv\IdeaProjects\IS1\IS\target\IS\pages\user\task_graph.xhtml" afterPath="" />
       <change type="DELETED" beforePath="C:\Users\iivaniv\IdeaProjects\IS1\IS\target\classes\com\luxoft\controller\MenuView.class" afterPath="" />
       <change type="DELETED" beforePath="C:\Users\iivaniv\IdeaProjects\IS1\IS\target\classes\com\luxoft\mpp\service\TaskVertexServiceImpl.class" afterPath="" />
-      <change type="MOVED" beforePath="C:\Users\iivaniv\IdeaProjects\IS1\IS\src\main\java\com\luxoft\mpp\service\TaskVertexServiceImpl.java" afterPath="$PROJECT_DIR$/src/main/java/com/luxoft/mpp/service/TaskServiceImpl.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/IS/WEB-INF/classes/com/luxoft/service/ClientService.class" afterPath="$PROJECT_DIR$/target/IS/WEB-INF/classes/com/luxoft/service/ClientService.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/com/luxoft/service/ClientService.class" afterPath="$PROJECT_DIR$/target/classes/com/luxoft/service/ClientService.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/IS.war" afterPath="$PROJECT_DIR$/target/IS.war" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/IS/WEB-INF/classes/com/luxoft/config/PersistenceConfig.class" afterPath="$PROJECT_DIR$/target/IS/WEB-INF/classes/com/luxoft/config/PersistenceConfig.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/com/luxoft/config/PersistenceConfig.class" afterPath="$PROJECT_DIR$/target/classes/com/luxoft/config/PersistenceConfig.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/IS/WEB-INF/classes/com/luxoft/mpp/service/TaskService.class" afterPath="$PROJECT_DIR$/target/IS/WEB-INF/classes/com/luxoft/mpp/service/TaskService.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/com/luxoft/mpp/service/TaskService.class" afterPath="$PROJECT_DIR$/target/classes/com/luxoft/mpp/service/TaskService.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/IS/WEB-INF/classes/com/luxoft/mpp/controllers/TaskView$NetworkElement.class" afterPath="$PROJECT_DIR$/target/IS/WEB-INF/classes/com/luxoft/mpp/controllers/TaskView$NetworkElement.class" />
-      <change type="MODIFICATION" beforePath="C:\Users\iivaniv\IdeaProjects\IS1\IS\target\classes\com\luxoft\mpp\controllers\TaskView$NetworkElement.class" afterPath="C:\Users\iivaniv\IdeaProjects\IS1\IS\target\classes\com\luxoft\mpp\controllers\TaskView$NetworkElement.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/IS/WEB-INF/classes/com/luxoft/mpp/controllers/TaskView.class" afterPath="$PROJECT_DIR$/target/IS/WEB-INF/classes/com/luxoft/mpp/controllers/TaskView.class" />
-      <change type="MODIFICATION" beforePath="C:\Users\iivaniv\IdeaProjects\IS1\IS\target\classes\com\luxoft\mpp\controllers\TaskView.class" afterPath="C:\Users\iivaniv\IdeaProjects\IS1\IS\target\classes\com\luxoft\mpp\controllers\TaskView.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/luxoft/service/ClientService.java" afterPath="$PROJECT_DIR$/src/main/java/com/luxoft/service/ClientService.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/IS.iml" afterPath="$PROJECT_DIR$/IS.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/artifacts/IS_war_exploded.xml" afterPath="$PROJECT_DIR$/.idea/artifacts/IS_war_exploded.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/surefire-reports/ManualTest.TestClientService.txt" afterPath="$PROJECT_DIR$/target/surefire-reports/ManualTest.TestClientService.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/luxoft/config/PersistenceConfig.java" afterPath="$PROJECT_DIR$/src/main/java/com/luxoft/config/PersistenceConfig.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/luxoft/StartupListener.java" afterPath="$PROJECT_DIR$/src/main/java/com/luxoft/StartupListener.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-ManualTest.TestClientService.xml" afterPath="$PROJECT_DIR$/target/surefire-reports/TEST-ManualTest.TestClientService.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/luxoft/mpp/service/TaskService.java" afterPath="$PROJECT_DIR$/src/main/java/com/luxoft/mpp/service/TaskService.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/luxoft/mpp/controllers/TaskView.java" afterPath="$PROJECT_DIR$/src/main/java/com/luxoft/mpp/controllers/TaskView.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/maven-archiver/pom.properties" afterPath="$PROJECT_DIR$/target/maven-archiver/pom.properties" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pom.xml" afterPath="$PROJECT_DIR$/pom.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/webapp/pages/mpp/task_graph.xhtml" afterPath="$PROJECT_DIR$/src/main/webapp/pages/mpp/task_graph.xhtml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/IS/pages/mpp/task_graph.xhtml" afterPath="$PROJECT_DIR$/target/IS/pages/mpp/task_graph.xhtml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/luxoft/mpp/service/TaskServiceImpl.java" afterPath="$PROJECT_DIR$/src/main/java/com/luxoft/mpp/service/TaskServiceImpl.java" />
     </list>
     <ignored path="IS.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -86,7 +56,7 @@
         <entry file="file://$PROJECT_DIR$/src/main/java/com/luxoft/service/ClientService.java">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="17" column="29" selection-start-line="17" selection-start-column="29" selection-end-line="17" selection-end-column="29" />
+              <caret line="12" column="28" selection-start-line="12" selection-start-column="28" selection-end-line="12" selection-end-column="28" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -204,11 +174,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="LRUCache.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="LRUCache.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/com/luxoft/mpp/utils/LRUCache.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.4835443">
-              <caret line="14" column="43" selection-start-line="14" selection-start-column="43" selection-end-line="14" selection-end-column="43" />
+            <state vertical-scroll-proportion="0.0">
+              <caret line="11" column="0" selection-start-line="11" selection-start-column="0" selection-end-line="11" selection-end-column="0" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="e#421#422#0" expanded="true" />
@@ -243,7 +213,9 @@
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
               <caret line="66" column="17" selection-start-line="66" selection-start-column="17" selection-end-line="66" selection-end-column="17" />
-              <folding />
+              <folding>
+                <element signature="e#0#1992#0" expanded="false" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -472,12 +444,25 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="TaskServiceImpl.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="TaskServiceImpl.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/com/luxoft/mpp/service/TaskServiceImpl.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="21" column="35" selection-start-line="21" selection-start-column="35" selection-end-line="21" selection-end-column="35" />
+            <state vertical-scroll-proportion="0.6757493">
+              <caret line="62" column="20" selection-start-line="62" selection-start-column="20" selection-end-line="62" selection-end-column="20" />
               <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Arrays.java" pinned="false" current-in-tab="false">
+        <entry file="jar://C:/Program Files/Java/jdk1.7.0_79/src.zip!/java/util/Arrays.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="2827" column="31" selection-start-line="2827" selection-start-column="31" selection-end-line="2827" selection-end-column="32" />
+              <folding>
+                <element signature="e#128641#128642#0" expanded="true" />
+                <element signature="e#128682#128683#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -593,12 +578,12 @@
         <option value="$PROJECT_DIR$/src/main/java/com/luxoft/mpp/controllers/LogAspect1.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/luxoft/mpp/service/TaskVertexServiceImpl.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/luxoft/mpp/aspects/LogAspect.java" />
-        <option value="$PROJECT_DIR$/src/main/java/com/luxoft/mpp/service/TaskServiceImpl.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/luxoft/mpp/service/TaskService.java" />
         <option value="$PROJECT_DIR$/src/main/webapp/pages/mpp/task_graph.xhtml" />
         <option value="$PROJECT_DIR$/src/main/java/com/luxoft/mpp/utils/LRUCashe.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/luxoft/mpp/utils/LRUCache.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/luxoft/mpp/controllers/TaskView.java" />
+        <option value="$PROJECT_DIR$/src/main/java/com/luxoft/mpp/service/TaskServiceImpl.java" />
       </list>
     </option>
   </component>
@@ -2017,16 +2002,16 @@
       <workItem from="1458227621253" duration="1485000" />
       <workItem from="1459437506258" duration="38988000" />
       <workItem from="1460376899671" duration="1063000" />
-      <workItem from="1460981159321" duration="27020000" />
+      <workItem from="1460981159321" duration="28706000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="148718000" />
+    <option name="totallyTimeSpent" value="150404000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="1911" y="-9" width="1938" height="1098" extended-state="6" />
-    <editor active="false" />
+    <editor active="true" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -2041,7 +2026,7 @@
       <window_info id="Spring" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32925472" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.2026738" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.2026738" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Bean Validation" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Web" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="true" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.171123" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
@@ -2101,13 +2086,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="jar://$MAVEN_REPOSITORY$/org/springframework/spring-web/4.1.6.RELEASE/spring-web-4.1.6.RELEASE-sources.jar!/org/springframework/web/context/ContextLoaderListener.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.36396396">
-          <caret line="41" column="0" selection-start-line="41" selection-start-column="0" selection-end-line="41" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$MAVEN_REPOSITORY$/org/springframework/spring-web/4.1.6.RELEASE/spring-web-4.1.6.RELEASE-sources.jar!/org/springframework/web/context/support/AbstractRefreshableWebApplicationContext.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.33333334">
@@ -2341,16 +2319,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/luxoft/service/ClientService.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="17" column="29" selection-start-line="17" selection-start-column="29" selection-end-line="17" selection-end-column="29" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$MAVEN_REPOSITORY$/org/primefaces/primefaces/5.3/primefaces-5.3.jar!/org/primefaces/model/diagram/endpoint/EndPoint.class">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.04347826">
@@ -2484,7 +2452,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="66" column="17" selection-start-line="66" selection-start-column="17" selection-end-line="66" selection-end-column="17" />
-          <folding />
+          <folding>
+            <element signature="e#0#1992#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -2534,23 +2504,44 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/luxoft/mpp/service/TaskServiceImpl.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/luxoft/service/ClientService.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="21" column="35" selection-start-line="21" selection-start-column="35" selection-end-line="21" selection-end-column="35" />
-          <folding />
+          <caret line="12" column="28" selection-start-line="12" selection-start-column="28" selection-end-line="12" selection-end-column="28" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/luxoft/mpp/utils/LRUCache.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.4835443">
-          <caret line="14" column="43" selection-start-line="14" selection-start-column="43" selection-end-line="14" selection-end-column="43" />
+        <state vertical-scroll-proportion="0.0">
+          <caret line="11" column="0" selection-start-line="11" selection-start-column="0" selection-end-line="11" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="e#421#422#0" expanded="true" />
             <element signature="e#475#476#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://C:/Program Files/Java/jdk1.7.0_79/src.zip!/java/util/Arrays.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="2827" column="31" selection-start-line="2827" selection-start-column="31" selection-end-line="2827" selection-end-column="32" />
+          <folding>
+            <element signature="e#128641#128642#0" expanded="true" />
+            <element signature="e#128682#128683#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/luxoft/mpp/service/TaskServiceImpl.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.6757493">
+          <caret line="62" column="20" selection-start-line="62" selection-start-column="20" selection-end-line="62" selection-end-column="20" />
+          <folding />
         </state>
       </provider>
     </entry>
