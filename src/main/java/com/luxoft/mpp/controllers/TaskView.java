@@ -200,8 +200,8 @@ public class TaskView implements Serializable {
 
         for( int i =0; i < elements.size(); i ++ ) {
 
-            elements.get(i).setX(x + "em");
-            elements.get(i).setY(y + "em");
+            elements.get(i).setX(x + "px");
+            elements.get(i).setY(y + "px");
             if (i != 0 && i % 4 == 0) {
 
                 x = 6;
@@ -215,7 +215,7 @@ public class TaskView implements Serializable {
 
     public void addTask(){
 
-        Element element = new Element(new NetworkElement(id++, taskDuration), "35em", "24em");
+        Element element = new Element(new NetworkElement(id++, taskDuration), "350px", "24px");
         EndPoint endPoint = createDotEndPoint(EndPointAnchor.AUTO_DEFAULT);
         endPoint.setId(String.valueOf(id)+"_TARGET");
         element.setDraggable(true);

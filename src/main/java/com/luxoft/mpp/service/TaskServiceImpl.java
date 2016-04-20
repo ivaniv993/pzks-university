@@ -38,7 +38,7 @@ public class TaskServiceImpl implements TaskService {
 
         for (int i = 0; i < lm.length; i++) {
             for (int j = 0; j < lm[i].length; j++) {
-                passedWay[j] = true;
+                passedWay[i] = true;
                 if (lm[i][j] != 0) {
 
                     if (passedWay[j])
@@ -49,6 +49,7 @@ public class TaskServiceImpl implements TaskService {
                 }
 
             }
+
 
         }
         return false;
