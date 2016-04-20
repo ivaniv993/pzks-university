@@ -9,7 +9,7 @@ import java.util.*;
  * Created by iivaniv on 22.03.2016.
  *
  */
-@Service("taskVertexServiceImpl")
+@Service("taskServiceImpl")
 public class TaskServiceImpl implements TaskService {
 
     private int[][] lm = new int[0][0];
@@ -26,47 +26,59 @@ public class TaskServiceImpl implements TaskService {
     }
 
 
-    public void updateVertex( int duration ){
-
-        List<Integer> v = Arrays.asList(vertex);
-        v.add(duration);
-        v.toArray(vertex);
-
-    }
-
-    public void updateTaskModel(int from, int to, int value){
-
-        if ( value < 0){
-            throw new IllegalArgumentException(value +" can`t be lover zero ");
-        }
-
-        if ( from <= lm[0].length && from >= lm.length){
-            throw new IllegalArgumentException(from +" out of array ");
-        }
-
-        if ( to <= lm[0].length && to >= lm.length){
-            throw new IllegalArgumentException(to +" out of array ");
-        }
-
-        lm[from][to] = value;
-
-    }
 
 
-    public void isLoop(){
 
-        for( int i = 0; i < lm.length; i ++ ){
+    public boolean isLoop(int[][] lm ){
 
-            for ( int j  = 0; j < lm[i].length; j++ ){
+        boolean[] passedWay = new boolean[lm.length];
 
-                if (lm[i][j] != 0){
-                    
+        if ( ! findHangingVertex(lm).isEmpty())
+            return false;
+
+        for (int i = 0; i < lm.length; i++) {
+            for (int j = 0; j < lm[i].length; j++) {
+                passedWay[j] = true;
+                if (lm[i][j] != 0) {
+
+                    if (passedWay[j])
+                        return true;
+
+                    i = j;
+                    break;
                 }
 
             }
 
         }
+        return false;
 
+    }
+
+    private List<Integer> findHangingVertex( int[][] lm ){
+
+        List<Integer> result = new ArrayList<Integer>();
+        for ( int i = 0; i < lm.length; i++ ){
+
+            if (isEmptyColumn(lm, i) && isEmptyRow(lm, i))
+                result.add(i);
+
+        }
+        return result;
+    }
+
+    private boolean isEmptyRow( int[][] matrix,  int y ){
+        for (int i =0; i < matrix.length; i++ )
+            if (matrix[y][i] != 0)
+                return false;
+        return true;
+    }
+
+    private boolean isEmptyColumn( int[][] matrix,  int x ){
+        for (int i =0; i < matrix[x].length; i++ )
+            if (matrix[i][x] != 0)
+                return false;
+        return true;
     }
 
 }

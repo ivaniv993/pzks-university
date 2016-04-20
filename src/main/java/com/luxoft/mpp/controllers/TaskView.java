@@ -1,5 +1,6 @@
 package com.luxoft.mpp.controllers;
 
+import com.luxoft.mpp.service.TaskService;
 import com.luxoft.mpp.utils.LRUCache;
 import org.apache.log4j.Logger;
 import org.primefaces.context.RequestContext;
@@ -22,6 +23,7 @@ import org.primefaces.model.diagram.overlay.Overlay;
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import java.io.Serializable;
@@ -35,6 +37,8 @@ import java.util.*;
 @ViewScoped
 public class TaskView implements Serializable {
 
+    final static Logger logger = Logger.getLogger(TaskView.class);
+
     private DefaultDiagramModel model;
 
     private boolean suspendEvent;
@@ -45,9 +49,14 @@ public class TaskView implements Serializable {
 
     private String description;
 
-    final static Logger logger = Logger.getLogger(TaskView.class);
+
+    private int[][] lm = new int[0][0];
+    private Integer[] vertex = new Integer[0];
 
     private LRUCache<Integer, Connection> connectionLRUCache = new LRUCache<Integer, Connection>(3);
+
+    @ManagedProperty("#{taskServiceImpl}")
+    private TaskService taskServiceImpl;
 
     private static int id=0;
 
@@ -64,32 +73,57 @@ public class TaskView implements Serializable {
 
         id = 0;
 
-        Element element = new Element(new NetworkElement(id++, taskDuration), "35em", "24em");
-        EndPoint endPoint = createDotEndPoint(EndPointAnchor.AUTO_DEFAULT);
-        element.setDraggable(true);
-        endPoint.setTarget(true);
-        element.addEndPoint(endPoint);
+        addTask();
+        addTask();
 
-        EndPoint beginPoint = createRectangleEndPoint(EndPointAnchor.BOTTOM);
-        beginPoint.setSource(true);
-        element.addEndPoint(beginPoint);
-
-        model.addElement(element);
-
-        Element element1 = new Element(new NetworkElement(id++, taskDuration), "50em", "24em");
-        EndPoint endPoint1 = createDotEndPoint(EndPointAnchor.AUTO_DEFAULT);
-        element1.setDraggable(true);
-        endPoint1.setTarget(true);
-        element1.addEndPoint(endPoint1);
-
-        EndPoint beginPoint1 = createRectangleEndPoint(EndPointAnchor.BOTTOM);
-        beginPoint1.setSource(true);
-        element1.addEndPoint(beginPoint1);
-
-        model.addElement(element1);
 
 
         logger.info("Init bean (View scope)");
+    }
+
+    public void updateVertex( int duration, int id ){
+
+        List<Integer> v = new ArrayList<Integer>();
+        Collections.addAll(v, vertex);
+        v.add(duration);
+        v.toArray(vertex);
+
+
+        List<Element> elements = getModel().getElements();
+        List<Connection> connections = getModel().getConnections();
+        lm = new int[elements.size()][elements.size()];
+
+        String regex = "[^0-9]";
+        for( Connection conn : connections){
+
+            String sourceId = conn.getSource().getId().replaceAll(regex, "");
+            String targetId = conn.getTarget().getId().replaceAll(regex, "");
+
+            int source =  Integer.valueOf(sourceId);
+            int target =  Integer.valueOf(targetId);
+
+            lm[source][target] = duration;
+
+        }
+
+    }
+
+    public void updateTaskModel(int from, int to, int value){
+
+        if ( value < 0){
+            throw new IllegalArgumentException(value +" can`t be lover zero ");
+        }
+
+        if ( from <= lm[0].length && from >= lm.length){
+            throw new IllegalArgumentException(from +" out of array ");
+        }
+
+        if ( to <= lm[0].length && to >= lm.length){
+            throw new IllegalArgumentException(to +" out of array ");
+        }
+
+        lm[from][to] = value;
+
     }
 
 
@@ -98,6 +132,7 @@ public class TaskView implements Serializable {
         Connection conn = connectionLRUCache.get(1);
 
         conn.setOverlays(Collections.<Overlay>singletonList(new LabelOverlay(String.valueOf(getLinkDuration()), "flow-label", 0.5)));
+        updateTaskModel(((NetworkElement) sourceElement.getData()).getId(), ((NetworkElement) targetElement.getData()).getId(), getLinkDuration());
         RequestContext.getCurrentInstance().update("form");
 
     }
@@ -115,10 +150,15 @@ public class TaskView implements Serializable {
         Connection connection = createConnection(event.getSourceElement().getEndPoints().get(1), event.getTargetElement().getEndPoints().get(0), "0");
         connectionLRUCache.put(1, connection);
         model.connect(connection);
+
+        sourceElement = event.getSourceElement();
+        targetElement = event.getTargetElement();
+
         RequestContext.getCurrentInstance().update("form");
-
-
     }
+
+    private Element sourceElement, targetElement;
+
     private Connection createConnection(EndPoint from, EndPoint to, String label) {
         Connection conn = new Connection(from, to);
         conn.getOverlays().add(new ArrowOverlay(20, 20, 1, 1));
@@ -175,22 +215,36 @@ public class TaskView implements Serializable {
 
     public void addTask(){
 
-        Element element = new Element(new NetworkElement(id++, getTaskDuration()), "35em", "24em");
+        Element element = new Element(new NetworkElement(id++, taskDuration), "35em", "24em");
         EndPoint endPoint = createDotEndPoint(EndPointAnchor.AUTO_DEFAULT);
+        endPoint.setId(String.valueOf(id)+"_TARGET");
         element.setDraggable(true);
         endPoint.setTarget(true);
         element.addEndPoint(endPoint);
 
         EndPoint beginPoint = createRectangleEndPoint(EndPointAnchor.BOTTOM);
+        beginPoint.setId(String.valueOf(id)+"_SOURCE");
         beginPoint.setSource(true);
         element.addEndPoint(beginPoint);
 
         model.addElement(element);
 
+        updateVertex(taskDuration, id);
+
         orderVertex(model);
     }
 
-    public void editTask(){
+
+    public void run(){
+
+        if (taskServiceImpl.isLoop(lm)){
+            FacesContext context = FacesContext.getCurrentInstance();
+
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Warning", "Your graph have loop "));
+            RequestContext.getCurrentInstance().update("form:msgs");
+            return;
+        }
+//        taskServiceImpl.saveVertex();
 
     }
 
@@ -287,6 +341,14 @@ public class TaskView implements Serializable {
 
     public void setTaskDuration(int taskDuration) {
         this.taskDuration = taskDuration;
+    }
+
+    public TaskService getTaskServiceImpl() {
+        return taskServiceImpl;
+    }
+
+    public void setTaskServiceImpl(TaskService taskServiceImpl) {
+        this.taskServiceImpl = taskServiceImpl;
     }
 
 }

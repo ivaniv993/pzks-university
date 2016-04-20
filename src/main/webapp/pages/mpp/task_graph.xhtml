@@ -40,6 +40,7 @@
                              actionListener="#{diagramEditableView.addTask}"
                              update="form"/>
 
+
         </p:dialog>
     </h:form>
 
@@ -78,6 +79,9 @@
                     <p:commandButton value="Open" icon="ui-icon-arrowrefresh-1-w"  />
 
                     <p:commandButton value="Save" actionListener="#{diagramEditableView.saveGraph}"/>
+
+                    <p:commandButton value="Run" actionListener="#{diagramEditableView.run}" update="form"/>
+
                 </h:panelGroup>
             </h:form>
 

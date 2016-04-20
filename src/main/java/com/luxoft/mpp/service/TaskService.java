@@ -13,6 +13,8 @@ public interface TaskService {
 
     void saveVertex(List<Element> elements);
 
+    boolean isLoop(int[][] lm );
+
 
 
 
