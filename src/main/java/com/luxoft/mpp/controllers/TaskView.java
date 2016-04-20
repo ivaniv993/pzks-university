@@ -4,6 +4,7 @@ import com.luxoft.mpp.service.TaskService;
 import com.luxoft.mpp.utils.LRUCache;
 import org.apache.log4j.Logger;
 import org.primefaces.context.RequestContext;
+import org.primefaces.event.SelectEvent;
 import org.primefaces.event.diagram.ConnectEvent;
 import org.primefaces.event.diagram.ConnectionChangeEvent;
 import org.primefaces.event.diagram.DisconnectEvent;
@@ -19,12 +20,14 @@ import org.primefaces.model.diagram.endpoint.RectangleEndPoint;
 import org.primefaces.model.diagram.overlay.ArrowOverlay;
 import org.primefaces.model.diagram.overlay.LabelOverlay;
 import org.primefaces.model.diagram.overlay.Overlay;
+import org.primefaces.push.EventBusFactory;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import java.io.Serializable;
 import java.util.*;
@@ -213,9 +216,13 @@ public class TaskView implements Serializable {
 
     }
 
-    public void addTask(){
 
-        Element element = new Element(new NetworkElement(id++, taskDuration), "350px", "24px");
+    public void addTask( ){
+
+        String x = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("clientX");
+        String y = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("clientY");
+
+        Element element = new Element(new NetworkElement(id++, taskDuration), x+"px", y+"px");
         EndPoint endPoint = createDotEndPoint(EndPointAnchor.AUTO_DEFAULT);
         endPoint.setId(String.valueOf(id)+"_TARGET");
         element.setDraggable(true);
@@ -231,7 +238,7 @@ public class TaskView implements Serializable {
 
         updateVertex(taskDuration, id);
 
-        orderVertex(model);
+//        orderVertex(model);
     }
 
 

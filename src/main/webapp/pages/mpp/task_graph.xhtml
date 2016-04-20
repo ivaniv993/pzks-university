@@ -97,10 +97,13 @@
 
         <p:layoutUnit position="center" size="550" minSize="500" maxSize="600">
 
-            <h:form id="form" onclick="createVertexElement()">
+            <h:form id="form" ondblclick="createVertexElement([{name: 'clientX', value: event.clientX}, {name: 'clientY', value: event.clientY}])">
                 <p:growl id="msgs" showDetail="true" />
 
-                <p:diagram value="#{diagramEditableView.model}" style="height:600px" styleClass="ui-widget-content" var="el" >
+                <p:remoteCommand name="createVertexElement" actionListener="#{diagramEditableView.addTask()}" update="form"/>
+
+                <p:diagram value="#{diagramEditableView.model}" style="height:600px" styleClass="ui-widget-content" var="el"  >
+
                     <f:facet name="element" >
                         <h:outputText value="#{el.id}" style="display:block;margin-top:1em;"/>
                         <h:outputText value="#{el.taskDuration}" style="display:block;margin-top:1em;"/>
@@ -111,13 +114,6 @@
                 </p:diagram>
             </h:form>
 
-            <script type="text/javascript">
-                function createVertexElement(e){
-                    console.log("Click "+ e.clientX);
-
-                }
-                document.addEventListener("click", createVertexElement)
-            </script>
 
             <style type="text/css">
                 .ui-diagram-element {
