@@ -24,58 +24,6 @@
         <ui:include src="../mppmenu.xhtml"/>
     </f:view>
 
-    <h:form id="add-product">
-        <p:dialog header="Modal Dialog" id="addProdDialog" widgetVar="dlg2" modal="true" dynamic="true"
-                  style="width: 200px" width="445">
-            <h:panelGrid columns="2" cellpadding="5">
-                <h:outputLabel for="name" value="Enter Name:"/>
-                <p:inputText id="name" value="#{editController.product.name}" placeholder="Vertex name"
-                             required="true" label="name" requiredMessage="Product name is required"
-                             style="width: 100%">
-                    <f:validateRegex pattern="((?=.*[A-Z])(?=.*[a-z]).{3,})"/>
-                </p:inputText>
-
-                <p:outputLabel for="description" value="Vertex description:"/>
-                <p:inputText id="description" value="#{editController.product.description}" style="width: 100%"
-                             placeholder="Description" label="description">
-                </p:inputText>
-
-                <h:outputLabel for="price" value="Topology:"/>
-                <p:inputText id="price" value="#{editController.product.price}" placeholder="Topology" style="width: 100%"
-                             required="true" requiredMessage="Topology is required">
-                    <f:validateDoubleRange minimum="0.1" maximum="100000"/>
-                </p:inputText>
-
-                <p:outputLabel for="prodType" value="Processor. Type: "/>
-                <p:selectOneMenu id="prodType" value="#{editController.prodType}" style="width: 100%">
-                    <p:ajax listener="#{editController.onProductTypeChange}" update="prodSubType prodCategory"/>
-                    <f:selectItem itemLabel="Select Prod. Type" itemValue="" noSelectionOption="true"/>
-                    <f:selectItems value="#{editController.productTypeNames}"/>
-                </p:selectOneMenu>
-
-                <p:commandButton value="feature" id="new1" icon="ui-icon-plus"
-                                 action="#{editController.addFeature}"
-                                 update="tiles" immediate="true"/>
-            </h:panelGrid>
-
-            <p:panel id="tiles">
-                <ui:repeat var="feature" value="#{editController.features}">
-                    <p:autoComplete value="#{feature.name}" style="width: 100%"
-                                    completeMethod="#{editController.completeFeatureName}" effect="fade"
-                                    placeholder="Status" styleClass="criterie-field-layout">
-                        <p:ajax event="blur" listener="#{editController.onItemSelect}"/>
-                    </p:autoComplete>
-                </ui:repeat>
-            </p:panel>
-
-            <p:button value="Close" id="close" icon="ui-icon-minus" onclick="PF('dlg2').hide();return false;" style="left: 5%;right: 50%"/>
-            <p:commandButton value="Save" id="save" icon="ui-icon-disk" actionListener="#{editController.onSaveProduct}"
-                             onComplete="PF('dlg2').show()" style="right: 15%;left: 40%"
-                             update="addProdDialog :prod-table:products1 :prod-table:msgs"/>
-
-        </p:dialog>
-    </h:form>
-
 
     <p:layout style="min-width:400px;min-height:200px;" id="main-layout">
         <p:layoutUnit position="north" size="150" resizable="true" closable="true" collapsible="true">
@@ -85,12 +33,12 @@
 
                 <h:panelGroup>
                     <p:commandButton value="New graph" icon="ui-icon-disk"
-                                     actionListener="#{taskGraphController.onNewDiagram}"
-                                     update="diagram"/>
+                                     actionListener="#{editableCSView.onNewDiagram}"
+                                     update="form"/>
 
                     <p:commandButton value="Open" icon="ui-icon-arrowrefresh-1-w"  />
 
-                    <p:commandButton value="Save" actionListener="#{taskGraphController.saveGraph}"/>
+                    <p:commandButton value="Save" actionListener="#{editableCSView.saveGraph}"/>
                 </h:panelGroup>
             </h:form>
 
@@ -122,80 +70,20 @@
                 }
             </style>
 
-            <p:diagram value="#{diagramHierarchicalView.model}" style="height:600px" styleClass="ui-widget-content" id="diagram"/>
-            <h:form id="prod-table">
-                <p:growl id="msgs" showDetail="true"/>
-                <p:dataTable id="products1" var="product" value="#{editController.products}" editable="true"
-                             scrollable="true" scrollHeight="450" style="margin-bottom:20px"
-                             selectionMode="single" selection="#{editController.selectedProduct}"
-                             rowKey="#{product.productId}">
-                    <f:facet name="header">
-                        Products
+            <h:form id="form" ondblclick="createVertexElement([{name: 'clientX', value: event.clientX}, {name: 'clientY', value: event.clientY}])">
+                <p:growl id="msgs" showDetail="true" />
+
+                <p:remoteCommand name="createVertexElement" actionListener="#{editableCSView.addVertex()}" update="form"/>
+
+                <p:diagram value="#{editableCSView.model}" style="height:600px" styleClass="ui-widget-content" var="el"  >
+
+                    <f:facet name="element" >
+                        <h:outputText value="#{el.id}" style="display:block;margin-top:1em;"/>
                     </f:facet>
-
-                    <p:ajax event="rowEdit" listener="#{editController.onRowEdit}" update=":prod-table:msgs"/>
-                    <p:ajax event="rowEditCancel" update=":prod-table:msgs"/>
-
-                    <p:column headerText="Name" sortBy="#{product.name}" sortable="true">
-                        <p:cellEditor>
-                            <f:facet name="output"><h:outputText value="#{product.name}"/></f:facet>
-                            <f:facet name="input">
-                                <p:inputText value="#{product.name}" style="width:100%" label="Name"/>
-                            </f:facet>
-                        </p:cellEditor>
-                    </p:column>
-
-                    <p:column headerText="Description">
-                        <p:cellEditor>
-                            <f:facet name="output"><h:outputText value="#{product.description}"/></f:facet>
-                            <f:facet name="input">
-                                <p:inputText value="#{product.description}" style="width:100%" label="Description"/>
-                            </f:facet>
-                        </p:cellEditor>
-                    </p:column>
-
-                    <p:column headerText="Stock address" sortBy="#{product.stockLocation}">
-                        <p:cellEditor>
-                            <f:facet name="output"><h:outputText value="#{product.stockLocation}"/></f:facet>
-                            <f:facet name="input">
-                                <p:inputText value="#{product.stockLocation}" style="width:100%" label="Stock"/>
-                            </f:facet>
-                        </p:cellEditor>
-                    </p:column>
-
-                    <p:column headerText="Price" sortBy="#{product.price}">
-                        <p:cellEditor>
-                            <f:facet name="output"><h:outputText value="#{product.price}"/></f:facet>
-                            <f:facet name="input">
-                                <p:inputText id="prod-price" value="#{product.price}" style="width:100%" label="Price">
-                                    <f:validateDoubleRange minimum="1.0" maximum="100000.0" for="prod-price"/>
-                                </p:inputText>
-                            </f:facet>
-                        </p:cellEditor>
-                    </p:column>
-
-                    <p:column headerText="Status" sortBy="#{product.productStatus}">
-                        <p:cellEditor>
-                            <f:facet name="output"><h:outputText value="#{product.productStatus}"/></f:facet>
-                            <f:facet name="input">
-                                <h:selectOneMenu value="#{product.productStatus}" style="width:100%">
-                                    <f:selectItems value="#{editController.productStatuses}" var="item"
-                                                   itemLabel="#{item}" itemValue="#{item}"/>
-                                </h:selectOneMenu>
-                            </f:facet>
-                        </p:cellEditor>
-                    </p:column>
-
-                    <p:column headerText="Edit" style="width:32px">
-                        <p:rowEditor/>
-                    </p:column>
-
-                    <f:facet name="footer">
-                        <p:commandButton styleClass="del-btn-layout" value="Delete" action="#{editController.delete}"
-                                         update=":prod-table:products1 :prod-table:msgs"/>
-                    </f:facet>
-
-                </p:dataTable>
+                    <p:ajax event="connect" listener="#{editableCSView.onConnect}"  />
+                    <p:ajax event="disconnect" listener="#{editableCSView.onDisconnect}" />
+                    <p:ajax event="connectionChange" listener="#{editableCSView.onConnectionChange}" />
+                </p:diagram>
             </h:form>
         </p:layoutUnit>
     </p:layout>

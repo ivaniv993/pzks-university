@@ -52,11 +52,14 @@ public class TaskView implements Serializable {
 
     private String description;
 
+    private Element sourceElement, targetElement;
 
     private int[][] lm = new int[0][0];
     private Integer[] vertex = new Integer[0];
 
     private LRUCache<Integer, Connection> connectionLRUCache = new LRUCache<Integer, Connection>(3);
+
+    private LRUCache<Integer, NetworkElement> taskCache = new LRUCache<Integer, NetworkElement>(3);
 
     @ManagedProperty("#{taskServiceImpl}")
     private TaskService taskServiceImpl;
@@ -75,11 +78,6 @@ public class TaskView implements Serializable {
         model.setDefaultConnector(connector);
 
         id = 0;
-
-        addTask();
-        addTask();
-
-
 
         logger.info("Init bean (View scope)");
     }
@@ -129,6 +127,16 @@ public class TaskView implements Serializable {
 
     }
 
+    private Connection createConnection(EndPoint from, EndPoint to, String label) {
+        Connection conn = new Connection(from, to);
+        conn.getOverlays().add(new ArrowOverlay(20, 20, 1, 1));
+
+        if(label != null) {
+            conn.getOverlays().add(new LabelOverlay(label, "flow-label", 0.5));
+        }
+
+        return conn;
+    }
 
     public void updateConnection(){
 
@@ -138,6 +146,42 @@ public class TaskView implements Serializable {
         updateTaskModel(((NetworkElement) sourceElement.getData()).getId(), ((NetworkElement) targetElement.getData()).getId(), getLinkDuration());
         RequestContext.getCurrentInstance().update("form");
 
+    }
+
+    public void updateAddTask(){
+
+        updateVertex(taskDuration, id);
+        NetworkElement networkElement = taskCache.get(1);
+        networkElement.setTaskDuration(taskDuration);
+        RequestContext.getCurrentInstance().update("form");
+    }
+
+    public void addTask( ){
+
+        String x = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("clientX");
+        String y = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("clientY");
+
+        int xcord = Integer.valueOf(x)-600;
+        int ycord = Integer.valueOf(y)-200;
+
+        NetworkElement networkElement = new NetworkElement(id++, taskDuration);
+        taskCache.put(1, networkElement );
+
+        Element element = new Element(networkElement, xcord+"px", ycord+"px");
+        EndPoint endPoint = createDotEndPoint(EndPointAnchor.AUTO_DEFAULT);
+        endPoint.setId(String.valueOf(id) + "_TARGET");
+        element.setDraggable(true);
+        endPoint.setTarget(true);
+        element.addEndPoint(endPoint);
+
+        EndPoint beginPoint = createRectangleEndPoint(EndPointAnchor.BOTTOM);
+        beginPoint.setId(String.valueOf(id) + "_SOURCE");
+        beginPoint.setSource(true);
+        element.addEndPoint(beginPoint);
+
+        model.addElement(element);
+
+//        orderVertex(model);
     }
 
     public void onConnect(ConnectEvent event) {
@@ -160,18 +204,7 @@ public class TaskView implements Serializable {
         RequestContext.getCurrentInstance().update("form");
     }
 
-    private Element sourceElement, targetElement;
 
-    private Connection createConnection(EndPoint from, EndPoint to, String label) {
-        Connection conn = new Connection(from, to);
-        conn.getOverlays().add(new ArrowOverlay(20, 20, 1, 1));
-
-        if(label != null) {
-            conn.getOverlays().add(new LabelOverlay(label, "flow-label", 0.5));
-        }
-
-        return conn;
-    }
 
 
     public void onDisconnect(DisconnectEvent event) {
@@ -217,29 +250,7 @@ public class TaskView implements Serializable {
     }
 
 
-    public void addTask( ){
 
-        String x = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("clientX");
-        String y = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("clientY");
-
-        Element element = new Element(new NetworkElement(id++, taskDuration), x+"px", y+"px");
-        EndPoint endPoint = createDotEndPoint(EndPointAnchor.AUTO_DEFAULT);
-        endPoint.setId(String.valueOf(id)+"_TARGET");
-        element.setDraggable(true);
-        endPoint.setTarget(true);
-        element.addEndPoint(endPoint);
-
-        EndPoint beginPoint = createRectangleEndPoint(EndPointAnchor.BOTTOM);
-        beginPoint.setId(String.valueOf(id)+"_SOURCE");
-        beginPoint.setSource(true);
-        element.addEndPoint(beginPoint);
-
-        model.addElement(element);
-
-        updateVertex(taskDuration, id);
-
-//        orderVertex(model);
-    }
 
 
     public void run(){

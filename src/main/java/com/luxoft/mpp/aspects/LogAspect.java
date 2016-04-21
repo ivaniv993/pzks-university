@@ -1,10 +1,9 @@
 package com.luxoft.mpp.aspects;
 
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Logger;
 import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.After;
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
-import org.aspectj.lang.annotation.Pointcut;
+import org.aspectj.lang.annotation.*;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
@@ -12,21 +11,30 @@ import org.springframework.stereotype.Service;
  * Created by iivaniv on 18.04.2016.
  */
 @Aspect
-@Service(value = "logAspect1")
+@Service
 public class LogAspect {
+
+    static Logger logger = null;
+
+    static{
+        logger = Logger.getRootLogger();
+        BasicConfigurator.configure();
+    }
 
 
     @Before("execution(* com.luxoft.mpp.service.*.*(..))")
-    public void logBeforeController(JoinPoint joinPoint){
-
-        System.out.println("Before method "+ joinPoint.getStaticPart().getSignature().toString());
-
+    public void logBefore(JoinPoint joinPoint){
+        logger.info("Before service method "+ joinPoint.getStaticPart().getSignature().toString());
     }
 
     @After("execution(* com.luxoft.mpp.service.*.*(..))")
-    public void logAfterController(JoinPoint joinPoint){
+    public void logAfter(JoinPoint joinPoint){
+        logger.info("After service method " + joinPoint.getStaticPart().getSignature().toString());
+    }
 
-        System.out.println("After method "+ joinPoint.getStaticPart().getSignature().toString());
+    @AfterReturning("execution(* com.luxoft.mpp.service.*.*(..))")
+    public void logAfterReturning(JoinPoint joinPoint){
+        logger.info("After successful returning method " + joinPoint.getStaticPart().getSignature().toString());
 
     }
 

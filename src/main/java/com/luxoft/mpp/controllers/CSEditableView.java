@@ -25,13 +25,15 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import java.io.Serializable;
 
-@ManagedBean(name = "diagramEditableViewBlaBla")
+@ManagedBean(name = "editableCSView")
 @ViewScoped
-public class EditableView implements Serializable {
+public class CSEditableView implements Serializable {
 
     private DefaultDiagramModel model;
 
     private boolean suspendEvent;
+
+    private static int id=0;
 
     @PostConstruct
     public void init() {
@@ -43,40 +45,6 @@ public class EditableView implements Serializable {
         connector.setPaintStyle("{strokeStyle:'#98AFC7', lineWidth:3}");
         connector.setHoverPaintStyle("{strokeStyle:'#5C738B'}");
         model.setDefaultConnector(connector);
-
-        Element computerA = new Element(new NetworkElement("Computer A", "computer-icon.png"), "10em", "6em");
-        EndPoint endPointCA = createRectangleEndPoint(EndPointAnchor.BOTTOM);
-        endPointCA.setSource(true);
-        computerA.addEndPoint(endPointCA);
-
-        Element computerB = new Element(new NetworkElement("Computer B", "computer-icon.png"), "25em", "6em");
-        EndPoint endPointCB = createRectangleEndPoint(EndPointAnchor.BOTTOM);
-        endPointCB.setSource(true);
-        computerB.addEndPoint(endPointCB);
-
-        Element computerC = new Element(new NetworkElement("Computer C", "computer-icon.png"), "40em", "6em");
-        EndPoint endPointCC = createRectangleEndPoint(EndPointAnchor.BOTTOM);
-        endPointCC.setSource(true);
-        computerC.addEndPoint(endPointCC);
-
-        Element serverA = new Element(new NetworkElement("Server A", "server-icon.png"), "15em", "24em");
-        EndPoint endPointSA = createDotEndPoint(EndPointAnchor.AUTO_DEFAULT);
-        serverA.setDraggable(false);
-        endPointSA.setTarget(true);
-        serverA.addEndPoint(endPointSA);
-
-        Element serverB = new Element(new NetworkElement("Server B", "server-icon.png"), "35em", "24em");
-        EndPoint endPointSB = createDotEndPoint(EndPointAnchor.AUTO_DEFAULT);
-        serverB.setDraggable(false);
-        endPointSB.setTarget(true);
-        serverB.addEndPoint(endPointSB);
-
-        model.addElement(computerA);
-        model.addElement(computerB);
-        model.addElement(computerC);
-        model.addElement(serverA);
-
-        model.addElement(serverB);
     }
 
     public DiagramModel getModel() {
@@ -119,6 +87,39 @@ public class EditableView implements Serializable {
         suspendEvent = true;
     }
 
+    public void addVertex( ){
+
+        String x = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("clientX");
+        String y = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("clientY");
+
+        int xcord = Integer.valueOf(x);
+        int ycord = Integer.valueOf(y)-200;
+
+        NetworkElement networkElement = new NetworkElement(id++);
+
+        Element element = new Element(networkElement, xcord+"px", ycord+"px");
+        EndPoint endPoint = createDotEndPoint(EndPointAnchor.AUTO_DEFAULT);
+        endPoint.setId(String.valueOf(id) + "_TARGET");
+        element.setDraggable(true);
+        endPoint.setTarget(true);
+        element.addEndPoint(endPoint);
+
+        EndPoint beginPoint = createRectangleEndPoint(EndPointAnchor.BOTTOM);
+        beginPoint.setId(String.valueOf(id) + "_SOURCE");
+        beginPoint.setSource(true);
+        element.addEndPoint(beginPoint);
+
+        model.addElement(element);
+
+        RequestContext.getCurrentInstance().update("form");
+
+//        orderVertex(model);
+    }
+
+    public void saveGraph(){
+        System.out.println("save Graph");
+    }
+
     private EndPoint createDotEndPoint(EndPointAnchor anchor) {
         DotEndPoint endPoint = new DotEndPoint(anchor);
         endPoint.setScope("network");
@@ -141,36 +142,26 @@ public class EditableView implements Serializable {
 
     public class NetworkElement implements Serializable {
 
-        private String name;
-        private String image;
+        private int id;
 
         public NetworkElement() {
         }
 
-        public NetworkElement(String name, String image) {
-            this.name = name;
-            this.image = image;
+        public NetworkElement(int id) {
+            this.id = id;
         }
 
-        public String getName() {
-            return name;
+        public int getId() {
+            return id;
         }
 
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public String getImage() {
-            return image;
-        }
-
-        public void setImage(String image) {
-            this.image = image;
+        public void setId(int id) {
+            this.id = id;
         }
 
         @Override
         public String toString() {
-            return name;
+            return String.valueOf(id);
         }
 
     }

@@ -37,7 +37,7 @@
             <p:button value="Close" id="close" icon="ui-icon-minus" onclick="PF('dlg2').hide();return false;" style="left: 5%;right: 50%"/>
             <p:commandButton value="Save" id="save" icon="ui-icon-disk"
                              oncomplete="PF('dlg2').hide();return false;" style="right: 15%;left: 40%"
-                             actionListener="#{diagramEditableView.addTask}"
+                             actionListener="#{diagramEditableView.updateAddTask}"
                              update="form"/>
 
 
@@ -100,7 +100,7 @@
             <h:form id="form" ondblclick="createVertexElement([{name: 'clientX', value: event.clientX}, {name: 'clientY', value: event.clientY}])">
                 <p:growl id="msgs" showDetail="true" />
 
-                <p:remoteCommand name="createVertexElement" actionListener="#{diagramEditableView.addTask()}" update="form"/>
+                <p:remoteCommand name="createVertexElement" actionListener="#{diagramEditableView.addTask()}" update="form" onstart="PF('dlg2').show();"/>
 
                 <p:diagram value="#{diagramEditableView.model}" style="height:600px" styleClass="ui-widget-content" var="el"  >
 
