@@ -10,146 +10,18 @@
     <h:head>
 
         <title>MPP Scheduler</title>
-
+        <!--<script type="application/javascript"-->
+                <!--src="https://maps.googleapis.com/maps/api/js?v=3.exp&amp;signed_in=true&amp;libraries=places"></script>-->
+        <h:outputStylesheet library="css" name="input-field-layout.css"/>
     </h:head>
 
     <h:body>
 
-        <p:tabMenu activeIndex="#{param.i}">
-            <p:menuitem value="Overview" outcome="mpp/task_graph" icon="ui-icon-star">
-                <h:form id="add-task">
-                    <p:dialog header="Modal Dialog" id="addProdDialog" widgetVar="dlg2" modal="true" dynamic="true"
-                              style="width: 200px" width="445">
-                        <h:panelGrid columns="2" cellpadding="2">
+        <f:view>
+            <ui:include src="mppmenu.xhtml"/>
 
-
-                            <h:outputLabel for="price" value="Topology:"/>
-                            <p:inputText id="price" value="#{diagramEditableView.taskDuration}" placeholder="Duration" style="width: 100%"
-                                         required="true" requiredMessage="Duration is required">
-                                <f:validateDoubleRange minimum="0" maximum="100000"/>
-                            </p:inputText>
-
-                        </h:panelGrid>
-
-                        <p:button value="Close" id="close" icon="ui-icon-minus" onclick="PF('dlg2').hide();return false;" style="left: 5%;right: 50%"/>
-                        <p:commandButton value="Save" id="save" icon="ui-icon-disk"
-                                         oncomplete="PF('dlg2').hide();return false;" style="right: 15%;left: 40%"
-                                         actionListener="#{diagramEditableView.updateAddTask}"
-                                         update="form"/>
-
-
-                    </p:dialog>
-                </h:form>
-
-                <h:form id="add-link">
-                    <p:dialog header="Link taskDuration" id="addLinkDialog" widgetVar="dlg3" modal="true" dynamic="true"
-                              style="width: 200px" width="445">
-                        <h:panelGrid columns="2" cellpadding="2">
-
-
-                            <h:outputLabel for="link" value="Topology:"/>
-                            <p:inputText id="link" value="#{diagramEditableView.linkDuration}" placeholder="Duration in sec" style="width: 100%"
-                                         required="true" requiredMessage="Duration is required">
-                                <f:validateDoubleRange minimum="0" maximum="100000"/>
-                            </p:inputText>
-
-                        </h:panelGrid>
-
-                        <p:button value="Close" id="close-link" icon="ui-icon-minus" onclick="PF('dlg3').hide();return false;" style="left: 5%;right: 50%"/>
-                        <p:commandButton value="Save" id="save-link" icon="ui-icon-disk"
-                                         oncomplete="PF('dlg3').hide();return false;" style="right: 15%;left: 40%"
-                                         actionListener="#{diagramEditableView.updateConnection}"
-                                         update="form"/>
-
-                    </p:dialog>
-                </h:form>
-
-                <p:layout>
-                    <p:layoutUnit position="west"  size="550" minSize="500" maxSize="600" style="height: 400px">
-                        <h:form id="control_form">
-
-                            <h:panelGroup style="width: 200px;height: 50px">
-                                <p:commandButton value="New graph" icon="ui-icon-disk"
-                                                 actionListener="#{diagramEditableView.onNewDiagram}"
-                                                 update="form"/>
-
-                                <p:commandButton value="Open" icon="ui-icon-arrowrefresh-1-w"  />
-
-                                <p:commandButton value="Save" actionListener="#{diagramEditableView.saveGraph}"/>
-
-                                <p:commandButton value="Run" actionListener="#{diagramEditableView.run}" update="form"/>
-
-                            </h:panelGroup>
-                        </h:form>
-
-                        <!--<h:form id="edit_panel">-->
-
-                        <h:panelGroup style="width: 200px;height: 50px">
-                            <p:commandButton value="Add vertex" icon="ui-icon-disk"
-                                             onclick="PF('dlg2').show();"
-                                    />
-                        </h:panelGroup>
-                        <!--</h:form>-->
-                    </p:layoutUnit>
-
-                    <p:layoutUnit position="center" size="550" minSize="500" maxSize="600">
-
-                        <h:form id="form" ondblclick="createVertexElement([{name: 'clientX', value: event.clientX}, {name: 'clientY', value: event.clientY}])">
-                            <p:growl id="msgs" showDetail="true" />
-
-                            <p:remoteCommand name="createVertexElement" actionListener="#{diagramEditableView.addTask()}" update="form" onstart="PF('dlg2').show();"/>
-
-                            <p:diagram value="#{diagramEditableView.model}" style="height:600px" styleClass="ui-widget-content" var="el"  >
-
-                                <f:facet name="element" >
-                                    <h:outputText value="#{el.id}" style="display:block;margin-top:1em;"/>
-                                    <h:outputText value="#{el.taskDuration}" style="display:block;margin-top:1em;"/>
-                                </f:facet>
-                                <p:ajax event="connect" listener="#{diagramEditableView.onConnect}" onstart="PF('dlg3').show();"  />
-                                <p:ajax event="disconnect" listener="#{diagramEditableView.onDisconnect}" />
-                                <p:ajax event="connectionChange" listener="#{diagramEditableView.onConnectionChange}" />
-                            </p:diagram>
-                        </h:form>
-
-
-                        <style type="text/css">
-                            .ui-diagram-element {
-                                border:0.1em dotted #E5E4E2;
-                                background-color: #EFEEEC;
-                                border-radius: 50%;
-                                width:6em;
-                                height:6em;
-                                text-align: center;
-                                box-shadow: 0 5px 10px rgba(0, 0, 0, 0.8);
-                            }
-
-                            .ui-diagram-element:hover {
-                                background-color: #C7C6C4;
-                            }
-                            .start-node {
-                                width:4em;
-                                border-radius: 6px;
-                                background-color: #000000 !important;
-                            }
-                            .flow-label {
-                                color: #464F60;
-                                font-size: 18px;
-                                font-weight: bold;
-                            }
-
-                        </style>
-                    </p:layoutUnit>
-                    <p:layoutUnit position="north" size="120" resizable="true" closable="true" collapsible="true">
-
-
-                    </p:layoutUnit>
-                </p:layout>
-            </p:menuitem>
-            <p:menuitem value="Demos" outcome="/mpp/cs_graph" icon="ui-icon-search">
-                <f:param name="i" value="1" />
-            </p:menuitem>
-
-        </p:tabMenu>
+            <ui:insert name="content"/>
+        </f:view>
 
     </h:body>
 </html>

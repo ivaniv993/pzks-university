@@ -15,6 +15,8 @@ public interface TaskService {
 
     boolean isLoop(int[][] lm );
 
+    void getCriticalWay(  int[][] linkMatrix, Integer[] vertex );
+
 
 
 

@@ -1,10 +1,10 @@
 package com.luxoft.mpp.controllers;
 
+import com.luxoft.mpp.entity.model.TaskElement;
 import com.luxoft.mpp.service.TaskService;
 import com.luxoft.mpp.utils.LRUCache;
 import org.apache.log4j.Logger;
 import org.primefaces.context.RequestContext;
-import org.primefaces.event.SelectEvent;
 import org.primefaces.event.diagram.ConnectEvent;
 import org.primefaces.event.diagram.ConnectionChangeEvent;
 import org.primefaces.event.diagram.DisconnectEvent;
@@ -20,14 +20,12 @@ import org.primefaces.model.diagram.endpoint.RectangleEndPoint;
 import org.primefaces.model.diagram.overlay.ArrowOverlay;
 import org.primefaces.model.diagram.overlay.LabelOverlay;
 import org.primefaces.model.diagram.overlay.Overlay;
-import org.primefaces.push.EventBusFactory;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
-import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import java.io.Serializable;
 import java.util.*;
@@ -59,7 +57,7 @@ public class TaskView implements Serializable {
 
     private LRUCache<Integer, Connection> connectionLRUCache = new LRUCache<Integer, Connection>(3);
 
-    private LRUCache<Integer, NetworkElement> taskCache = new LRUCache<Integer, NetworkElement>(3);
+    private LRUCache<Integer, TaskElement> taskCache = new LRUCache<Integer, TaskElement>(3);
 
     @ManagedProperty("#{taskServiceImpl}")
     private TaskService taskServiceImpl;
@@ -87,6 +85,8 @@ public class TaskView implements Serializable {
         List<Integer> v = new ArrayList<Integer>();
         Collections.addAll(v, vertex);
         v.add(duration);
+
+        vertex = new Integer[v.size()];
         v.toArray(vertex);
 
 
@@ -143,7 +143,7 @@ public class TaskView implements Serializable {
         Connection conn = connectionLRUCache.get(1);
 
         conn.setOverlays(Collections.<Overlay>singletonList(new LabelOverlay(String.valueOf(getLinkDuration()), "flow-label", 0.5)));
-        updateTaskModel(((NetworkElement) sourceElement.getData()).getId(), ((NetworkElement) targetElement.getData()).getId(), getLinkDuration());
+        updateTaskModel(((TaskElement) sourceElement.getData()).getId(), ((TaskElement) targetElement.getData()).getId(), getLinkDuration());
         RequestContext.getCurrentInstance().update("form");
 
     }
@@ -151,8 +151,8 @@ public class TaskView implements Serializable {
     public void updateAddTask(){
 
         updateVertex(taskDuration, id);
-        NetworkElement networkElement = taskCache.get(1);
-        networkElement.setTaskDuration(taskDuration);
+        TaskElement taskElement = taskCache.get(1);
+        taskElement.setTaskDuration(taskDuration);
         RequestContext.getCurrentInstance().update("form");
     }
 
@@ -164,10 +164,10 @@ public class TaskView implements Serializable {
         int xcord = Integer.valueOf(x)-600;
         int ycord = Integer.valueOf(y)-200;
 
-        NetworkElement networkElement = new NetworkElement(id++, taskDuration);
-        taskCache.put(1, networkElement );
+        TaskElement taskElement = new TaskElement(id++, taskDuration);
+        taskCache.put(1, taskElement);
 
-        Element element = new Element(networkElement, xcord+"px", ycord+"px");
+        Element element = new Element(taskElement, xcord+"px", ycord+"px");
         EndPoint endPoint = createDotEndPoint(EndPointAnchor.AUTO_DEFAULT);
         endPoint.setId(String.valueOf(id) + "_TARGET");
         element.setDraggable(true);
@@ -262,6 +262,9 @@ public class TaskView implements Serializable {
             RequestContext.getCurrentInstance().update("form:msgs");
             return;
         }
+
+        taskServiceImpl.getCriticalWay(lm, vertex);
+
 //        taskServiceImpl.saveVertex();
 
     }
@@ -293,43 +296,6 @@ public class TaskView implements Serializable {
         endPoint.setHoverStyle("{fillStyle:'#5C738B'}");
 
         return endPoint;
-    }
-
-    public class NetworkElement implements Serializable {
-
-        private int id;
-
-        private int taskDuration;
-
-        public NetworkElement() {
-        }
-
-        public NetworkElement(int id, int duratuion) {
-            this.id = id;
-            this.taskDuration = duratuion;
-        }
-
-        public int getId() {
-            return id;
-        }
-
-        public void setId(int id) {
-            this.id = id;
-        }
-
-        public int getTaskDuration() {
-            return taskDuration;
-        }
-
-        public void setTaskDuration(int taskDuration) {
-            this.taskDuration = taskDuration;
-        }
-
-        @Override
-        public String toString() {
-            return String.valueOf(id);
-        }
-
     }
 
     public DiagramModel getModel() {
