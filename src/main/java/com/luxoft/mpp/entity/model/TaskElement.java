@@ -1,6 +1,7 @@
 package com.luxoft.mpp.entity.model;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * Created by iivaniv on 22.04.2016.
@@ -12,10 +13,7 @@ public class TaskElement implements Serializable {
 
     private int taskDuration;
 
-    private int earlyStart;
-    private int earlyFinish;
-    private int lateStart;
-    private int lateFinish;
+    private List<TaskElement> relatedTaskElements;
 
     public TaskElement() {
     }
@@ -46,38 +44,12 @@ public class TaskElement implements Serializable {
         return String.valueOf(id);
     }
 
-
-    public int getEarlyStart() {
-        return earlyStart;
+    public List<TaskElement> getRelatedTaskElements() {
+        return relatedTaskElements;
     }
 
-    public void setEarlyStart(int earlyStart) {
-        this.earlyStart = earlyStart;
+    public void setRelatedTaskElements(List<TaskElement> relatedTaskElements) {
+        this.relatedTaskElements = relatedTaskElements;
     }
-
-    public int getEarlyFinish() {
-        return earlyFinish;
-    }
-
-    public void setEarlyFinish(int earlyFinish) {
-        this.earlyFinish = earlyFinish;
-    }
-
-    public int getLateStart() {
-        return lateStart;
-    }
-
-    public void setLateStart(int lateStart) {
-        this.lateStart = lateStart;
-    }
-
-    public int getLateFinish() {
-        return lateFinish;
-    }
-
-    public void setLateFinish(int lateFinish) {
-        this.lateFinish = lateFinish;
-    }
-
 
 }

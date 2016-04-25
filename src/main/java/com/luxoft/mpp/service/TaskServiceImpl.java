@@ -84,52 +84,63 @@ public class TaskServiceImpl implements TaskService {
     }
 
 
-    public void getCriticalWay(  int[][] linkMatrix, Integer[] vertex ){
+    public void getCriticalWay(  int[][] matrix, Integer[] vertex ){
 
         System.out.println("Link matrix ");
-        for (int i = 0; i < linkMatrix.length ; i++) {
-            for (int j = 0; j < linkMatrix[i].length; j++) {
-                System.out.print("  " + linkMatrix[i][j]);
+        for (int[] aMatrix : matrix) {
+            for (int anAMatrix : aMatrix) {
+                System.out.print("  " + anAMatrix);
             }
             System.out.println();
         }
         System.out.println("Link matrix -------------");
 
-        int[][] tasks = new int[vertex.length][vertex.length];
-        // get early start
-        int[] earlyTime = new int[vertex.length];
-        int value = 0;
-        for (int i = 0; i < linkMatrix.length; i++) {
+        for (int i = 0; i < matrix.length; i++) {
 
+            Stack<Integer> ways =  new Stack<Integer>();
+            Map<Integer, Integer> wayMap = new HashMap<Integer, Integer>();
 
-            for (int j = 0; j < linkMatrix[i].length; j++) {
+            int buf = i;
+            do{
 
-                if (linkMatrix[i][j] != 0){
+                for (int j = buf; j < matrix[buf].length; j++) {
 
-                    System.out.println("linkMatrix[i][j]; = "+linkMatrix[i][j]);
-                    for (int k = 0; k < linkMatrix.length; k++) {
-                        tasks[j][k] += value+linkMatrix[i][j];
+                    if ( matrix[buf][j] != 0 ){
+                        ways.push(j);
+                        wayMap.put(j, i);
+                        break;
                     }
-                    value = linkMatrix[i][j];
                 }
 
-            }
+                while (!ways.isEmpty()){
+                    buf = ways.pop();
+                    int k = wayMap.get(buf);
+                    buf++;
+                    if ( !emptyRow(matrix, k, buf))
+                        break;
+
+                }
+
+                for ( Integer way : ways ){
+                    System.out.print(way + ", ");
+                }
+                System.out.println("----------------");
+
+
+
+            }while(!ways.isEmpty());
+
+
         }
 
-        for (int i = 0; i < tasks.length ; i++) {
-            for (int j = 0; j < tasks[i].length; j++) {
-                System.out.print("  " + tasks[i][j]);
-            }
-            System.out.println();
+    }
+
+    private boolean emptyRow(int[][] matrix, int i, int j){
+        for (int k = j; k < matrix[i].length; k++) {
+            if (matrix[i][j] != 0)
+                return true;
         }
-
-
-
-
-
-
-
-
+        return false;
     }
 
 }
