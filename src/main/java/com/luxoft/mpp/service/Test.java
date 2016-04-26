@@ -32,7 +32,7 @@ public class Test {
 
         Stack<TaskElement> ways =  new Stack<TaskElement>();
 
-        getCriticalWay(new TaskElement(), ways);
+        criticalWay(matrix);
 
     }
 
@@ -52,6 +52,81 @@ public class Test {
             }
         }
 
+    }
+
+
+    public static void criticalWay(int[][] matrix){
+
+
+        for (int nextRow = 0; nextRow < matrix.length; nextRow++) {
+
+            Stack<SimpleVertex> vertexStack = new Stack<SimpleVertex>();
+
+            System.out.println("===========================");
+
+            int col = 0;
+            int row = nextRow;
+            do{
+
+                while ( true ){
+
+                    if ( isEmptyRow(matrix, row ) ) {
+                        SimpleVertex simpleVertex = new SimpleVertex(0, row); // last vertex (empty row)
+                        vertexStack.push(simpleVertex);
+                        break;
+                    }
+
+                    if ( matrix[row][col] != 0){
+                        SimpleVertex simpleVertex = new SimpleVertex(col, row);
+                        vertexStack.push(simpleVertex);
+                        row = col;
+                        col = 0;
+                    } else {
+                        col ++;
+                    }
+                }
+
+                while ( ! vertexStack.isEmpty() ){
+                    SimpleVertex simpleVertex = vertexStack.peek();
+
+                    int nextCol = simpleVertex.getCol();
+                    nextCol++;
+
+                    if ( ! isEmptyRestOfRow(matrix, simpleVertex.getRow(), nextCol) ){
+                        System.out.println("form if : vertex ["+simpleVertex.getRow()+"]["+simpleVertex.getCol()+"]");
+                        simpleVertex = vertexStack.pop();
+                        col = nextCol;
+                        row = simpleVertex.getRow();
+                        break;
+                    }
+                    System.out.println("vertex [" + simpleVertex.getRow() + "][" + simpleVertex.getCol() + "]");
+                    vertexStack.pop();
+
+                }
+                System.out.println("-------------------------");
+
+            }while ( ! vertexStack.isEmpty() || !isEmptyRestOfRow(matrix, row, col));
+
+        }
+
+    }
+
+    private static boolean isEmptyRow( int[][] matrix, int inRow ){
+        for (int i = 0; i < matrix[inRow].length; i++) {
+            if (matrix[inRow][i] != 0)
+                return false;
+        }
+        return true;
+    }
+
+    private static boolean isEmptyRestOfRow( int[][] matrix, int inRow, int fromNextCol ){
+        if ( fromNextCol >= matrix[inRow].length )
+            return true;
+        for (int i = fromNextCol; i < matrix[inRow].length; i++) {
+            if (matrix[inRow][i] != 0)
+                return false;
+        }
+        return true;
     }
 
 

@@ -5,50 +5,54 @@ package com.luxoft.mpp.entity.model;
  */
 public class SimpleVertex{
 
-    private int x;
+    private int col;
+
+    private int row;
+
+    public SimpleVertex(int col, int row) {
+        this.col = col;
+        this.row = row;
+    }
 
     @Override
     public boolean equals(Object o) {
+
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
         SimpleVertex that = (SimpleVertex) o;
 
-        if (x != that.x) return false;
-        return y == that.y;
+        if (col != that.col) return false;
+        return row == that.row;
 
     }
 
     @Override
     public int hashCode() {
-        int result = x;
-        result = 31 * result + y;
+        int result = col;
+        result = 31 * result + row;
         return result;
     }
 
-    public SimpleVertex(int x, int y) {
+    public int getCol() {
 
-        this.x = x;
-        this.y = y;
+        return col;
     }
 
-    public int getX() {
-
-        return x;
+    public void setCol(int col) {
+        this.col = col;
     }
 
-    public void setX(int x) {
-        this.x = x;
+    @Override
+    public String toString() {
+        return "[ "+col+" ][ "+row+" ]";
     }
 
-    public int getY() {
-        return y;
+    public int getRow() {
+        return row;
     }
 
-    public void setY(int y) {
-        this.y = y;
+    public void setRow(int row) {
+        this.row = row;
     }
-
-    private int y;
-
 }
