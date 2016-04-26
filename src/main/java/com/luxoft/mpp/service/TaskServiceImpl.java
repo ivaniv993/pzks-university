@@ -83,64 +83,22 @@ public class TaskServiceImpl implements TaskService {
         return true;
     }
 
+    public void getCriticalWay( TaskElement taskElement, Stack<TaskElement> stack){
 
-    public void getCriticalWay(  int[][] matrix, Integer[] vertex ){
-
-        System.out.println("Link matrix ");
-        for (int[] aMatrix : matrix) {
-            for (int anAMatrix : aMatrix) {
-                System.out.print("  " + anAMatrix);
+        if (taskElement.getRelatedTaskElements().isEmpty()){
+            for (TaskElement e : stack){
+                System.out.print(e.getId() + ", ");
             }
-            System.out.println();
+            System.out.println("----------------");
         }
-        System.out.println("Link matrix -------------");
+        for ( TaskElement e : taskElement.getRelatedTaskElements()){
 
-        for (int i = 0; i < matrix.length; i++) {
-
-            Stack<Integer> ways =  new Stack<Integer>();
-            Map<Integer, Integer> wayMap = new HashMap<Integer, Integer>();
-
-            int buf = i;
-            do{
-
-                for (int j = buf; j < matrix[buf].length; j++) {
-
-                    if ( matrix[buf][j] != 0 ){
-                        ways.push(j);
-                        wayMap.put(j, i);
-                        break;
-                    }
-                }
-
-                while (!ways.isEmpty()){
-                    buf = ways.pop();
-                    int k = wayMap.get(buf);
-                    buf++;
-                    if ( !emptyRow(matrix, k, buf))
-                        break;
-
-                }
-
-                for ( Integer way : ways ){
-                    System.out.print(way + ", ");
-                }
-                System.out.println("----------------");
-
-
-
-            }while(!ways.isEmpty());
-
-
+            if ( !stack.contains(e) ){
+                stack.push(e);
+            }
         }
 
     }
 
-    private boolean emptyRow(int[][] matrix, int i, int j){
-        for (int k = j; k < matrix[i].length; k++) {
-            if (matrix[i][j] != 0)
-                return true;
-        }
-        return false;
-    }
 
 }

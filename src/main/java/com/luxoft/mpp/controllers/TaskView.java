@@ -263,9 +263,6 @@ public class TaskView implements Serializable {
             return;
         }
 
-        taskServiceImpl.getCriticalWay(lm, vertex);
-
-//        taskServiceImpl.saveVertex();
 
     }
 
