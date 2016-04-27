@@ -41,7 +41,6 @@ public class Test {
             int k = 0;
             for (List<SimpleVertex> list : waysForCurrVertex.getValue()){
 
-                boolean printRow = true;
                 for (SimpleVertex e :list) {
                     System.out.print(e.getRow() + ", ");
 
