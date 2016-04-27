@@ -1,5 +1,6 @@
 package com.luxoft.mpp.controllers;
 
+import com.luxoft.mpp.entity.model.SimpleVertex;
 import com.luxoft.mpp.entity.model.TaskElement;
 import com.luxoft.mpp.service.TaskService;
 import com.luxoft.mpp.utils.LRUCache;
@@ -261,6 +262,28 @@ public class TaskView implements Serializable {
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Warning", "Your graph have loop "));
             RequestContext.getCurrentInstance().update("form:msgs");
             return;
+        }
+
+
+
+        Map<Integer, List<List<SimpleVertex>>> allWaysForEachVertex = new HashMap<Integer, List<List<SimpleVertex>>>();
+        allWaysForEachVertex = taskServiceImpl.getAllWaysForEachVertex(lm);
+
+        System.out.println("******************");
+        for (Map.Entry<Integer, List<List<SimpleVertex>>> waysForCurrVertex : allWaysForEachVertex.entrySet()){
+
+            System.out.println("Vertex = "+waysForCurrVertex.getKey());
+
+            int k = 0;
+            for (List<SimpleVertex> list : waysForCurrVertex.getValue()){
+
+                for (SimpleVertex e :list) {
+                    System.out.print(e.getRow() + ", ");
+
+                }
+                System.out.println(" Way "+(++k));
+            }
+
         }
 
 

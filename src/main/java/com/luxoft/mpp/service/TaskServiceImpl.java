@@ -1,5 +1,6 @@
 package com.luxoft.mpp.service;
 
+import com.luxoft.mpp.entity.model.SimpleVertex;
 import com.luxoft.mpp.entity.model.TaskElement;
 import org.primefaces.model.diagram.Element;
 import org.springframework.stereotype.Service;
@@ -30,17 +31,17 @@ public class TaskServiceImpl implements TaskService {
 
 
 
-    public boolean isLoop(int[][] lm ){
+    public boolean isLoop(int[][] matrix ){
 
-        boolean[] passedWay = new boolean[lm.length];
+        boolean[] passedWay = new boolean[matrix.length];
 
-        if ( ! findHangingVertex(lm).isEmpty())
+        if ( ! findHangingVertex(matrix).isEmpty())
             return false;
 
-        for (int i = 0; i < lm.length; i++) {
-            for (int j = 0; j < lm[i].length; j++) {
+        for (int i = 0; i < matrix.length; i++) {
+            for (int j = 0; j < matrix[i].length; j++) {
                 passedWay[i] = true;
-                if (lm[i][j] != 0) {
+                if (matrix[i][j] != 0) {
 
                     if (passedWay[j])
                         return true;
@@ -50,7 +51,6 @@ public class TaskServiceImpl implements TaskService {
                 }
 
             }
-
 
         }
         return false;
@@ -67,13 +67,6 @@ public class TaskServiceImpl implements TaskService {
 
         }
         return result;
-    }
-
-    private boolean isEmptyRow( int[][] matrix,  int y ){
-        for (int i =0; i < matrix.length; i++ )
-            if (matrix[y][i] != 0)
-                return false;
-        return true;
     }
 
     private boolean isEmptyColumn( int[][] matrix,  int x ){
@@ -98,6 +91,94 @@ public class TaskServiceImpl implements TaskService {
             }
         }
 
+    }
+
+
+    public Map<Integer, List<List<SimpleVertex>>> getAllWaysForEachVertex(int matrix[][]){
+
+        Map<Integer, List<List<SimpleVertex>>> result = new HashMap<Integer, List<List<SimpleVertex>>>();
+
+        for (int nextRow = 0; nextRow < matrix.length; nextRow++) {
+            result.put(nextRow, getAllWayForCurrentVertex(matrix, nextRow));
+        }
+
+        return result;
+
+    }
+
+    private static List<List<SimpleVertex>> getAllWayForCurrentVertex( int matrix[][], int currentVertexID){
+
+        List<List<SimpleVertex>> result = new ArrayList<List<SimpleVertex>>();
+
+        Stack<SimpleVertex> vertexStack = new Stack<SimpleVertex>();
+
+        System.out.println("===========================");
+
+        int col = 0;
+        int row = currentVertexID;
+        do{
+
+            while ( true ){
+
+                if ( isEmptyRow(matrix, row ) ) {
+                    SimpleVertex simpleVertex = new SimpleVertex(0, row); // last vertex (empty row)
+                    vertexStack.push(simpleVertex);
+                    break;
+                }
+
+                if ( matrix[row][col] != 0){
+                    SimpleVertex simpleVertex = new SimpleVertex(col, row);
+                    vertexStack.push(simpleVertex);
+                    row = col;
+                    col = 0;
+                } else {
+                    col ++;
+                }
+            }
+
+            result.add(new ArrayList<SimpleVertex>(vertexStack));
+
+            while ( ! vertexStack.isEmpty() ){
+                SimpleVertex simpleVertex = vertexStack.peek();
+
+                int nextCol = simpleVertex.getCol();
+                nextCol++;
+
+                if ( ! isEmptyRestOfRow(matrix, simpleVertex.getRow(), nextCol) ){
+                    System.out.println("form if : vertex ["+simpleVertex.getRow()+"]["+simpleVertex.getCol()+"]");
+                    simpleVertex = vertexStack.pop();
+                    col = nextCol;
+                    row = simpleVertex.getRow();
+                    break;
+                }
+                System.out.println("vertex [" + simpleVertex.getRow() + "][" + simpleVertex.getCol() + "]");
+                vertexStack.pop();
+
+            }
+            System.out.println("-------------------------");
+
+        }while ( ! vertexStack.isEmpty() || !isEmptyRestOfRow(matrix, row, col));
+
+        return result;
+
+    }
+
+    private static boolean isEmptyRow( int[][] matrix, int inRow ){
+        for (int i = 0; i < matrix[inRow].length; i++) {
+            if (matrix[inRow][i] != 0)
+                return false;
+        }
+        return true;
+    }
+
+    private static boolean isEmptyRestOfRow( int[][] matrix, int inRow, int fromNextCol ){
+        if ( fromNextCol >= matrix[inRow].length )
+            return true;
+        for (int i = fromNextCol; i < matrix[inRow].length; i++) {
+            if (matrix[inRow][i] != 0)
+                return false;
+        }
+        return true;
     }
 
 
