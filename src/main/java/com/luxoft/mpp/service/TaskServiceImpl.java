@@ -38,20 +38,27 @@ public class TaskServiceImpl implements TaskService {
 
         for (int i = 0; i < matrix.length; i++) {
 
-            boolean[] passedWay = new boolean[matrix.length];
 
-            for (int j = 0; j < matrix[i].length; j++) {
-                passedWay[i] = true;
-                if (matrix[i][j] != 0) {
 
-                    if (i == j)
+            for (int col = 0; col < matrix[i].length; col++) {
+
+                int row = i;
+                int nextCol = col;
+                boolean[] passedWay = new boolean[matrix.length];
+
+                while( !isEmptyRow(matrix, row) && nextCol < matrix.length){
+
+                    if (passedWay[nextCol]){
                         return true;
+                    }
 
-                    if (passedWay[j])
-                        return true;
+                    if ( matrix[row][nextCol] != 0 ){
+                        passedWay[col] = true;
+                        row = nextCol;
+                        nextCol = 0;
+                    }
+                    nextCol++;
 
-                    passedWay[j] = true;
-                    i = j;
                 }
 
             }

@@ -96,8 +96,12 @@ public class TaskView implements Serializable {
 
     public void generateGraph(){
 
-        if (maxTaskValue < minTaskValue || maxLoopValue < minLoopValue)
-            return;
+        if (maxTaskValue < minTaskValue || maxLoopValue < minLoopValue) {
+            FacesContext context = FacesContext.getCurrentInstance();
+
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Warning", "Wrong parameter "));
+            RequestContext.getCurrentInstance().update("form:msgs");
+        }
 
         model = new DefaultDiagramModel();
         model.setMaxConnections(-1);
@@ -130,7 +134,7 @@ public class TaskView implements Serializable {
             lm = new int[vertex.length][vertex.length];
             for (int i = 0; i < lm.length-1; i++) {
 
-                int linkNumber = rand.nextInt(lm.length / 2)+1;
+                int linkNumber = 1;
                 while( linkNumber != 0) {
 
                     int min = 0;
@@ -143,6 +147,8 @@ public class TaskView implements Serializable {
 
                     int randomVertex = rand.nextInt(lm[i].length);
 
+                    if(randomVertex == i)
+                        continue;
                     if (lm[i][randomVertex] != 0)
                         continue;
 
