@@ -1,5 +1,6 @@
 package com.luxoft.mpp.service;
 
+import com.luxoft.mpp.entity.model.SimpleMetaData;
 import com.luxoft.mpp.entity.model.SimpleVertex;
 import com.luxoft.mpp.entity.model.TaskElement;
 import org.primefaces.model.diagram.Element;
@@ -23,6 +24,8 @@ public class TaskServiceImpl implements TaskService {
 //    private TaskDao taskGraphDao;
 
     public void saveVertex(List<Element> elements){
+
+        throw new UnsupportedOperationException(" method not implement yet");
 
 
     }
@@ -76,25 +79,171 @@ public class TaskServiceImpl implements TaskService {
         return true;
     }
 
-    public void getCriticalWay( TaskElement taskElement, Stack<TaskElement> stack){
 
-        if (taskElement.getRelatedTaskElements().isEmpty()){
-            for (TaskElement e : stack){
-                System.out.print(e.getId() + ", ");
+    private List<Integer> getCriticalWayByTaskValue(List<List<Integer>> criticalWays, Integer[] vertex){
+        List<Integer> result = new ArrayList<Integer>();
+        int criticalWay = 0;
+        for (List<Integer> list : criticalWays) {
+            int sum = 0;
+            for (Integer taskId : list) {
+                sum += vertex[taskId];
             }
-            System.out.println("----------------");
+            if (sum > criticalWay) {
+                criticalWay = sum;
+                result = list;
+            }
         }
-        for ( TaskElement e : taskElement.getRelatedTaskElements()){
+        return result;
 
-            if ( !stack.contains(e) ){
-                stack.push(e);
+    }
+
+    private List<Integer> getCriticalWayByTaskQuantity(List<List<Integer>> criticalWays, Integer[] vertex){
+        List<Integer> result = new ArrayList<Integer>();
+        int taskQuantity = 0;
+        for (List<Integer> list : criticalWays) {
+
+            if (list.size() < taskQuantity)
+                continue;
+
+            if (list.size() == taskQuantity) {
+                result = getCriticalWayByTaskValue(criticalWays, vertex);
+            } else {
+                taskQuantity = list.size();
+                result = list;
             }
         }
+        return result;
 
     }
 
 
-    public Map<Integer, List<List<SimpleVertex>>> getAllWaysForEachVertex(int matrix[][]){
+    @Override
+    public List<SimpleMetaData> getQueueVariant3(int[][] matrix, Integer[] vertex) {
+        List<SimpleMetaData> result = new ArrayList<SimpleMetaData>();
+
+        Map<Integer, List<List<SimpleVertex>>> allWaysForEachVertex = getAllWaysForEachVertex(matrix);
+        Map<Integer, List<List<Integer>>> criticalWayVertexID = convertSimpleVertexToVertexID(allWaysForEachVertex);
+
+        for (Map.Entry<Integer, List<List<Integer>>> waysForCurrVertex : criticalWayVertexID.entrySet()) {
+            List<Integer> list = getCriticalWayByTaskValue(waysForCurrVertex.getValue(), vertex);
+
+            int sum = 0;
+            String criticalWay = "";
+            for (Integer aList : list) {
+                sum += vertex[aList];
+                criticalWay += aList+"; ";
+            }
+            result.add(new SimpleMetaData(criticalWay, waysForCurrVertex.getKey(), sum));
+        }
+
+        result.sort(new Comparator<SimpleMetaData>() {
+            @Override
+            public int compare(SimpleMetaData o1, SimpleMetaData o2) {
+                if ( o1.getCriticalWay() > o2.getCriticalWay()){
+                    return -1;
+                } else if (o1.getCriticalWay() < o2.getCriticalWay()){
+                    return  1;
+                } else return 0;
+        }});
+
+        return result;
+    }
+
+    @Override
+    public List<SimpleMetaData> getQueueVariant8(int[][] matrix, Integer[] vertex) {
+        List<SimpleMetaData> result = new ArrayList<SimpleMetaData>();
+
+        Map<Integer, List<List<SimpleVertex>>> allWaysForEachVertex = getAllWaysForEachVertex(matrix);
+        Map<Integer, List<List<Integer>>> criticalWayVertexID = convertSimpleVertexToVertexID(allWaysForEachVertex);
+
+        for (Map.Entry<Integer, List<List<Integer>>> waysForCurrVertex : criticalWayVertexID.entrySet()) {
+            List<Integer> list = getCriticalWayByTaskQuantity(waysForCurrVertex.getValue(), vertex);
+
+            int sum = 0;
+            String criticalWay = "";
+            for (Integer aList : list) {
+                sum += vertex[aList];
+                criticalWay += aList+"; ";
+            }
+            SimpleMetaData simpleMetaData = new SimpleMetaData(criticalWay, waysForCurrVertex.getKey(), sum, list.size());
+            simpleMetaData.setVertexID(list);
+            result.add(simpleMetaData);
+        }
+
+        result.sort(new Comparator<SimpleMetaData>() {
+            @Override
+            public int compare(SimpleMetaData o1, SimpleMetaData o2) {
+                if ( o1.getVertexQuantity() > o2.getVertexQuantity()){
+                    return -1;
+                } else if (o1.getVertexQuantity() < o2.getVertexQuantity()){
+                    return  1;
+                } else if (o1.getVertexQuantity() == o2.getVertexQuantity()){
+                    if ( o1.getCriticalWay() > o2.getCriticalWay()){
+                        return -1;
+                    } else if (o1.getCriticalWay() < o2.getCriticalWay()) {
+                        return 1;
+                    }
+                }
+                return 0;
+            }});
+
+        return result;
+    }
+
+    @Override
+    public List<SimpleMetaData> getQueueVariant13(int[][] matrix, Integer[] vertex) {
+        List<SimpleMetaData> result = new ArrayList<SimpleMetaData>();
+        Map<Integer, List<List<SimpleVertex>>> allWaysForEachVertex = getAllWaysForEachVertex(matrix);
+        Map<Integer, List<List<Integer>>> criticalWayVertexID = convertSimpleVertexToVertexID(allWaysForEachVertex);
+
+        Random random = new Random(47);
+        int rand = criticalWayVertexID.size();
+        while( ! criticalWayVertexID.isEmpty() ){
+            int randomID = random.nextInt(rand);
+
+            if (criticalWayVertexID.get(randomID) == null)
+                continue;
+
+            List<Integer> list = getCriticalWayByTaskValue(criticalWayVertexID.get(randomID), vertex);
+
+            int sum = 0;
+            String criticalWay = "";
+            for (Integer aList : list) {
+                sum += vertex[aList];
+                criticalWay += aList+"; ";
+            }
+            SimpleMetaData simpleMetaData = new SimpleMetaData(criticalWay, randomID, sum, list.size());
+            simpleMetaData.setVertexID(list);
+
+            result.add(simpleMetaData);
+            criticalWayVertexID.remove(randomID);
+        }
+
+        return result;
+    }
+
+
+
+    private Map<Integer, List<List<Integer>>> convertSimpleVertexToVertexID(Map<Integer, List<List<SimpleVertex>>> criticalWay){
+        Map<Integer, List<List<Integer>>> result = new HashMap<Integer, List<List<Integer>>>();
+
+        for (Map.Entry<Integer, List<List<SimpleVertex>>> waysForCurrVertex : criticalWay.entrySet()){
+
+            List<List<Integer>> wayList =  new ArrayList<List<Integer>>();
+            for (List<SimpleVertex> list : waysForCurrVertex.getValue()){
+
+                List<Integer> idsList = new ArrayList<Integer>();
+                for (SimpleVertex e :list) {
+                    idsList.add(e.getRow());
+                }
+                wayList.add(idsList);
+            }
+            result.put(waysForCurrVertex.getKey(), wayList);
+        }
+        return result;
+    }
+
+    private Map<Integer, List<List<SimpleVertex>>> getAllWaysForEachVertex(int matrix[][]){
 
         Map<Integer, List<List<SimpleVertex>>> result = new HashMap<Integer, List<List<SimpleVertex>>>();
 
@@ -105,6 +254,7 @@ public class TaskServiceImpl implements TaskService {
         return result;
 
     }
+
 
     private static List<List<SimpleVertex>> getAllWayForCurrentVertex( int matrix[][], int currentVertexID){
 
@@ -180,6 +330,8 @@ public class TaskServiceImpl implements TaskService {
         }
         return true;
     }
+
+
 
 
 }

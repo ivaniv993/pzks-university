@@ -1,5 +1,6 @@
 package com.luxoft.mpp.service;
 
+import com.luxoft.mpp.entity.model.SimpleMetaData;
 import com.luxoft.mpp.entity.model.SimpleVertex;
 import com.luxoft.mpp.entity.model.TaskElement;
 import com.luxoft.mpp.entity.model.TaskVertex;
@@ -19,9 +20,10 @@ public interface TaskService {
 
     boolean isLoop(int[][] lm );
 
-    Map<Integer, List<List<SimpleVertex>>> getAllWaysForEachVertex(int matrix[][]);
+    List<SimpleMetaData> getQueueVariant3(int[][] matrix, Integer[] vertex);
 
+    List<SimpleMetaData> getQueueVariant8(int[][] matrix, Integer[] vertex);
 
-
+    List<SimpleMetaData> getQueueVariant13(int[][] matrix, Integer[] vertex);
 
 }

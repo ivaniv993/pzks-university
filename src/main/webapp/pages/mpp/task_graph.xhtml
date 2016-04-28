@@ -80,19 +80,17 @@
 
                     <p:commandButton value="Save" actionListener="#{diagramEditableView.saveGraph}"/>
 
-                    <p:commandButton value="Run" actionListener="#{diagramEditableView.run}" update="form"/>
+                    <p:commandButton value="Test Graph" actionListener="#{diagramEditableView.testGraph}" update="form"/>
+
+                    <p:commandButton value="Variant 3" actionListener="#{diagramEditableView.runLab2}" update="data_table"/>
+
+                    <p:commandButton value="Variant 8" actionListener="#{diagramEditableView.runLab3}" update="data_table"/>
+
+                    <p:commandButton value="Variant 13" actionListener="#{diagramEditableView.runLab4}" update="data_table"/>
 
                 </h:panelGroup>
             </h:form>
 
-            <!--<h:form id="edit_panel">-->
-
-                <h:panelGroup style="width: 200px;height: 50px">
-                    <p:commandButton value="Add vertex" icon="ui-icon-disk"
-                                     onclick="PF('dlg2').show();"
-                                    />
-                </h:panelGroup>
-            <!--</h:form>-->
         </p:layoutUnit>
 
         <p:layoutUnit position="center" size="550" minSize="500" maxSize="600">
@@ -143,7 +141,19 @@
             </style>
         </p:layoutUnit>
         <p:layoutUnit position="north" size="120" resizable="true" closable="true" collapsible="true">
+            <p:dataTable id="data_table" var="task" value="#{diagramEditableView.queueVariant}">
+                <p:column headerText="Task Id">
+                    <h:outputText value="#{task.vertexId}" />
+                </p:column>
 
+                <p:column headerText="Task list">
+                    <h:outputText value="#{task.list}" />
+                </p:column>
+
+                <p:column headerText="Critical Way">
+                    <h:outputText value="#{task.criticalWay}" />
+                </p:column>
+            </p:dataTable>
 
         </p:layoutUnit>
     </p:layout>

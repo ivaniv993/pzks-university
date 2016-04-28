@@ -2,6 +2,7 @@ package com.luxoft.mpp.controllers;
 
 import com.luxoft.mpp.entity.model.SimpleVertex;
 import com.luxoft.mpp.entity.model.TaskElement;
+import com.luxoft.mpp.entity.model.SimpleMetaData;
 import com.luxoft.mpp.service.TaskService;
 import com.luxoft.mpp.utils.LRUCache;
 import org.apache.log4j.Logger;
@@ -56,6 +57,10 @@ public class TaskView implements Serializable {
     private int[][] lm = new int[0][0];
     private Integer[] vertex = new Integer[0];
 
+    private List<SimpleMetaData> queueVariant;
+    private Map<Integer, List<Integer>> queueVariant8;
+    private Map<Integer, List<Integer>> queueVariant13;
+
     private LRUCache<Integer, Connection> connectionLRUCache = new LRUCache<Integer, Connection>(3);
 
     private LRUCache<Integer, TaskElement> taskCache = new LRUCache<Integer, TaskElement>(3);
@@ -67,6 +72,8 @@ public class TaskView implements Serializable {
 
     @PostConstruct
     public void init() {
+        queueVariant = new ArrayList<SimpleMetaData>();
+
         model = new DefaultDiagramModel();
         model.setMaxConnections(-1);
 
@@ -254,7 +261,7 @@ public class TaskView implements Serializable {
 
 
 
-    public void run(){
+    public void testGraph(){
 
         if (taskServiceImpl.isLoop(lm)){
             FacesContext context = FacesContext.getCurrentInstance();
@@ -264,28 +271,23 @@ public class TaskView implements Serializable {
             return;
         }
 
+    }
 
+    public void runLab2(){
+        testGraph();
+        queueVariant = taskServiceImpl.getQueueVariant3(lm, vertex);
 
-        Map<Integer, List<List<SimpleVertex>>> allWaysForEachVertex = new HashMap<Integer, List<List<SimpleVertex>>>();
-        allWaysForEachVertex = taskServiceImpl.getAllWaysForEachVertex(lm);
+    }
 
-        System.out.println("******************");
-        for (Map.Entry<Integer, List<List<SimpleVertex>>> waysForCurrVertex : allWaysForEachVertex.entrySet()){
+    public void runLab3(){
+        testGraph();
+        queueVariant = taskServiceImpl.getQueueVariant8(lm, vertex);
 
-            System.out.println("Vertex = "+waysForCurrVertex.getKey());
+    }
 
-            int k = 0;
-            for (List<SimpleVertex> list : waysForCurrVertex.getValue()){
-
-                for (SimpleVertex e :list) {
-                    System.out.print(e.getRow() + ", ");
-
-                }
-                System.out.println(" Way "+(++k));
-            }
-
-        }
-
+    public void runLab4(){
+        testGraph();
+        queueVariant = taskServiceImpl.getQueueVariant13(lm, vertex);
 
     }
 
@@ -354,6 +356,32 @@ public class TaskView implements Serializable {
     public void setTaskServiceImpl(TaskService taskServiceImpl) {
         this.taskServiceImpl = taskServiceImpl;
     }
+
+    public Map<Integer, List<Integer>> getQueueVariant8() {
+        return queueVariant8;
+    }
+
+    public void setQueueVariant8(Map<Integer, List<Integer>> queueVariant8) {
+        this.queueVariant8 = queueVariant8;
+    }
+
+    public Map<Integer, List<Integer>> getQueueVariant13() {
+        return queueVariant13;
+    }
+
+    public void setQueueVariant13(Map<Integer, List<Integer>> queueVariant13) {
+        this.queueVariant13 = queueVariant13;
+    }
+
+    public List<SimpleMetaData> getQueueVariant() {
+        return queueVariant;
+    }
+
+    public void setQueueVariant(List<SimpleMetaData> queueVariant) {
+        this.queueVariant = queueVariant;
+    }
+
+
 
 }
 
