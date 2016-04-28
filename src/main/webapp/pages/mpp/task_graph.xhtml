@@ -71,7 +71,7 @@
         <p:layoutUnit position="west"  size="550" minSize="500" maxSize="600" style="height: 400px">
             <h:form id="control_form">
 
-                <h:panelGroup style="width: 200px;height: 50px">
+                <h:panelGrid  columns="4" cellpadding="2" style="width: 200px;height: 50px">
                     <p:commandButton value="New graph" icon="ui-icon-disk"
                                      actionListener="#{diagramEditableView.onNewDiagram}"
                                      update="form"/>
@@ -88,8 +88,33 @@
 
                     <p:commandButton value="Variant 13" actionListener="#{diagramEditableView.runLab4}" update="data_table"/>
 
-                </h:panelGroup>
+                </h:panelGrid>
             </h:form>
+
+            <h:form id="generate_graph">
+                <h:panelGrid columns="2" cellpadding="2" style="width: 300px;height: 50px">
+
+                    <h:outputLabel for="minTask" value="Min task value:"  style="width: 150px" />
+                    <p:inputText id="minTask" value="#{diagramEditableView.minTaskValue}" />
+
+                    <h:outputLabel for="maxTask" value="Max task value:" style="width: 150px"/>
+                    <p:inputText id="maxTask" value="#{diagramEditableView.maxTaskValue}" />
+
+                    <h:outputLabel for="vertexQuantity" value="Vertex quantity:" style="width: 150px" />
+                    <p:inputText id="vertexQuantity" value="#{diagramEditableView.vertexQuantity}" />
+
+                    <h:outputLabel for="maxLoop" value="Max loop value:" style="width: 150px" />
+                    <p:inputText id="maxLoop" value="#{diagramEditableView.maxLoopValue}" />
+
+                    <h:outputLabel for="minLoop" value="Min loop value:" style="width: 150px" />
+                    <p:inputText id="minLoop" value="#{diagramEditableView.minLoopValue}" />
+
+                    <h:outputLabel  id="correlation" value="Correlation: #{diagramEditableView.correlation}" style="width: 150px"/>
+
+                </h:panelGrid>
+                <p:commandButton value="Generate graph" actionListener="#{diagramEditableView.generateGraph}" />
+            </h:form>
+
 
         </p:layoutUnit>
 
@@ -140,7 +165,7 @@
 
             </style>
         </p:layoutUnit>
-        <p:layoutUnit position="north" size="120" resizable="true" closable="true" collapsible="true">
+        <p:layoutUnit position="north" size="200" resizable="true" closable="true" collapsible="true">
             <p:dataTable id="data_table" var="task" value="#{diagramEditableView.queueVariant}">
                 <p:column headerText="Task Id">
                     <h:outputText value="#{task.vertexId}" />

@@ -4,6 +4,7 @@ import com.luxoft.mpp.entity.model.SimpleVertex;
 import com.luxoft.mpp.entity.model.TaskElement;
 import com.luxoft.mpp.entity.model.SimpleMetaData;
 import com.luxoft.mpp.service.TaskService;
+import com.luxoft.mpp.service.TaskServiceImpl;
 import com.luxoft.mpp.utils.LRUCache;
 import org.apache.log4j.Logger;
 import org.primefaces.context.RequestContext;
@@ -58,8 +59,13 @@ public class TaskView implements Serializable {
     private Integer[] vertex = new Integer[0];
 
     private List<SimpleMetaData> queueVariant;
-    private Map<Integer, List<Integer>> queueVariant8;
-    private Map<Integer, List<Integer>> queueVariant13;
+
+    private int minTaskValue;
+    private int maxTaskValue;
+    private int vertexQuantity;
+    private int correlation;
+    private int minLoopValue;
+    private int maxLoopValue;
 
     private LRUCache<Integer, Connection> connectionLRUCache = new LRUCache<Integer, Connection>(3);
 
@@ -86,6 +92,82 @@ public class TaskView implements Serializable {
         id = 0;
 
         logger.info("Init bean (View scope)");
+    }
+
+    public void generateGraph(){
+
+        if (maxTaskValue < minTaskValue || maxLoopValue < minLoopValue)
+            return;
+
+        model = new DefaultDiagramModel();
+        model.setMaxConnections(-1);
+
+        model.getDefaultConnectionOverlays().add(new ArrowOverlay(20, 20, 1, 1));
+        StraightConnector connector = new StraightConnector();
+        connector.setPaintStyle("{strokeStyle:'#98AFC7', lineWidth:3}");
+        connector.setHoverPaintStyle("{strokeStyle:'#5C738B'}");
+        model.setDefaultConnector(connector);
+
+        vertex = new Integer[vertexQuantity];
+
+        id = vertexQuantity;
+
+        Random rand = new Random();
+        for (int i = 0; i < vertex.length; i++) {
+            int min = 0;
+            int max = 0;
+
+            do{
+                min = rand.nextInt(minTaskValue);
+                max = rand.nextInt(maxTaskValue);
+            }while (max < min);
+
+            int value = min+(max - min);
+            vertex[i] = value;
+        }
+
+        do {
+            lm = new int[vertex.length][vertex.length];
+            for (int i = 0; i < lm.length-1; i++) {
+
+                int linkNumber = rand.nextInt(lm.length / 2)+1;
+                while( linkNumber != 0) {
+
+                    int min = 0;
+                    int max = 0;
+                    do{
+                        min = rand.nextInt(minLoopValue);
+                        max = rand.nextInt(maxLoopValue);
+                    }while (max < min);
+                    int linkValue = min+(max - min);
+
+                    int randomVertex = rand.nextInt(lm[i].length);
+
+                    if (lm[i][randomVertex] != 0)
+                        continue;
+
+                    lm[i][randomVertex] = linkValue;
+
+                    linkNumber--;
+                }
+            }
+        } while( taskServiceImpl.isLoop(lm) || !taskServiceImpl.findHangingVertex(lm).isEmpty() );
+
+
+        System.out.println("Vertex");
+        for (int e : vertex){
+            System.out.print(e + ", ");
+        }
+        System.out.println("\n___________________");
+
+        for (int i = 0; i < lm.length; i++) {
+            for (int j = 0; j < lm[i].length; j++) {
+                System.out.print(lm[i][j] + ", ");
+            }
+            System.out.println();
+        }
+
+
     }
 
     public void updateVertex( int duration, int id ){
@@ -201,7 +283,6 @@ public class TaskView implements Serializable {
         else {
             suspendEvent = false;
         }
-
         Connection connection = createConnection(event.getSourceElement().getEndPoints().get(1), event.getTargetElement().getEndPoints().get(0), "0");
         connectionLRUCache.put(1, connection);
         model.connect(connection);
@@ -211,8 +292,6 @@ public class TaskView implements Serializable {
 
         RequestContext.getCurrentInstance().update("form");
     }
-
-
 
 
     public void onDisconnect(DisconnectEvent event) {
@@ -256,9 +335,6 @@ public class TaskView implements Serializable {
         }
 
     }
-
-
-
 
 
     public void testGraph(){
@@ -332,7 +408,6 @@ public class TaskView implements Serializable {
         this.description = description;
     }
 
-
     public int getLinkDuration() {
         return linkDuration;
     }
@@ -357,22 +432,6 @@ public class TaskView implements Serializable {
         this.taskServiceImpl = taskServiceImpl;
     }
 
-    public Map<Integer, List<Integer>> getQueueVariant8() {
-        return queueVariant8;
-    }
-
-    public void setQueueVariant8(Map<Integer, List<Integer>> queueVariant8) {
-        this.queueVariant8 = queueVariant8;
-    }
-
-    public Map<Integer, List<Integer>> getQueueVariant13() {
-        return queueVariant13;
-    }
-
-    public void setQueueVariant13(Map<Integer, List<Integer>> queueVariant13) {
-        this.queueVariant13 = queueVariant13;
-    }
-
     public List<SimpleMetaData> getQueueVariant() {
         return queueVariant;
     }
@@ -381,6 +440,53 @@ public class TaskView implements Serializable {
         this.queueVariant = queueVariant;
     }
 
+    public int getMinTaskValue() {
+        return minTaskValue;
+    }
+
+    public void setMinTaskValue(int minTaskValue) {
+        this.minTaskValue = minTaskValue;
+    }
+
+    public int getMaxTaskValue() {
+        return maxTaskValue;
+    }
+
+    public void setMaxTaskValue(int maxTaskValue) {
+        this.maxTaskValue = maxTaskValue;
+    }
+
+    public int getVertexQuantity() {
+        return vertexQuantity;
+    }
+
+    public void setVertexQuantity(int vertexQuantity) {
+        this.vertexQuantity = vertexQuantity;
+    }
+
+    public int getCorrelation() {
+        return correlation;
+    }
+
+    public void setCorrelation(int correlation) {
+        this.correlation = correlation;
+    }
+
+    public int getMinLoopValue() {
+        return minLoopValue;
+    }
+
+    public void setMinLoopValue(int minLoopValue) {
+        this.minLoopValue = minLoopValue;
+    }
+
+    public int getMaxLoopValue() {
+        return maxLoopValue;
+    }
+
+    public void setMaxLoopValue(int maxLoopValue) {
+        this.maxLoopValue = maxLoopValue;
+    }
 
 
 }

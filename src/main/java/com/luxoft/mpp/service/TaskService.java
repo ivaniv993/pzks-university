@@ -26,4 +26,6 @@ public interface TaskService {
 
     List<SimpleMetaData> getQueueVariant13(int[][] matrix, Integer[] vertex);
 
+    List<Integer> findHangingVertex( int[][] lm );
+
 }

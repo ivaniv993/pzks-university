@@ -36,21 +36,22 @@ public class TaskServiceImpl implements TaskService {
 
     public boolean isLoop(int[][] matrix ){
 
-        boolean[] passedWay = new boolean[matrix.length];
-
-        if ( ! findHangingVertex(matrix).isEmpty())
-            return false;
-
         for (int i = 0; i < matrix.length; i++) {
+
+            boolean[] passedWay = new boolean[matrix.length];
+
             for (int j = 0; j < matrix[i].length; j++) {
                 passedWay[i] = true;
                 if (matrix[i][j] != 0) {
 
+                    if (i == j)
+                        return true;
+
                     if (passedWay[j])
                         return true;
 
+                    passedWay[j] = true;
                     i = j;
-                    break;
                 }
 
             }
@@ -60,7 +61,7 @@ public class TaskServiceImpl implements TaskService {
 
     }
 
-    private List<Integer> findHangingVertex( int[][] lm ){
+    public List<Integer> findHangingVertex( int[][] lm ){
 
         List<Integer> result = new ArrayList<Integer>();
         for ( int i = 0; i < lm.length; i++ ){
@@ -136,15 +137,16 @@ public class TaskServiceImpl implements TaskService {
             result.add(new SimpleMetaData(criticalWay, waysForCurrVertex.getKey(), sum));
         }
 
-        result.sort(new Comparator<SimpleMetaData>() {
+        Collections.sort(result, new Comparator<SimpleMetaData>() {
             @Override
             public int compare(SimpleMetaData o1, SimpleMetaData o2) {
-                if ( o1.getCriticalWay() > o2.getCriticalWay()){
+                if (o1.getCriticalWay() > o2.getCriticalWay()) {
                     return -1;
-                } else if (o1.getCriticalWay() < o2.getCriticalWay()){
-                    return  1;
+                } else if (o1.getCriticalWay() < o2.getCriticalWay()) {
+                    return 1;
                 } else return 0;
-        }});
+            }
+        });
 
         return result;
     }
@@ -170,22 +172,23 @@ public class TaskServiceImpl implements TaskService {
             result.add(simpleMetaData);
         }
 
-        result.sort(new Comparator<SimpleMetaData>() {
+        Collections.sort(result, new Comparator<SimpleMetaData>() {
             @Override
             public int compare(SimpleMetaData o1, SimpleMetaData o2) {
-                if ( o1.getVertexQuantity() > o2.getVertexQuantity()){
+                if (o1.getVertexQuantity() > o2.getVertexQuantity()) {
                     return -1;
-                } else if (o1.getVertexQuantity() < o2.getVertexQuantity()){
-                    return  1;
-                } else if (o1.getVertexQuantity() == o2.getVertexQuantity()){
-                    if ( o1.getCriticalWay() > o2.getCriticalWay()){
+                } else if (o1.getVertexQuantity() < o2.getVertexQuantity()) {
+                    return 1;
+                } else if (o1.getVertexQuantity() == o2.getVertexQuantity()) {
+                    if (o1.getCriticalWay() > o2.getCriticalWay()) {
                         return -1;
                     } else if (o1.getCriticalWay() < o2.getCriticalWay()) {
                         return 1;
                     }
                 }
                 return 0;
-            }});
+            }
+        });
 
         return result;
     }
@@ -196,11 +199,12 @@ public class TaskServiceImpl implements TaskService {
         Map<Integer, List<List<SimpleVertex>>> allWaysForEachVertex = getAllWaysForEachVertex(matrix);
         Map<Integer, List<List<Integer>>> criticalWayVertexID = convertSimpleVertexToVertexID(allWaysForEachVertex);
 
-        Random random = new Random(47);
+        Random random = new Random();
         int rand = criticalWayVertexID.size();
         while( ! criticalWayVertexID.isEmpty() ){
-            int randomID = random.nextInt(rand);
 
+            int randomID = random.nextInt(rand);
+            System.out.println("rand = "+randomID);
             if (criticalWayVertexID.get(randomID) == null)
                 continue;
 
