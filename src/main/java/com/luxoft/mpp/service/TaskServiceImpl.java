@@ -18,11 +18,6 @@ public class TaskServiceImpl implements TaskService {
     private int[][] lm = new int[0][0];
     private Integer[] vertex = new Integer[0];
 
-
-
-//    @Autowired
-//    private TaskDao taskGraphDao;
-
     public void saveVertex(List<Element> elements){
 
         throw new UnsupportedOperationException(" method not implement yet");
@@ -30,37 +25,65 @@ public class TaskServiceImpl implements TaskService {
 
     }
 
+    public boolean hasWayToLastVertex(int[][] matrix){
+
+        for (int row = 0; row < matrix.length; row++) {
+
+            if( row == (matrix.length-1))
+                return true;
+
+            for (int col = 0; col < matrix[row].length; col++) {
+                if(  matrix[row][col] != 0 ) {
+
+                    int nextCol = col;
+                    while( !isEmptyRow(matrix, row) && nextCol < matrix.length){
 
 
+                        if ( matrix[row][nextCol] != 0 ){
+                            row = nextCol;
+                            nextCol = 0;
+                            continue;
+                        }
+                        nextCol++;
+                    }
+                    if( row == (matrix.length-1))
+                        return true;
+                }
+            }
+        }
+        return false;
+    }
 
 
     public boolean isLoop(int[][] matrix ){
 
-        for (int i = 0; i < matrix.length; i++) {
+        for (int row = 0; row < matrix.length; row++) {
 
+            for (int col = 0; col < matrix[row].length; col++) {
 
-
-            for (int col = 0; col < matrix[i].length; col++) {
-
-                int row = i;
-                int nextCol = col;
-                boolean[] passedWay = new boolean[matrix.length];
-
-                while( !isEmptyRow(matrix, row) && nextCol < matrix.length){
-
-                    if (passedWay[nextCol]){
+                if(  matrix[row][col] != 0 ) {
+                    if (row == col)
                         return true;
-                    }
+                    Stack<SimpleVertex> stack = new Stack<SimpleVertex>();
 
-                    if ( matrix[row][nextCol] != 0 ){
-                        passedWay[col] = true;
-                        row = nextCol;
-                        nextCol = 0;
-                    }
-                    nextCol++;
+                    int nextCol = col;
+                    while( !isEmptyRow(matrix, row) && nextCol < matrix.length){
+                        
+                        SimpleVertex curVertex = new SimpleVertex(nextCol, row);
 
+                        if (stack.contains(curVertex)){
+                            return true;
+                        }
+
+                        if ( matrix[row][nextCol] != 0 ){
+                            stack.push(new SimpleVertex(nextCol, row));
+                            row = nextCol;
+                            nextCol = 0;
+                            continue;
+                        }
+                        nextCol++;
+                    }
                 }
-
             }
 
         }

@@ -20,6 +20,8 @@ public interface TaskService {
 
     boolean isLoop(int[][] lm );
 
+    boolean hasWayToLastVertex(int[][] lm);
+
     List<SimpleMetaData> getQueueVariant3(int[][] matrix, Integer[] vertex);
 
     List<SimpleMetaData> getQueueVariant8(int[][] matrix, Integer[] vertex);

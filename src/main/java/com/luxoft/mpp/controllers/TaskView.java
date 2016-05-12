@@ -60,12 +60,12 @@ public class TaskView implements Serializable {
 
     private List<SimpleMetaData> queueVariant;
 
-    private int minTaskValue;
-    private int maxTaskValue;
-    private int vertexQuantity;
-    private int correlation;
-    private int minLoopValue;
-    private int maxLoopValue;
+    private int minTaskValue = 5;
+    private int maxTaskValue = 10;
+    private int vertexQuantity = 4;
+    private double correlation;
+    private int minLoopValue = 20;
+    private int maxLoopValue = 30;
 
     private LRUCache<Integer, Connection> connectionLRUCache = new LRUCache<Integer, Connection>(3);
 
@@ -96,11 +96,13 @@ public class TaskView implements Serializable {
 
     public void generateGraph(){
 
-        if (maxTaskValue < minTaskValue || maxLoopValue < minLoopValue) {
+        if (maxTaskValue < minTaskValue || maxLoopValue < minLoopValue
+                || minTaskValue < 0 || maxTaskValue < 0 || maxLoopValue < 0 || minLoopValue < 0) {
             FacesContext context = FacesContext.getCurrentInstance();
 
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Warning", "Wrong parameter "));
             RequestContext.getCurrentInstance().update("form:msgs");
+            return;
         }
 
         model = new DefaultDiagramModel();
@@ -118,16 +120,7 @@ public class TaskView implements Serializable {
 
         Random rand = new Random();
         for (int i = 0; i < vertex.length; i++) {
-            int min = 0;
-            int max = 0;
-
-            do{
-                min = rand.nextInt(minTaskValue);
-                max = rand.nextInt(maxTaskValue);
-            }while (max < min);
-
-            int value = min+(max - min);
-            vertex[i] = value;
+            vertex[i] = getValueFromRange(minTaskValue, maxTaskValue);
         }
 
         do {
@@ -137,13 +130,7 @@ public class TaskView implements Serializable {
                 int linkNumber = 1;
                 while( linkNumber != 0) {
 
-                    int min = 0;
-                    int max = 0;
-                    do{
-                        min = rand.nextInt(minLoopValue);
-                        max = rand.nextInt(maxLoopValue);
-                    }while (max < min);
-                    int linkValue = min+(max - min);
+                    int linkValue = getValueFromRange(minLoopValue, maxLoopValue);
 
                     int randomVertex = rand.nextInt(lm[i].length);
 
@@ -156,9 +143,11 @@ public class TaskView implements Serializable {
 
                     linkNumber--;
                 }
-            }
-        } while( taskServiceImpl.isLoop(lm) || !taskServiceImpl.findHangingVertex(lm).isEmpty() );
 
+            }
+        } while( taskServiceImpl.isLoop(lm) || !taskServiceImpl.findHangingVertex(lm).isEmpty() || !taskServiceImpl.hasWayToLastVertex(lm) );
+
+        countCorrelation();
 
         System.out.println("Vertex");
         for (int e : vertex){
@@ -173,8 +162,58 @@ public class TaskView implements Serializable {
             System.out.println();
         }
 
+        for (int i = 0; i < vertex.length; i++) {
+
+            TaskElement taskElement = new TaskElement(i, vertex[i]);
+
+            Element element = new Element(taskElement);
+            EndPoint endPoint = createDotEndPoint(EndPointAnchor.AUTO_DEFAULT);
+            element.setDraggable(true);
+            endPoint.setTarget(true);
+            element.addEndPoint(endPoint);
+
+            EndPoint beginPoint = createRectangleEndPoint(EndPointAnchor.BOTTOM);
+            beginPoint.setSource(true);
+            element.addEndPoint(beginPoint);
+
+            model.addElement(element);
+        }
+
+        for (int i = 0; i < lm.length; i++) {
+            for (int j = 0; j < lm[i].length; j++) {
+                if (lm[i][j] != 0){
+                    Element source = getElementByDataId(i);
+                    Element target = getElementByDataId(j);
+                    Connection connection = createConnection(
+                            source.getEndPoints().get(1),
+                            target.getEndPoints().get(0), String.valueOf(lm[i][j]));
+
+                    model.connect(connection);
+
+                }
+            }
+        }
+        orderVertex(model);
+        RequestContext.getCurrentInstance().update("form");
+        RequestContext.getCurrentInstance().update("generate_graph");
 
     }
+
+    private Element getElementByDataId(int id){
+
+        for ( Element e : model.getElements() ){
+            if (((TaskElement)e.getData()).getId() == id)
+                return e;
+        }
+        return null;
+    }
+
+
+    private int getValueFromRange( int min, int max ){
+        Random rand = new Random();
+        return min + rand.nextInt(max-min);
+    }
+
 
     public void updateVertex( int duration, int id ){
 
@@ -200,10 +239,9 @@ public class TaskView implements Serializable {
             int target =  Integer.valueOf(targetId);
 
             lm[source][target] = duration;
-
         }
-
     }
+
 
     public void updateTaskModel(int from, int to, int value){
 
@@ -223,6 +261,7 @@ public class TaskView implements Serializable {
 
     }
 
+
     private Connection createConnection(EndPoint from, EndPoint to, String label) {
         Connection conn = new Connection(from, to);
         conn.getOverlays().add(new ArrowOverlay(20, 20, 1, 1));
@@ -234,6 +273,7 @@ public class TaskView implements Serializable {
         return conn;
     }
 
+
     public void updateConnection(){
 
         Connection conn = connectionLRUCache.get(1);
@@ -244,6 +284,7 @@ public class TaskView implements Serializable {
 
     }
 
+
     public void updateAddTask(){
 
         updateVertex(taskDuration, id);
@@ -251,6 +292,7 @@ public class TaskView implements Serializable {
         taskElement.setTaskDuration(taskDuration);
         RequestContext.getCurrentInstance().update("form");
     }
+
 
     public void addTask( ){
 
@@ -277,7 +319,6 @@ public class TaskView implements Serializable {
 
         model.addElement(element);
 
-//        orderVertex(model);
     }
 
     public void onConnect(ConnectEvent event) {
@@ -325,25 +366,35 @@ public class TaskView implements Serializable {
     public void orderVertex(DefaultDiagramModel model){
 
         List<Element> elements = model.getElements();
-        int x = 9, y = 6;
+        int x = 15, y = 10;
 
         for( int i =0; i < elements.size(); i ++ ) {
 
             elements.get(i).setX(x + "px");
             elements.get(i).setY(y + "px");
-            if (i != 0 && i % 4 == 0) {
+            if (i != 0 && (i % 2 == 0) ) {
 
-                x = 6;
-                y += 9;
-
+                x = 15;
+                y += 200;
+                continue;
             }
-            x += 9;
+            x += 200;
         }
 
     }
 
 
     public void testGraph(){
+
+        System.out.println("\n________Test graph___________");
+
+        for (int i = 0; i < lm.length; i++) {
+            for (int j = 0; j < lm[i].length; j++) {
+                System.out.print(lm[i][j] + ", ");
+            }
+            System.out.println();
+        }
+        System.out.println("\n________Test graph___________");
 
         if (taskServiceImpl.isLoop(lm)){
             FacesContext context = FacesContext.getCurrentInstance();
@@ -380,6 +431,22 @@ public class TaskView implements Serializable {
 
     public void saveGraph(){
         System.out.println("save Graph");
+    }
+
+    private void countCorrelation(){
+
+        int linkSumValue = 0;
+        int vertexSumValue = 0 ;
+
+        for ( int v : vertex )
+            vertexSumValue += v;
+
+        for ( int[] row : lm )
+            for (int e : row)
+                linkSumValue += e;
+
+        correlation = (double)vertexSumValue/(vertexSumValue + linkSumValue);
+
     }
 
     private EndPoint createDotEndPoint(EndPointAnchor anchor) {
@@ -470,11 +537,11 @@ public class TaskView implements Serializable {
         this.vertexQuantity = vertexQuantity;
     }
 
-    public int getCorrelation() {
+    public double getCorrelation() {
         return correlation;
     }
 
-    public void setCorrelation(int correlation) {
+    public void setCorrelation(double correlation) {
         this.correlation = correlation;
     }
 

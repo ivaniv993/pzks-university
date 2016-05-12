@@ -39,15 +39,11 @@
                     <p:commandButton value="Open" icon="ui-icon-arrowrefresh-1-w"  />
 
                     <p:commandButton value="Save" actionListener="#{editableCSView.saveGraph}"/>
+
+                    <p:commandButton value="Test graph" actionListener="#{editableCSView.testGraph}"/>
                 </h:panelGroup>
             </h:form>
 
-            <h:form>
-                <h:panelGroup>
-                    <p:commandButton value="Vertex" type="button" icon="ui-icon-plus"
-                                     onclick="PF('dlg2').show();"/>
-                </h:panelGroup>
-            </h:form>
         </p:layoutUnit>
 
         <p:layoutUnit position="center" resizable="true" style="height: 615px;overflow: hidden">
