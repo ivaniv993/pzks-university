@@ -147,7 +147,7 @@ public class TaskView implements Serializable {
             }
         } while( taskServiceImpl.isLoop(lm) || !taskServiceImpl.findHangingVertex(lm).isEmpty() || !taskServiceImpl.hasWayToLastVertex(lm) );
 
-        countCorrelation();
+//        countCorrelation();
 
         System.out.println("Vertex");
         for (int e : vertex){
@@ -425,6 +425,19 @@ public class TaskView implements Serializable {
     }
 
     public void onNewDiagram() {
+        queueVariant = new ArrayList<SimpleMetaData>();
+
+        model = new DefaultDiagramModel();
+        model.setMaxConnections(-1);
+
+        model.getDefaultConnectionOverlays().add(new ArrowOverlay(20, 20, 1, 1));
+        StraightConnector connector = new StraightConnector();
+        connector.setPaintStyle("{strokeStyle:'#98AFC7', lineWidth:3}");
+        connector.setHoverPaintStyle("{strokeStyle:'#5C738B'}");
+        model.setDefaultConnector(connector);
+
+        id = 0;
+
         logger.info("On new diagram");
 
     }

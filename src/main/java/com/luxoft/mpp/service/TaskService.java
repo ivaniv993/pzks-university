@@ -30,4 +30,6 @@ public interface TaskService {
 
     List<Integer> findHangingVertex( int[][] lm );
 
+    boolean testCSGraph( int[][] lm);
+
 }

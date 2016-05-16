@@ -87,7 +87,7 @@ public class CSEditableView implements Serializable {
         }
         System.out.println("\n________Test graph___________");
 
-        if (!taskServiceImpl.findHangingVertex(lm).isEmpty()){
+        if (!taskServiceImpl.findHangingVertex(lm).isEmpty() || !taskServiceImpl.testCSGraph(lm)){
             FacesContext context = FacesContext.getCurrentInstance();
 
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Warning", "Your graph have handing nodes "));

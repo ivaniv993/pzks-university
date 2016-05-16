@@ -9,6 +9,8 @@ public class SimpleVertex{
 
     private int row;
 
+    private int value;
+
     public SimpleVertex(int col, int row) {
         this.col = col;
         this.row = row;
@@ -27,11 +29,18 @@ public class SimpleVertex{
 
     }
 
+    public SimpleVertex(int col, int row, int value) {
+        this.col = col;
+        this.row = row;
+        this.value = value;
+    }
+
     @Override
     public int hashCode() {
         int result = col;
         result = 31 * result + row;
         return result;
+
     }
 
     public int getCol() {
@@ -54,5 +63,13 @@ public class SimpleVertex{
 
     public void setRow(int row) {
         this.row = row;
+    }
+
+    public int getValue() {
+        return value;
+    }
+
+    public void setValue(int value) {
+        this.value = value;
     }
 }

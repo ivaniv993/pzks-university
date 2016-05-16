@@ -25,6 +25,42 @@ public class TaskServiceImpl implements TaskService {
 
     }
 
+    public boolean testCSGraph( int[][] matrix){
+        for (int row = 0; row < matrix.length; row++) {
+
+            Stack<SimpleVertex> stack = new Stack<SimpleVertex>();
+            for (int col = 0; col < matrix[row].length; col++) {
+
+
+                if(  matrix[row][col] != 0 ) {
+                    if (row == col)
+                        return true;
+
+
+                    int nextCol = col;
+                    while( !isEmptyRow(matrix, row) && nextCol < matrix.length){
+
+                        SimpleVertex curVertex = new SimpleVertex(nextCol, row);
+
+                        if ( matrix[row][nextCol] != 0 ){
+                            stack.push(curVertex);
+                            row = nextCol;
+                            nextCol = 0;
+                            continue;
+                        }
+                        nextCol++;
+                    }
+                }
+                if (stack.size() < matrix.length) {
+                    return false;
+                }else
+                    return true;
+            }
+
+        }
+        return false;
+    }
+
     public boolean hasWayToLastVertex(int[][] matrix){
 
         for (int row = 0; row < matrix.length; row++) {
