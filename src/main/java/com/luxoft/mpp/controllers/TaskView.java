@@ -123,11 +123,14 @@ public class TaskView implements Serializable {
             vertex[i] = getValueFromRange(minTaskValue, maxTaskValue);
         }
 
+        System.out.println("Links SUM = " + generateGeneralValueForLinks(vertex, correlation));
+
         do {
             lm = new int[vertex.length][vertex.length];
             for (int i = 0; i < lm.length-1; i++) {
 
-                int linkNumber = 1;
+                Random random = new Random();
+                int linkNumber = 1+random.nextInt(2);
                 while( linkNumber != 0) {
 
                     int linkValue = getValueFromRange(minLoopValue, maxLoopValue);
@@ -196,6 +199,29 @@ public class TaskView implements Serializable {
         orderVertex(model);
         RequestContext.getCurrentInstance().update("form");
         RequestContext.getCurrentInstance().update("generate_graph");
+
+    }
+
+    private double generateGeneralValueForLinks(Integer[] vertex, double correlation){
+
+        int vertexSum = 0;
+        Map<Integer, List<Integer>> linksForEachVertex = new HashMap<Integer, List<Integer>>();
+        for ( int i = 0; i < vertex.length; i ++ ){
+            vertexSum += vertex[i];
+        }
+        vertexSum = (int)((vertexSum*(1-correlation))/correlation);
+
+        int linksQuantity = 0;
+        Map<Integer, Integer> linksQuantityEachVertex = new HashMap<Integer, Integer>();
+        for ( int i = 0; i < vertex.length; i ++ ) {
+            vertexSum += vertex[i];
+            Random random = new Random();
+            int bufValue = 1+random.nextInt(2);
+            linksQuantity += bufValue;
+            linksQuantityEachVertex.put( i, bufValue );
+        }
+
+        return ((vertexSum*(1-correlation))/correlation);
 
     }
 

@@ -32,4 +32,6 @@ public interface TaskService {
 
     boolean testCSGraph( int[][] lm);
 
+//    Map<Integer, Integer> generateNumberOfLinks(int[] vertex);
+
 }

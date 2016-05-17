@@ -103,13 +103,15 @@
                     <h:outputLabel for="vertexQuantity" value="Vertex quantity:" style="width: 150px" />
                     <p:inputText id="vertexQuantity" value="#{diagramEditableView.vertexQuantity}" />
 
-                    <h:outputLabel for="maxLoop" value="Max loop value:" style="width: 150px" />
-                    <p:inputText id="maxLoop" value="#{diagramEditableView.maxLoopValue}" />
+                    <h:outputLabel  for="correlation" value="Correlation:    " style="width: 150px"/>
+                    <p:inputText id="correlation" value="#{diagramEditableView.correlation}" required="true"/>
 
-                    <h:outputLabel for="minLoop" value="Min loop value:" style="width: 150px" />
-                    <p:inputText id="minLoop" value="#{diagramEditableView.minLoopValue}" />
+                    <!--<h:outputLabel for="maxLoop" value="Max loop value:" style="width: 150px" />-->
+                    <!--<p:inputText id="maxLoop" value="#{diagramEditableView.maxLoopValue}" />-->
 
-                    <h:outputLabel  id="correlation" value="Correlation: #{diagramEditableView.correlation}" style="width: 150px"/>
+                    <!--<h:outputLabel for="minLoop" value="Min loop value:" style="width: 150px" />-->
+                    <!--<p:inputText id="minLoop" value="#{diagramEditableView.minLoopValue}" />-->
+
 
                 </h:panelGrid>
                 <p:commandButton value="Generate graph" actionListener="#{diagramEditableView.generateGraph}"/>
