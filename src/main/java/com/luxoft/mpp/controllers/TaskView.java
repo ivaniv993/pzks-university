@@ -221,6 +221,12 @@ public class TaskView implements Serializable {
             linksQuantityEachVertex.put( i, bufValue );
         }
 
+        if ( vertexSum < linksQuantity ){
+            // all links will have value 1
+        } else {
+            // all links will have different / equal value
+        }
+
         return ((vertexSum*(1-correlation))/correlation);
 
     }
