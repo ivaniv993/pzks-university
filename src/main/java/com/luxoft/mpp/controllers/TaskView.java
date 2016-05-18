@@ -1,10 +1,9 @@
 package com.luxoft.mpp.controllers;
 
-import com.luxoft.mpp.entity.model.SimpleVertex;
 import com.luxoft.mpp.entity.model.TaskElement;
 import com.luxoft.mpp.entity.model.SimpleMetaData;
+import com.luxoft.mpp.service.LinkGeneratorService;
 import com.luxoft.mpp.service.TaskService;
-import com.luxoft.mpp.service.TaskServiceImpl;
 import com.luxoft.mpp.utils.LRUCache;
 import org.apache.log4j.Logger;
 import org.primefaces.context.RequestContext;
@@ -74,6 +73,9 @@ public class TaskView implements Serializable {
     @ManagedProperty("#{taskServiceImpl}")
     private TaskService taskServiceImpl;
 
+    @ManagedProperty("#{linkGeneratorServiceImpl}")
+    private LinkGeneratorService linkGeneratorServiceImpl;
+
     private static int id=0;
 
     @PostConstruct
@@ -127,14 +129,15 @@ public class TaskView implements Serializable {
 
         do {
             lm = new int[vertex.length][vertex.length];
+
+            Map<Integer, List<Integer>> linksForEachVertex =
+                    linkGeneratorServiceImpl.generateGeneralValueForLinks(vertex, correlation);
+
             for (int i = 0; i < lm.length-1; i++) {
 
-                Random random = new Random();
-                int linkNumber = 1+random.nextInt(2);
-                while( linkNumber != 0) {
-
-                    int linkValue = getValueFromRange(minLoopValue, maxLoopValue);
-
+                List<Integer> links = linksForEachVertex.get(i);
+                int linkNumber = 0;
+                while ( linkNumber < links.size() ){
                     int randomVertex = rand.nextInt(lm[i].length);
 
                     if(randomVertex == i)
@@ -142,12 +145,32 @@ public class TaskView implements Serializable {
                     if (lm[i][randomVertex] != 0)
                         continue;
 
-                    lm[i][randomVertex] = linkValue;
+                    lm[i][randomVertex] = links.get(linkNumber);
 
-                    linkNumber--;
+                    linkNumber++;
                 }
 
+//                Random random = new Random();
+//                int linkNumber = 1+random.nextInt(2);
+//                while( linkNumber != 0) {
+//
+//                    int linkValue = getValueFromRange(minLoopValue, maxLoopValue);
+//
+//                    int randomVertex = rand.nextInt(lm[i].length);
+//
+//                    if(randomVertex == i)
+//                        continue;
+//                    if (lm[i][randomVertex] != 0)
+//                        continue;
+//
+//                    lm[i][randomVertex] = linkValue;
+//
+//                    linkNumber--;
+//                }
+
             }
+
+
         } while( taskServiceImpl.isLoop(lm) || !taskServiceImpl.findHangingVertex(lm).isEmpty() || !taskServiceImpl.hasWayToLastVertex(lm) );
 
 //        countCorrelation();
@@ -204,30 +227,14 @@ public class TaskView implements Serializable {
 
     private double generateGeneralValueForLinks(Integer[] vertex, double correlation){
 
-        int vertexSum = 0;
+        double linksSum = 0, vertexSum = 0;
         Map<Integer, List<Integer>> linksForEachVertex = new HashMap<Integer, List<Integer>>();
         for ( int i = 0; i < vertex.length; i ++ ){
             vertexSum += vertex[i];
         }
-        vertexSum = (int)((vertexSum*(1-correlation))/correlation);
+        linksSum = ((vertexSum*(1-correlation))/correlation);
 
-        int linksQuantity = 0;
-        Map<Integer, Integer> linksQuantityEachVertex = new HashMap<Integer, Integer>();
-        for ( int i = 0; i < vertex.length; i ++ ) {
-            vertexSum += vertex[i];
-            Random random = new Random();
-            int bufValue = 1+random.nextInt(2);
-            linksQuantity += bufValue;
-            linksQuantityEachVertex.put( i, bufValue );
-        }
-
-        if ( vertexSum < linksQuantity ){
-            // all links will have value 1
-        } else {
-            // all links will have different / equal value
-        }
-
-        return ((vertexSum*(1-correlation))/correlation);
+        return linksSum;
 
     }
 
@@ -606,6 +613,13 @@ public class TaskView implements Serializable {
         this.maxLoopValue = maxLoopValue;
     }
 
+    public LinkGeneratorService getLinkGeneratorServiceImpl() {
+        return linkGeneratorServiceImpl;
+    }
+
+    public void setLinkGeneratorServiceImpl(LinkGeneratorService linkGeneratorServiceImpl) {
+        this.linkGeneratorServiceImpl = linkGeneratorServiceImpl;
+    }
 
 }
 

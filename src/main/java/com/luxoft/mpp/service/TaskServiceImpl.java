@@ -93,34 +93,58 @@ public class TaskServiceImpl implements TaskService {
 
     public boolean isLoop(int[][] matrix ){
 
-        for (int row = 0; row < matrix.length; row++) {
+        for (int i = 0; i < matrix.length; i++) {
 
-            for (int col = 0; col < matrix[row].length; col++) {
+            int row = i;
+            int col = 0;
+            Stack<SimpleVertex> vertexStack = new Stack<SimpleVertex>();
 
-                if(  matrix[row][col] != 0 ) {
-                    if (row == col)
+            do {
+
+                while ( true ){
+
+                    SimpleVertex currentVertex = new SimpleVertex(col, row);
+
+                    if (vertexStack.contains(currentVertex))
                         return true;
-                    Stack<SimpleVertex> stack = new Stack<SimpleVertex>();
 
-                    int nextCol = col;
-                    while( !isEmptyRow(matrix, row) && nextCol < matrix.length){
-                        
-                        SimpleVertex curVertex = new SimpleVertex(nextCol, row);
+                    if ( isEmptyRow(matrix, row ) ) {
+                        SimpleVertex simpleVertex = new SimpleVertex(0, row); // last vertex (empty row)
+                        vertexStack.push(simpleVertex);
+                        break;
+                    }
 
-                        if (stack.contains(curVertex)){
-                            return true;
-                        }
-
-                        if ( matrix[row][nextCol] != 0 ){
-                            stack.push(new SimpleVertex(nextCol, row));
-                            row = nextCol;
-                            nextCol = 0;
-                            continue;
-                        }
-                        nextCol++;
+                    if ( matrix[row][col] != 0){
+                        SimpleVertex simpleVertex = new SimpleVertex(col, row);
+                        vertexStack.push(simpleVertex);
+                        row = col;
+                        col = 0;
+                    } else {
+                        col ++;
                     }
                 }
-            }
+
+                while ( ! vertexStack.isEmpty() ){
+                    SimpleVertex simpleVertex = vertexStack.peek();
+
+                    int nextCol = simpleVertex.getCol();
+                    nextCol++;
+
+                    if ( ! isEmptyRestOfRow(matrix, simpleVertex.getRow(), nextCol) ){
+                        System.out.println("form if : vertex ["+simpleVertex.getRow()+"]["+simpleVertex.getCol()+"]");
+                        simpleVertex = vertexStack.pop();
+                        col = nextCol;
+                        row = simpleVertex.getRow();
+                        break;
+                    }
+                    System.out.println("vertex [" + simpleVertex.getRow() + "][" + simpleVertex.getCol() + "]");
+                    vertexStack.pop();
+
+                }
+                System.out.println("-------------------------");
+
+
+            } while( !vertexStack.isEmpty() || !isEmptyRestOfRow(matrix, row, col) );
 
         }
         return false;
