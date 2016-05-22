@@ -173,19 +173,53 @@ public class TaskView implements Serializable {
 
         } while( taskServiceImpl.isLoop(lm) || !taskServiceImpl.findHangingVertex(lm).isEmpty() || !taskServiceImpl.hasWayToLastVertex(lm) );
 
+
 //        countCorrelation();
 
         System.out.println("Vertex");
         for (int e : vertex){
             System.out.print(e + ", ");
         }
-        System.out.println("\n___________________");
+        System.out.println("\n___________________Before ");
 
         for (int i = 0; i < lm.length; i++) {
             for (int j = 0; j < lm[i].length; j++) {
+
                 System.out.print(lm[i][j] + ", ");
             }
             System.out.println();
+        }
+
+
+        int linkSum = linkGeneratorServiceImpl.getLinkSum(correlation, vertex);
+        for (int i = 0; i < vertex.length; i++) {
+            System.out.println("vertex = "+vertex[i]);
+        }
+        int linkQuantity = linkGeneratorServiceImpl.getLinkQuantity(lm);
+
+        boolean changeOnOne = (linkSum < linkQuantity);
+
+        System.out.println(" linkSum = "+linkSum);
+        System.out.println(" linkQuantity = "+linkQuantity);
+
+        if (changeOnOne) {
+            System.out.println("\n___________________After ");
+            for (int i = 0; i < lm.length; i++) {
+                for (int j = 0; j < lm[i].length; j++) {
+                    if (lm[i][j] != 0) {
+                        if (changeOnOne) {
+                            lm[i][j] = 1;
+                            linkSum--;
+                            if (linkSum <= 0)
+                                changeOnOne = false;
+                        } else {
+                            lm[i][j] = 0;
+                        }
+                    }
+                    System.out.print(lm[i][j] + ", ");
+                }
+                System.out.println();
+            }
         }
 
         for (int i = 0; i < vertex.length; i++) {

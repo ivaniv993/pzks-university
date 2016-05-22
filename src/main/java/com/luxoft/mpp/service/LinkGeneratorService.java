@@ -10,4 +10,8 @@ public interface LinkGeneratorService {
 
     Map<Integer, List<Integer>> generateGeneralValueForLinks(Integer[] vertex, double correlation);
 
+    int getLinkSum(double correlation, Integer[] vertex);
+
+    int getLinkQuantity(  int[][] matrix );
+
 }

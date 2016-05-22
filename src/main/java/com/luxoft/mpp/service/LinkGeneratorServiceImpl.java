@@ -12,12 +12,9 @@ public class LinkGeneratorServiceImpl implements LinkGeneratorService {
 
     public Map<Integer, List<Integer>> generateGeneralValueForLinks(Integer[] vertex, double correlation){
 
-        int vertexSum = 0;
         Map<Integer, List<Integer>> result = new HashMap<Integer, List<Integer>>();
-        for ( int i = 0; i < vertex.length; i ++ ){
-            vertexSum += vertex[i];
-        }
-        int linksSum = (int)((vertexSum*(1-correlation))/correlation);
+
+        int linksSum = getLinkSum(correlation, vertex);
 
         int linksQuantity = 0;
         Map<Integer, Integer> linksQuantityEachVertex = new HashMap<Integer, Integer>();
@@ -30,7 +27,7 @@ public class LinkGeneratorServiceImpl implements LinkGeneratorService {
 
         if ( linksSum < linksQuantity ){
             // all links will have value 1
-            result = getLinksForDefaultValue(linksQuantityEachVertex, 1);
+            result = getLinksForDefaultValue(linksQuantityEachVertex, 777);
         } else {
             // all links will have different / equal value
             result = getLinksForRandomValue(linksQuantityEachVertex, linksSum, linksQuantity );
@@ -40,7 +37,26 @@ public class LinkGeneratorServiceImpl implements LinkGeneratorService {
 
     }
 
+    public int getLinkQuantity( int[][] matrix ){
 
+        int result = 0;
+        for (int i = 0; i < matrix.length; i++) {
+            for (int j = 0; j < matrix.length; j++) {
+                if (matrix[i][j] != 0)
+                    result++;
+            }
+        }
+        return result;
+    }
+
+    public int getLinkSum(double correlation, Integer[] vertex){
+        int vertexSum = 0;
+        Map<Integer, List<Integer>> result = new HashMap<Integer, List<Integer>>();
+        for ( int i = 0; i < vertex.length; i ++ ){
+            vertexSum += vertex[i];
+        }
+        return (int)((vertexSum*(1-correlation))/correlation);
+    }
     private Map<Integer, List<Integer>> getLinksForDefaultValue(Map<Integer, Integer> vertexLinks,
                                                                 int defaultValue){
 
