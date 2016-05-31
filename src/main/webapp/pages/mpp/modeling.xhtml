@@ -32,7 +32,9 @@
         </p:layoutUnit>
 
         <p:layoutUnit position="center" resizable="true" style="height: 615px;overflow: hidden">
-            <p:chart type="bar" model="#{chartView.animatedModel2}" style="width:800px; height: 500px" />
+
+
+            <p:chart type="ohlc" model="#{modelingView.ohlcModel2}" style="width:600px;height:500px"/>
         </p:layoutUnit>
     </p:layout>
 </h:body>
