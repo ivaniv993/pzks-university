@@ -1,8 +1,6 @@
 package com.luxoft.mpp.service;
 
-import com.luxoft.mpp.entity.model.SimpleMetaData;
-import com.luxoft.mpp.entity.model.SimpleVertex;
-import com.luxoft.mpp.entity.model.TaskElement;
+import com.luxoft.mpp.entity.model.*;
 import org.primefaces.model.diagram.Element;
 import org.springframework.stereotype.Service;
 
@@ -17,11 +15,58 @@ public class TaskServiceImpl implements TaskService {
 
     private int[][] lm = new int[0][0];
     private Integer[] vertex = new Integer[0];
+    public List<Task> tasks = new ArrayList<Task>();
 
-    public void saveVertex(List<Element> elements){
+    public void saveCSGraph(int[][] lm, Integer[] vertex ){
+        this.lm = lm;
+        this.vertex = vertex;
+        this.tasks = createTaskGraph(lm, vertex);
+    }
 
-        throw new UnsupportedOperationException(" method not implement yet");
+    public List<Task> createTaskGraph(int[][] linkMatrix, Integer[] vertex){
 
+        List<Task> result = new ArrayList<Task>();
+        //generate tasks
+        for (int i = 0; i < vertex.length; i++) {
+            result.add(new Task(vertex[i], i));
+        }
+
+        for (int i = 0; i < vertex.length; i++) {
+
+            Task task = getTaskByID(result, i);
+
+            // input Links
+            List<TaskLink> inLink = new ArrayList<TaskLink>();
+            for (int j = 0; j < linkMatrix[i].length; j++) {
+                if (linkMatrix[j][i] != 0){
+                    TaskLink taskLink = new TaskLink( getTaskByID(result, j), getTaskByID(result, i), linkMatrix[j][i]);
+                    inLink.add( taskLink );
+                }
+            }
+            task.setInLink(inLink);
+
+            // output Links
+            List<TaskLink> outLink = new ArrayList<TaskLink>();
+            for (int j = 0; j < linkMatrix.length; j++) {
+                if (linkMatrix[i][j] != 0){
+                    TaskLink taskLink = new TaskLink( getTaskByID(result, i), getTaskByID(result, j), linkMatrix[i][j]);
+                    outLink.add( taskLink );
+                }
+            }
+            task.setOutLink(outLink);
+
+        }
+        return result;
+
+    }
+
+    private Task getTaskByID( List<Task> tasks , int id){
+
+        for ( Task t :  tasks ){
+            if (t.getID() == id )
+                return t;
+        }
+        throw new IllegalArgumentException("wrong id");
 
     }
 
@@ -424,6 +469,11 @@ public class TaskServiceImpl implements TaskService {
         }
         return true;
     }
+
+    public List<Task> getTasks() {
+        return tasks;
+    }
+
 
 
 

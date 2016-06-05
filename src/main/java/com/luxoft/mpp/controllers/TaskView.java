@@ -253,6 +253,7 @@ public class TaskView implements Serializable {
                 }
             }
         }
+        taskServiceImpl.saveCSGraph( lm, vertex );
         orderVertex(model);
         RequestContext.getCurrentInstance().update("form");
         RequestContext.getCurrentInstance().update("generate_graph");
@@ -655,6 +656,21 @@ public class TaskView implements Serializable {
         this.linkGeneratorServiceImpl = linkGeneratorServiceImpl;
     }
 
+    public int[][] getLm() {
+        return lm;
+    }
+
+    public void setLm(int[][] lm) {
+        this.lm = lm;
+    }
+
+    public Integer[] getVertex() {
+        return vertex;
+    }
+
+    public void setVertex(Integer[] vertex) {
+        this.vertex = vertex;
+    }
 }
 
 

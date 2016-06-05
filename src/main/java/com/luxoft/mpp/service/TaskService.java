@@ -1,9 +1,6 @@
 package com.luxoft.mpp.service;
 
-import com.luxoft.mpp.entity.model.SimpleMetaData;
-import com.luxoft.mpp.entity.model.SimpleVertex;
-import com.luxoft.mpp.entity.model.TaskElement;
-import com.luxoft.mpp.entity.model.TaskVertex;
+import com.luxoft.mpp.entity.model.*;
 import org.primefaces.model.diagram.Element;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +13,9 @@ import java.util.Stack;
  */
 public interface TaskService {
 
-    void saveVertex(List<Element> elements);
+    void saveCSGraph( int[][] lm, Integer[] vertex );
+
+    List<Task> createTaskGraph(int[][] linkMatrix, Integer[] vertex);
 
     boolean isLoop(int[][] lm );
 
