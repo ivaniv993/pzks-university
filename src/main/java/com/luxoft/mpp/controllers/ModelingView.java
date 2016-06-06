@@ -13,7 +13,7 @@ import javax.faces.bean.ViewScoped;
 import com.luxoft.mpp.entity.model.*;
 import com.luxoft.mpp.service.ModelingService;
 import com.luxoft.mpp.service.TaskService;
-import javafx.print.Collation;
+//import javafx.print.Collation;
 import org.primefaces.model.chart.AxisType;
 import org.primefaces.model.chart.OhlcChartModel;
 import org.primefaces.model.chart.OhlcChartSeries;

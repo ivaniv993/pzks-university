@@ -16,11 +16,7 @@ public class ProcessorLink {
     public ProcessorLink() {
     }
 
-    public ProcessorLink(Processor from, Processor to, int transferDuration) {
-        this.from = from;
-        this.to = to;
-        this.transferDuration = transferDuration;
-    }
+
 
     public ProcessorLink(Processor from, Processor to) {
         this.from = from;

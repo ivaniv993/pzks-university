@@ -18,12 +18,12 @@ public class Test {
     };
 
     private static int[][] matrix1 =
-            {{0,1,0,0,0,1},
-             {0,0,1,1,0,0},
-             {0,0,0,1,1,0},
-             {0,0,0,0,1,1},
-             {0,0,0,0,0,1},
-             {0,0,0,0,0,0},
+            {{0,1,0,0,0,1},//0
+             {0,0,1,1,0,0},//1
+             {0,0,0,1,1,0},//2
+             {0,0,0,0,1,1},//3
+             {0,0,0,0,0,1},//4
+             {0,0,0,0,0,0},//5
     };
 
     private static Integer[] vertex = {5,6,7,8,9};
@@ -32,7 +32,79 @@ public class Test {
 
 
 
-        getAllWayForCurrentVertex(matrix1, 0, 4);
+        getAllWayForCurrentVertex1(matrix1, 0, 4);
+
+    }
+
+    private static List<List<ProcLink>> getAllWayForCurrentVertex1( int matrix[][], int source, int dest){
+
+        List<List<ProcLink>> result = new ArrayList<List<ProcLink>>();
+
+        Stack<ProcLink> vertexStack = new Stack<ProcLink>();
+
+        System.out.println("===========================");
+
+        int col = 0;
+        int row = source;
+        do{
+
+            while ( true ){
+
+                if(isEmptyRow(matrix, row) ){
+
+                    for (int i = 0; i < matrix.length; i++) {
+                        int verticalConnection = matrix[i][row];
+                        if ( verticalConnection != 0 && i == dest){
+                            ProcLink procLink = new ProcLink(i, row);
+                            vertexStack.push(procLink);
+                            break;
+                        }
+                    }
+
+                    break;
+                }
+
+                if ( row == dest ) {
+//                    SimpleVertex simpleVertex = new SimpleVertex(0, row);
+//                    vertexStack.push(simpleVertex);
+                    System.out.println("destination found");
+                    break;
+                }
+
+                if ( matrix[row][col] != 0){
+                    ProcLink procLink = new ProcLink(col, row);
+                    vertexStack.push(procLink);
+                    row = col;
+                    col = 0;
+                } else {
+                    col ++;
+                }
+            }
+
+            result.add(new ArrayList<ProcLink>(vertexStack));
+
+            while ( ! vertexStack.isEmpty() ){
+                ProcLink procLink = vertexStack.peek();
+
+                int nextCol = procLink.getCol();
+                nextCol++;
+
+                if ( ! isEmptyRestOfRow(matrix, procLink.getRow(), nextCol) ){
+                    System.out.println("form if : vertex ["+procLink.getRow()+"]["+procLink.getCol()+"]");
+                    procLink = vertexStack.pop();
+                    col = nextCol;
+                    row = procLink.getRow();
+                    break;
+                }
+                System.out.println("vertex [" + procLink.getRow() + "][" + procLink.getCol() + "]");
+                vertexStack.pop();
+
+            }
+            System.out.println("-------------------------");
+
+        }while ( ! vertexStack.isEmpty() || !isEmptyRestOfRow(matrix, row, col));
+
+        return result;
 
     }
 
@@ -51,10 +123,24 @@ public class Test {
 
             while ( true ){
 
-                if ( row == dest || isEmptyRow(matrix, row) ) {
+                if(isEmptyRow(matrix, row) ){
+                    List<ProcLink> verticalLink = getVerticalLink(matrix, row);
+                    for (int i = 0; i < matrix.length; i++) {
+                        int verticalConnection = matrix[i][row];
+                        if ( verticalConnection != 0 && i == dest){
+                            SimpleVertex simpleVertex = new SimpleVertex(row, i);
+                            vertexStack.push(simpleVertex);
+                            break;
+                        }
+                    }
+
+                    break;
+                }
+
+                if ( row == dest ) {
 //                    SimpleVertex simpleVertex = new SimpleVertex(0, row);
 //                    vertexStack.push(simpleVertex);
-                    System.out.println("kjhjkhkj");
+                    System.out.println("destination found");
                     break;
                 }
 
@@ -158,8 +244,6 @@ public class Test {
     private static void findShooterWayBetweenProcessors(Processor from, Processor to,
                                                         List<List<ProcessorLink>> listOfWay , List<ProcessorLink> currentWay){
 
-
-
         for ( ProcessorLink procLink : from.getLinks() ) {
 
             if (currentWay.contains(procLink))
@@ -220,29 +304,29 @@ public class Test {
                 p4 = new Processor(4),
                 p5 = new Processor(5);
 
-        ProcessorLink
-                link01 = new ProcessorLink(p0, p1, 1),
-                link05 = new ProcessorLink(p0, p5, 2),
-
-
-                link13 = new ProcessorLink(p1, p3, 2),
-                link12 = new ProcessorLink(p1, p2, 5),
-
-                link32 = new ProcessorLink(p3, p2, 2),
-                link34 = new ProcessorLink(p3, p4, 2),
-                link35 = new ProcessorLink(p3, p5, 2),
-
-                link42 = new ProcessorLink(p4, p2, 6),
-                link45 = new ProcessorLink(p4, p5, 7);
-
-        Collections.addAll(p0.getLinks(), link01, link05);
-        Collections.addAll(p1.getLinks(), link01, link13, link12);
-        Collections.addAll(p2.getLinks(), link12, link32, link42);
-        Collections.addAll(p3.getLinks(), link13, link32, link34, link35);
-        Collections.addAll(p4.getLinks(), link42, link34, link45);
-        Collections.addAll(p5.getLinks(), link05, link35, link45);
-
-        Collections.addAll(result, p0, p1, p2, p3, p4, p5);
+//        ProcessorLink
+//                link01 = new ProcessorLink(p0, p1, 1),
+//                link05 = new ProcessorLink(p0, p5, 2),
+//
+//
+//                link13 = new ProcessorLink(p1, p3, 2),
+//                link12 = new ProcessorLink(p1, p2, 5),
+//
+//                link32 = new ProcessorLink(p3, p2, 2),
+//                link34 = new ProcessorLink(p3, p4, 2),
+//                link35 = new ProcessorLink(p3, p5, 2),
+//
+//                link42 = new ProcessorLink(p4, p2, 6),
+//                link45 = new ProcessorLink(p4, p5, 7);
+//
+//        Collections.addAll(p0.getLinks(), link01, link05);
+//        Collections.addAll(p1.getLinks(), link01, link13, link12);
+//        Collections.addAll(p2.getLinks(), link12, link32, link42);
+//        Collections.addAll(p3.getLinks(), link13, link32, link34, link35);
+//        Collections.addAll(p4.getLinks(), link42, link34, link45);
+//        Collections.addAll(p5.getLinks(), link05, link35, link45);
+//
+//        Collections.addAll(result, p0, p1, p2, p3, p4, p5);
 
         return result;
     }

@@ -1,7 +1,7 @@
 package com.luxoft.mpp.service;
 
 import com.luxoft.mpp.entity.model.*;
-import com.sun.javafx.sg.prism.NGShape;
+//import com.sun.javafx.sg.prism.NGShape;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -14,38 +14,147 @@ public class ModelingServiceImpl implements ModelingService{
 
 
 
+
     public List<Processor> createMockCS(){
 
         List< Processor > result = new ArrayList<Processor>();
 
+        int permit = 2;
+
         Processor
+                p0 = new Processor(0),
                 p1 = new Processor(1),
                 p2 = new Processor(2),
                 p3 = new Processor(3),
                 p4 = new Processor(4),
                 p5 = new Processor(5);
-        ProcessorLink
-                link12 = new ProcessorLink(p1, p2, 1),
-                link13 = new ProcessorLink(p1, p3, 2),
-                link14 = new ProcessorLink(p1, p4, 3),
-                link15 = new ProcessorLink(p1, p5, 4),
 
-                link23 = new ProcessorLink(p2, p3, 5),
 
-                link34 = new ProcessorLink(p3, p4, 6),
+        int[][] matrix =
+               {{0,1,0,0,0,1},//0
+                {0,0,1,1,0,0},//1
+                {0,0,0,1,1,0},//2
+                {0,0,0,0,1,1},//3
+                {0,0,0,0,0,1},//4
+                {0,0,0,0,0,0},//5
+                };
+        ProcLink
+                link01 = new ProcLink(0, 1, permit),
+                link05 = new ProcLink(0, 5, permit),
 
-                link45 = new ProcessorLink(p4, p5, 7);
+                link12 = new ProcLink(1, 2, permit),
+                link13 = new ProcLink(1, 3, permit),
 
-//        Collections.addAll(p1.getLinks(), p2, p3, p4, p5);
-//        Collections.addAll(p2.getLinks(), p1, p3);
-//        Collections.addAll(p3.getLinks(), p1, p2, p4);
-//        Collections.addAll(p4.getLinks(), p1, p3, p5);
-//        Collections.addAll(p5.getLinks(), p1, p5);
+                link23 = new ProcLink(2, 3, permit),
+                link24 = new ProcLink(2, 4, permit),
+
+                link34 = new ProcLink(3, 4, permit),
+                link35 = new ProcLink(3, 5, permit),
+
+                link45 = new ProcLink(4, 5, permit);
+
+        Collections.addAll(p1.getLinks(), link01, link05 );
+        Collections.addAll(p2.getLinks(), link01, link12, link13);
+        Collections.addAll(p3.getLinks(), link13, link23, link34, link35);
+        Collections.addAll(p4.getLinks(), link24, link34);
+        Collections.addAll(p5.getLinks(), link35, link45);
 
         Collections.addAll(result, p1, p2, p3, p4, p5);
 
         return result;
     }
+
+
+    private static List<List<ProcLink>> getAllWayForProcessors( int matrix[][], int source, int dest){
+
+        List<List<ProcLink>> result = new ArrayList<List<ProcLink>>();
+
+        Stack<ProcLink> vertexStack = new Stack<ProcLink>();
+
+        System.out.println("===========================");
+
+        int col = 0;
+        int row = source;
+        do{
+
+            while ( true ){
+
+                if(isEmptyRow(matrix, row) ){
+
+                    for (int i = 0; i < matrix.length; i++) {
+                        int verticalConnection = matrix[i][row];
+                        if ( verticalConnection != 0 && i == dest){
+                            ProcLink procLink = new ProcLink(i, row);
+                            vertexStack.push(procLink);
+                            break;
+                        }
+                    }
+
+                    break;
+                }
+
+                if ( row == dest ) {
+//                    SimpleVertex simpleVertex = new SimpleVertex(0, row);
+//                    vertexStack.push(simpleVertex);
+                    System.out.println("destination found");
+                    break;
+                }
+
+                if ( matrix[row][col] != 0){
+                    ProcLink procLink = new ProcLink(col, row);
+                    vertexStack.push(procLink);
+                    row = col;
+                    col = 0;
+                } else {
+                    col ++;
+                }
+            }
+
+            result.add(new ArrayList<ProcLink>(vertexStack));
+
+            while ( ! vertexStack.isEmpty() ){
+                ProcLink procLink = vertexStack.peek();
+
+                int nextCol = procLink.getCol();
+                nextCol++;
+
+                if ( ! isEmptyRestOfRow(matrix, procLink.getRow(), nextCol) ){
+                    System.out.println("form if : vertex ["+procLink.getRow()+"]["+procLink.getCol()+"]");
+                    procLink = vertexStack.pop();
+                    col = nextCol;
+                    row = procLink.getRow();
+                    break;
+                }
+                System.out.println("vertex [" + procLink.getRow() + "][" + procLink.getCol() + "]");
+                vertexStack.pop();
+
+            }
+            System.out.println("-------------------------");
+
+        }while ( ! vertexStack.isEmpty() || !isEmptyRestOfRow(matrix, row, col));
+
+        return result;
+
+    }
+
+    private static boolean isEmptyRow( int[][] matrix, int inRow ){
+        for (int i = 0; i < matrix[inRow].length; i++) {
+            if (matrix[inRow][i] != 0)
+                return false;
+        }
+        return true;
+    }
+
+    private static boolean isEmptyRestOfRow( int[][] matrix, int inRow, int fromNextCol ){
+        if ( fromNextCol >= matrix[inRow].length )
+            return true;
+        for (int i = fromNextCol; i < matrix[inRow].length; i++) {
+            if (matrix[inRow][i] != 0)
+                return false;
+        }
+        return true;
+    }
+
 
     public List<Processor> sortByConnectivity( List<Processor> processors ){
 
@@ -62,6 +171,20 @@ public class ModelingServiceImpl implements ModelingService{
 
         return processors;
     }
+
+
+    private static List<ProcLink> getVerticalLink(int[][] matrix, int col ){
+
+        List<ProcLink > result = new ArrayList<ProcLink>();
+        for (int i = 0; i < matrix.length; i++) {
+
+            if( matrix[i][col] != 0){
+                result.add(new ProcLink(i, col));
+            }
+        }
+        return result;
+    }
+
 
     public List<Task> createTaskGraph(int[][] linkMatrix, Integer[] vertex){
 
@@ -110,21 +233,42 @@ public class ModelingServiceImpl implements ModelingService{
 
             if ( hasInputLink(task) ){
 
+                // if relative tasks already on processors
+
                 List<Processor> relativeProcessors = findProcessorsWithRelativeTask(task);
-                Processor processor = getProcessorFromRelative(relativeProcessors);
+
+
+
+
+
 
 
             } else {
 
+
+
                 List<Processor> emptyProcessors = findEmptyProcessors(processors);
                 if ( ! emptyProcessors.isEmpty() ) {
+
+                    //set on  empty processor
                     Processor proc = getProcessorByConnectivityAndFreedom(emptyProcessors);
                     task.setOnProcessor(proc);
                     proc.getTasks().add(task);
+
+                    // synchronize current time
+                    if (currentTime < task.getTimeDuration())
+                        currentTime = task.getTimeDuration();
+
                 } else {
+                    //set proccessor with smaller task
                     Processor proc = findAnyProcessorWithSmallerTasks(processors);
                     task.setOnProcessor(proc);
                     proc.getTasks().add(task);
+
+
+                    // synchronize current time
+                    if ( currentTime < proc.getAllTime() )
+                        currentTime = proc.getAllTime();
 
                 }
 
@@ -201,7 +345,32 @@ public class ModelingServiceImpl implements ModelingService{
         return result;
     }
 
-    private Processor getProcessorFromRelative(List<Processor> processors){
+    private TaskLink getLinkBetweenTaskAndTaskOnProcessor(Processor onProcessor, Task toTask){
+
+        List<TaskLink> inputTaskLinks = toTask.getInLink();
+
+        TaskLink result = null;
+
+        for (TaskLink taskLink : inputTaskLinks ) {
+
+            Task buff = taskLink.getFrom();
+
+            if (! buff.isOnProcessor()) throw new IllegalStateException("Input task must bee on processor");
+
+            if ( buff.getOnProcessor() == onProcessor ){
+                result =  taskLink;
+            }
+
+        }
+
+        if (result == null) {
+            throw new IllegalStateException("task must bee on processor");
+        }
+        return result;
+
+    }
+
+    private Processor getProcessorWithSmallerTimeFromRelative(List<Processor> processors){
 
         Processor result = processors.get(0);
         for ( Processor proc : processors ){
@@ -212,23 +381,72 @@ public class ModelingServiceImpl implements ModelingService{
 
     }
 
-//    private void findShooterWayBetweenProcessors( Processor from, Processor to,
-//                                                  List<List<Processor>> listOfWay ,
-//                                                  List<Processor> currentWay){
-//
-//        List<Processor> links = from.getLinks();
-//        currentWay.add(from);
-//        for ( Processor proc : links ){
-//            if ( proc.getID() == to.getID() ){
-//                currentWay.add(proc);
-//                listOfWay.add(currentWay);
-//            } else {
-//                findShooterWayBetweenProcessors(proc, to, listOfWay, currentWay );
-//            }
-//        }
-//
-//
-//    }
+
+    //TODO mind!!!!
+    private void getProcessorWithBiggerTimeOfTransmission( List<Processor> relativeProcessors, Task task, int[][] matrix ){
+
+
+        Processor result = relativeProcessors.get(0);
+        List<ProcLink> shorterWay;
+        int time = 100000;
+
+        for (int i = 1; i < relativeProcessors.size(); i++) {
+
+
+            Processor procCandidate = relativeProcessors.get(i);
+
+            int source  = procCandidate.getID();
+
+            List<Processor> bufList = new ArrayList<Processor>(relativeProcessors);
+            bufList.remove(procCandidate);
+
+            for (Processor procDestination : bufList){
+
+                int destination = procDestination.getID();
+                List<List<ProcLink>> allWays = getAllWayForProcessors(matrix, source, destination);
+
+                TaskLink taskLink = getLinkBetweenTaskAndTaskOnProcessor(procDestination, task);
+                shorterWay = getShorterTransitionWay(allWays, taskLink.getTransferTime());
+
+                int bufTime = getDurationOfTransition(shorterWay, taskLink.getTransferTime());
+
+                if (time > bufTime){
+                    time = bufTime;
+                    result = procCandidate;
+
+                }
+
+
+            }
+
+        }
+
+    }
+
+
+    private int getDurationOfTransition( List<ProcLink> way, int linkDuration){
+
+        return way.size()*linkDuration;
+
+    }
+
+    private List<ProcLink> getShorterTransitionWay( List<List<ProcLink>> allWays, int linkDuration ){
+
+        if (allWays.isEmpty()) throw new IllegalStateException("No any ways");
+
+        List<ProcLink> result = allWays.get(0);
+        int time = getDurationOfTransition(result, linkDuration);
+        for (int i = 1; i < allWays.size(); i++) {
+
+            int durationTime = getDurationOfTransition( allWays.get(i), linkDuration );
+
+            if ( time > durationTime) {
+                time = durationTime;
+                result = allWays.get(i);
+            }
+        }
+        return result;
+    }
 
 
 }

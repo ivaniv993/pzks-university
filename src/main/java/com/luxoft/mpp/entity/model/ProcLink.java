@@ -7,13 +7,21 @@ public class ProcLink {
 
     private  int col, row;
 
-    public int getRow() {
-        return row;
+    private static int permitLimit;
+    private int permits;
+
+    public ProcLink(int col, int row, int permits) {
+
+        this.col = col;
+        this.row = row;
+        this.permits = permits;
+        ProcLink.permitLimit = permits;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
+
         if (!(o instanceof ProcLink)) return false;
 
         ProcLink procLink = (ProcLink) o;
@@ -33,13 +41,11 @@ public class ProcLink {
 
     @Override
     public String toString() {
-        return "ProcLink{" +
-                "col=" + col +
-                ", row=" + row +
-                '}';
+        return  "[" + col +
+                "][" + row +"] permit : "+permits;
     }
 
-    public ProcLink(int row, int col) {
+    public ProcLink( int col, int row) {
         this.col = col;
         this.row = row;
     }
@@ -55,4 +61,39 @@ public class ProcLink {
     public void setCol(int col) {
         this.col = col;
     }
+
+    public int getPermits() {
+
+        return permits;
+    }
+
+    public void setPermits(int permits) {
+        ProcLink.permitLimit = permits;
+        this.permits = permits;
+    }
+
+    public int getRow() {
+        return row;
+    }
+
+    public boolean canObtainPermit(){
+        return this.permits > 0;
+    }
+
+    public ProcLink obtainPermit(){
+
+        if (permits < 0 ) throw new IllegalStateException("Link have not any free permits");
+
+        permits--;
+
+        return this;
+    }
+
+    public void releasePermit(){
+
+        if (permits == permitLimit ) throw new IllegalStateException("Permit limit already archived");
+
+        this.permits ++;
+    }
+
 }

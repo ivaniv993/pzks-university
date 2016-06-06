@@ -34,13 +34,13 @@ public class Processor {
 
     private List<TimeUnit> timeLine = new ArrayList<TimeUnit>();
 
-    private List<ProcessorLink> links = new ArrayList<ProcessorLink>();
+    private List<ProcLink> links = new ArrayList<ProcLink>();
 
     public Processor(int ID) {
         this.ID = ID;
     }
 
-    public Processor(int ID, List<ProcessorLink> links) {
+    public Processor(int ID, List<ProcLink> links) {
 
         this.ID = ID;
         this.links = links;
@@ -63,12 +63,12 @@ public class Processor {
         return ID;
     }
 
-    public List<ProcessorLink> getLinks() {
+    public List<ProcLink> getLinks() {
 
         return links;
     }
 
-    public void setLinks(List<ProcessorLink> links) {
+    public void setLinks(List<ProcLink> links) {
         this.links = links;
     }
 
