@@ -150,24 +150,6 @@ public class TaskView implements Serializable {
                     linkNumber++;
                 }
 
-//                Random random = new Random();
-//                int linkNumber = 1+random.nextInt(2);
-//                while( linkNumber != 0) {
-//
-//                    int linkValue = getValueFromRange(minLoopValue, maxLoopValue);
-//
-//                    int randomVertex = rand.nextInt(lm[i].length);
-//
-//                    if(randomVertex == i)
-//                        continue;
-//                    if (lm[i][randomVertex] != 0)
-//                        continue;
-//
-//                    lm[i][randomVertex] = linkValue;
-//
-//                    linkNumber--;
-//                }
-
             }
 
 

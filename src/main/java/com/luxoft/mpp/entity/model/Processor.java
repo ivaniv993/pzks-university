@@ -1,7 +1,5 @@
 package com.luxoft.mpp.entity.model;
 
-import com.luxoft.mpp.controllers.TimeUnit;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -90,9 +88,18 @@ public class Processor {
     // TODO remake with time unit
     public int getAllTime(){
         int result = 0;
-        for ( Task t : tasks){
+        for ( TimeUnit t : timeLine){
             result += t.getTimeDuration();
         }
         return result;
+    }
+
+    public void addTimeLine(Task task){
+
+        int from = getAllTime();
+        TimeUnit timeUnit = new TimeUnit(from, task.getTimeDuration());
+        timeLine.add(timeUnit);
+        tasks.add(task);
+
     }
 }

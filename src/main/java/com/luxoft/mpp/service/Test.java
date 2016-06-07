@@ -32,11 +32,11 @@ public class Test {
 
 
 
-        getAllWayForCurrentVertex1(matrix1, 0, 4);
+        getAllWayForProcessors(matrix1, 3, 1);
 
     }
 
-    private static List<List<ProcLink>> getAllWayForCurrentVertex1( int matrix[][], int source, int dest){
+    private static List<List<ProcLink>> getAllWayForProcessors( int matrix[][], int source, int dest){
 
         List<List<ProcLink>> result = new ArrayList<List<ProcLink>>();
 
@@ -244,32 +244,32 @@ public class Test {
     private static void findShooterWayBetweenProcessors(Processor from, Processor to,
                                                         List<List<ProcessorLink>> listOfWay , List<ProcessorLink> currentWay){
 
-        for ( ProcessorLink procLink : from.getLinks() ) {
-
-            if (currentWay.contains(procLink))
-                continue;
-
-            boolean existingVertex = false;
-            for (ProcessorLink pl : currentWay) {
-                if (pl.getTo() == procLink.getTo() || pl.getFrom() == procLink.getTo()) {
-                    existingVertex = true;
-                    break;
-                }
-            }
-            if (existingVertex)
-                continue;
-
-
-            if ( isHasTail(currentWay, from))//procLink.getFrom() == from  && currentWay.contains()
-                removeLink(currentWay, from);
-            currentWay.add(procLink);
-            List<ProcessorLink> way = new ArrayList<ProcessorLink>(currentWay);
-            if ( procLink.getTo() == to ){
-                listOfWay.add(way);
-            } else {
-                findShooterWayBetweenProcessors(procLink.getTo(), to, listOfWay, way );
-            }
-        }
+//        for ( ProcessorLink procLink : from.getLinks() ) {
+//
+//            if (currentWay.contains(procLink))
+//                continue;
+//
+//            boolean existingVertex = false;
+//            for (ProcessorLink pl : currentWay) {
+//                if (pl.getTo() == procLink.getTo() || pl.getFrom() == procLink.getTo()) {
+//                    existingVertex = true;
+//                    break;
+//                }
+//            }
+//            if (existingVertex)
+//                continue;
+//
+//
+//            if ( isHasTail(currentWay, from))//procLink.getFrom() == from  && currentWay.contains()
+//                removeLink(currentWay, from);
+//            currentWay.add(procLink);
+//            List<ProcessorLink> way = new ArrayList<ProcessorLink>(currentWay);
+//            if ( procLink.getTo() == to ){
+//                listOfWay.add(way);
+//            } else {
+//                findShooterWayBetweenProcessors(procLink.getTo(), to, listOfWay, way );
+//            }
+//        }
     }
 
     private static boolean isHasTail( List<ProcessorLink> currentWay, Processor from){

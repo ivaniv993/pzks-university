@@ -86,4 +86,8 @@ public class ProcessorLink {
         this.canTransfer = canTransfer;
     }
 
+    /**
+     * Created by xXx on 6/4/2016.
+     */
+
 }

@@ -22,6 +22,16 @@ import org.primefaces.model.chart.OhlcChartSeries;
 @ViewScoped
 public class ModelingView implements Serializable {
 
+    private int[][] matrix =
+                   {{0,1,0,0,0,1},//0
+                    {0,0,1,1,0,0},//1
+                    {0,0,0,1,1,0},//2
+                    {0,0,0,0,1,1},//3
+                    {0,0,0,0,0,1},//4
+                    {0,0,0,0,0,0},//5
+            };
+
+
     private OhlcChartModel ohlcModel;
     private OhlcChartModel ohlcModel2;
 
@@ -51,6 +61,50 @@ public class ModelingView implements Serializable {
 //        createOhlcModel2();
     }
 
+    public List<Processor> createMockCS(){
+
+        List< Processor > result = new ArrayList<Processor>();
+
+        int permit = 2;
+
+        Processor
+                p0 = new Processor(0),
+                p1 = new Processor(1),
+                p2 = new Processor(2),
+                p3 = new Processor(3),
+                p4 = new Processor(4),
+                p5 = new Processor(5);
+
+
+
+        ProcLink
+                link01 = new ProcLink(0, 1, permit),
+                link05 = new ProcLink(0, 5, permit),
+
+                link12 = new ProcLink(1, 2, permit),
+                link13 = new ProcLink(1, 3, permit),
+
+                link23 = new ProcLink(2, 3, permit),
+                link24 = new ProcLink(2, 4, permit),
+
+                link34 = new ProcLink(3, 4, permit),
+                link35 = new ProcLink(3, 5, permit),
+
+                link45 = new ProcLink(4, 5, permit);
+
+        Collections.addAll(p0.getLinks(), link01, link05 );
+        Collections.addAll(p1.getLinks(), link01, link12, link13);
+        Collections.addAll(p2.getLinks(), link12, link23, link24);
+        Collections.addAll(p3.getLinks(), link13, link23, link34, link35);
+        Collections.addAll(p4.getLinks(), link24, link34);
+        Collections.addAll(p5.getLinks(), link35, link45);
+
+        Collections.addAll(result, p0, p1, p2, p3, p4, p5);
+
+        return result;
+    }
+
+
     private void createOhlcModel1(){
         //init data
         queueVariant = new ArrayList<SimpleMetaData>();
@@ -74,6 +128,8 @@ public class ModelingView implements Serializable {
 
         queueVariant = taskServiceImpl.getQueueVariant3(lm, vertex);
 
+        List<Processor> processors = modelingServiceImpl.modeling(computerGraph, taskGraph, matrix, queueVariant);
+
 
         ohlcModel = new OhlcChartModel();
 
@@ -90,6 +146,8 @@ public class ModelingView implements Serializable {
         ohlcModel.getAxis(AxisType.X).setLabel("Year");
         ohlcModel.getAxis(AxisType.Y).setLabel("Price Change $K/Unit");
     }
+
+
 
     private void createOhlcModel2(){
         ohlcModel2 = new OhlcChartModel();
