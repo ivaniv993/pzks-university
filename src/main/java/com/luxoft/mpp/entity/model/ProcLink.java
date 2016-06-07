@@ -7,8 +7,52 @@ public class ProcLink {
 
     private  int col, row;
 
+    private Processor source, dest;
+
+    public ProcLink() {
+    }
+
+    public Processor getSource() {
+        return source;
+    }
+
+    public void setSource(Processor source) {
+        this.source = source;
+    }
+
+    public Processor getDest() {
+        return dest;
+    }
+
+    public void setDest(Processor dest) {
+        this.dest = dest;
+    }
+
+    public ProcLink(Processor source, Processor dest, int permits) {
+
+        this.source = source;
+        this.dest = dest;
+        this.permits = permits;
+    }
+
+    public ProcLink(Processor source, Processor dest) {
+
+        this.source = source;
+        this.dest = dest;
+    }
+
     private static int permitLimit;
     private int permits;
+
+    private boolean passed;
+
+    public boolean isPassed() {
+        return passed;
+    }
+
+    public void setPassed(boolean passed) {
+        this.passed = passed;
+    }
 
     public ProcLink(int col, int row, int permits) {
 
@@ -21,15 +65,15 @@ public class ProcLink {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-
-        if (!(o instanceof ProcLink)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
 
         ProcLink procLink = (ProcLink) o;
 
-        if (col != procLink.col) return false;
-        if (row != procLink.row) return false;
+        if(source == procLink.source && dest == procLink.dest) return true;
 
-        return true;
+        if(source == procLink.dest && dest == procLink.source) return true;
+
+        return false;
     }
 
     @Override
@@ -41,8 +85,8 @@ public class ProcLink {
 
     @Override
     public String toString() {
-        return  "[" + col +
-                "][" + row +"] permit : "+permits;
+        return  "[" + source +
+                "][" + dest +"] permit : "+permits;
     }
 
     public ProcLink( int col, int row) {

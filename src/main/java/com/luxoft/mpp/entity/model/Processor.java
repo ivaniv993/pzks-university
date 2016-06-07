@@ -12,6 +12,16 @@ public class Processor {
 
     private int ID;
 
+    private boolean procPassed;
+
+    public boolean isProcPassed() {
+        return procPassed;
+    }
+
+    public void setProcPassed(boolean procPassed) {
+        this.procPassed = procPassed;
+    }
+
     private List<Task> tasks = new ArrayList<Task>();
 
     public List<TimeUnit> getTimeLine() {

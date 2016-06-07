@@ -36,6 +36,8 @@ public class Test {
 
     }
 
+
+
     private static List<List<ProcLink>> getAllWayForProcessors( int matrix[][], int source, int dest){
 
         List<List<ProcLink>> result = new ArrayList<List<ProcLink>>();
@@ -554,6 +556,8 @@ public class Test {
         return result;
 
     }
+
+
 
 
     private static List<SimpleVertex> testWaySearchForCurrentRow(int[][] matrix, int row){
