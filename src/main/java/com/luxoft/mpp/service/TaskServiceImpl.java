@@ -286,12 +286,12 @@ public class TaskServiceImpl implements TaskService {
         return result;
     }
 
-    @Override
     public List<SimpleMetaData> getQueueVariant8(int[][] matrix, Integer[] vertex) {
         List<SimpleMetaData> result = new ArrayList<SimpleMetaData>();
 
-        Map<Integer, List<List<SimpleVertex>>> allWaysForEachVertex = getAllWaysForEachVertex(matrix);
-        Map<Integer, List<List<Integer>>> criticalWayVertexID = convertSimpleVertexToVertexID(allWaysForEachVertex);
+        Map<Integer, List<List<SimpleVertex>>> allWaysForEachVertex = getAllWaysForEachVertexByDegrease(matrix);
+        Map<Integer, List<List<Integer>>> criticalWayVertexID = convertSimpleVertexToVertexIDByDegrease(allWaysForEachVertex);
+
 
         for (Map.Entry<Integer, List<List<Integer>>> waysForCurrVertex : criticalWayVertexID.entrySet()) {
             List<Integer> list = getCriticalWayByTaskQuantity(waysForCurrVertex.getValue(), vertex);
@@ -311,15 +311,9 @@ public class TaskServiceImpl implements TaskService {
             @Override
             public int compare(SimpleMetaData o1, SimpleMetaData o2) {
                 if (o1.getVertexQuantity() > o2.getVertexQuantity()) {
-                    return -1;
-                } else if (o1.getVertexQuantity() < o2.getVertexQuantity()) {
                     return 1;
-                } else if (o1.getVertexQuantity() == o2.getVertexQuantity()) {
-                    if (o1.getCriticalWay() > o2.getCriticalWay()) {
-                        return -1;
-                    } else if (o1.getCriticalWay() < o2.getCriticalWay()) {
-                        return 1;
-                    }
+                } else if (o1.getVertexQuantity() < o2.getVertexQuantity()) {
+                    return -1;
                 }
                 return 0;
             }
@@ -327,6 +321,7 @@ public class TaskServiceImpl implements TaskService {
 
         return result;
     }
+
 
     @Override
     public List<SimpleMetaData> getQueueVariant13(int[][] matrix, Integer[] vertex) {
@@ -362,6 +357,26 @@ public class TaskServiceImpl implements TaskService {
     }
 
 
+    private Map<Integer, List<List<Integer>>> convertSimpleVertexToVertexIDByDegrease(Map<Integer, List<List<SimpleVertex>>> criticalWay){
+        Map<Integer, List<List<Integer>>> result = new HashMap<Integer, List<List<Integer>>>();
+
+        for (Map.Entry<Integer, List<List<SimpleVertex>>> waysForCurrVertex : criticalWay.entrySet()){
+
+            List<List<Integer>> wayList =  new ArrayList<List<Integer>>();
+            for (List<SimpleVertex> list : waysForCurrVertex.getValue()){
+
+                List<Integer> idsList = new ArrayList<Integer>();
+                for (SimpleVertex e :list) {
+                    idsList.add(e.getCol());
+
+                }
+                wayList.add(idsList);
+            }
+            result.put(waysForCurrVertex.getKey(), wayList);
+        }
+        return result;
+    }
+
 
     private Map<Integer, List<List<Integer>>> convertSimpleVertexToVertexID(Map<Integer, List<List<SimpleVertex>>> criticalWay){
         Map<Integer, List<List<Integer>>> result = new HashMap<Integer, List<List<Integer>>>();
@@ -389,6 +404,72 @@ public class TaskServiceImpl implements TaskService {
         for (int nextRow = 0; nextRow < matrix.length; nextRow++) {
             result.put(nextRow, getAllWayForCurrentVertex(matrix, nextRow));
         }
+
+        return result;
+
+    }
+
+
+    private Map<Integer, List<List<SimpleVertex>>> getAllWaysForEachVertexByDegrease(int matrix[][]){
+
+        Map<Integer, List<List<SimpleVertex>>> result = new HashMap<Integer, List<List<SimpleVertex>>>();
+
+        for (int nextRow = 0; nextRow < matrix.length; nextRow++) {
+            result.put(nextRow, getAllWayByDegrease(matrix, nextRow));
+        }
+
+        return result;
+
+    }
+
+    private static List<List<SimpleVertex>> getAllWayByDegrease(int matrix[][],  int currentVertexID){
+
+        List<List<SimpleVertex>> result = new ArrayList<List<SimpleVertex>>();
+        Stack<SimpleVertex> vertexStack = new Stack<SimpleVertex>();
+        System.out.println("===========================");
+
+        int col = currentVertexID;
+        int row = 0;
+
+        do {
+
+            while( true ) {
+
+                if ( isEmptyCol(matrix, col) ){
+                    vertexStack.push(new SimpleVertex(col, 0));
+                    break;
+                }
+
+                if (matrix[row][col] != 0){
+                    vertexStack.push(new SimpleVertex(col, row));
+                    col = row;
+                    row = 0;
+                }else{
+                    row ++;
+                }
+            }
+
+            result.add(new ArrayList<SimpleVertex>(vertexStack));
+
+            while( ! vertexStack.isEmpty() ){
+
+                SimpleVertex simpleVertex = vertexStack.peek();
+
+                int nextRow = simpleVertex.getRow();
+                nextRow++;
+
+                if ( hasReferenceToRow(matrix, simpleVertex.getCol(), nextRow) ){
+                    System.out.println("form if : vertex ["+simpleVertex.getRow()+"]["+simpleVertex.getCol()+"]");
+                    simpleVertex = vertexStack.pop();
+                    row = nextRow;
+                    col = simpleVertex.getCol();
+                    break;
+                }
+                System.out.println("vertex [" + simpleVertex.getRow() + "][" + simpleVertex.getCol() + "]");
+                vertexStack.pop();
+            }
+            System.out.println("-------------------------");
+        }while( ! vertexStack.isEmpty() || hasReferenceToRow(matrix, col, row) );
 
         return result;
 
@@ -469,6 +550,26 @@ public class TaskServiceImpl implements TaskService {
         }
         return true;
     }
+
+
+    private static boolean isEmptyCol( int[][] matrix, int inCol ){
+        for (int i = 0; i < matrix[inCol].length; i++) {
+            if (matrix[i][inCol] != 0)
+                return false;
+        }
+        return true;
+    }
+
+
+    private static boolean hasReferenceToRow( int[][] matrix, int col, int fromRow ){
+
+        for (int i = fromRow; i < matrix.length; i++ ){
+            if (matrix[i][col] != 0)
+                return true;
+        }
+        return false;
+    }
+
 
     public List<Task> getTasks() {
         return tasks;

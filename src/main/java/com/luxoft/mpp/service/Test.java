@@ -18,170 +18,153 @@ public class Test {
     };
 
     private static int[][] matrix1 =
-            {{0,1,0,0,0,1},//0
-             {0,0,1,1,0,0},//1
-             {0,0,0,1,1,0},//2
-             {0,0,0,0,1,1},//3
+            {{0,0,0,1,1,0},//0
+             {0,0,0,1,0,0},//1
+             {0,1,0,0,1,0},//2
+             {0,0,0,0,0,0},//3
              {0,0,0,0,0,1},//4
              {0,0,0,0,0,0},//5
     };
 
-    private static Integer[] vertex = {5,6,7,8,9};
+    private static Integer[] vertex = {5,6,7,8,9,19};
 
     public static void main(String[] args){
 
 
 
-        getAllWayForProcessors(matrix1, 3, 1);
+        getQueueVariant8(matrix1, vertex);
 
     }
 
+    public static List<SimpleMetaData> getQueueVariant8(int[][] matrix, Integer[] vertex) {
+        List<SimpleMetaData> result = new ArrayList<SimpleMetaData>();
+
+        Map<Integer, List<List<SimpleVertex>>> allWaysForEachVertex = getAllWaysForEachVertexByDegrease(matrix);
+        Map<Integer, List<List<Integer>>> criticalWayVertexID = convertSimpleVertexToVertexIDByDegrease(allWaysForEachVertex);
 
 
-    private static List<List<ProcLink>> getAllWayForProcessors( int matrix[][], int source, int dest){
+        for (Map.Entry<Integer, List<List<Integer>>> waysForCurrVertex : criticalWayVertexID.entrySet()) {
+            List<Integer> list = getCriticalWayByTaskQuantity(waysForCurrVertex.getValue(), vertex);
 
-        List<List<ProcLink>> result = new ArrayList<List<ProcLink>>();
-
-        Stack<ProcLink> vertexStack = new Stack<ProcLink>();
-
-        System.out.println("===========================");
-
-        int col = 0;
-        int row = source;
-        do{
-
-            while ( true ){
-
-                if(isEmptyRow(matrix, row) ){
-
-                    for (int i = 0; i < matrix.length; i++) {
-                        int verticalConnection = matrix[i][row];
-                        if ( verticalConnection != 0 && i == dest){
-                            ProcLink procLink = new ProcLink(i, row);
-                            vertexStack.push(procLink);
-                            break;
-                        }
-                    }
-
-                    break;
-                }
-
-                if ( row == dest ) {
-//                    SimpleVertex simpleVertex = new SimpleVertex(0, row);
-//                    vertexStack.push(simpleVertex);
-                    System.out.println("destination found");
-                    break;
-                }
-
-                if ( matrix[row][col] != 0){
-                    ProcLink procLink = new ProcLink(col, row);
-                    vertexStack.push(procLink);
-                    row = col;
-                    col = 0;
-                } else {
-                    col ++;
-                }
+            int sum = 0;
+            String criticalWay = "";
+            for (Integer aList : list) {
+                sum += vertex[aList];
+                criticalWay += aList+"; ";
             }
+            SimpleMetaData simpleMetaData = new SimpleMetaData(criticalWay, waysForCurrVertex.getKey(), sum, list.size());
+            simpleMetaData.setVertexID(list);
+            result.add(simpleMetaData);
+        }
 
-            result.add(new ArrayList<ProcLink>(vertexStack));
-
-            while ( ! vertexStack.isEmpty() ){
-                ProcLink procLink = vertexStack.peek();
-
-                int nextCol = procLink.getCol();
-                nextCol++;
-
-                if ( ! isEmptyRestOfRow(matrix, procLink.getRow(), nextCol) ){
-                    System.out.println("form if : vertex ["+procLink.getRow()+"]["+procLink.getCol()+"]");
-                    procLink = vertexStack.pop();
-                    col = nextCol;
-                    row = procLink.getRow();
-                    break;
+        Collections.sort(result, new Comparator<SimpleMetaData>() {
+            @Override
+            public int compare(SimpleMetaData o1, SimpleMetaData o2) {
+                if (o1.getVertexQuantity() > o2.getVertexQuantity()) {
+                    return 1;
+                } else if (o1.getVertexQuantity() < o2.getVertexQuantity()) {
+                    return -1;
                 }
-                System.out.println("vertex [" + procLink.getRow() + "][" + procLink.getCol() + "]");
-                vertexStack.pop();
-
+                return 0;
             }
-            System.out.println("-------------------------");
+        });
 
-        }while ( ! vertexStack.isEmpty() || !isEmptyRestOfRow(matrix, row, col));
+        return result;
+    }
+
+    private static List<Integer> getCriticalWayByTaskQuantity(List<List<Integer>> criticalWays, Integer[] vertex){
+        List<Integer> result = new ArrayList<Integer>();
+        int taskQuantity = 0;
+        for (List<Integer> list : criticalWays) {
+
+            if (list.size() < taskQuantity)
+                continue;
+
+            if (list.size() == taskQuantity) {
+                result = getCriticalWayByTaskValue(criticalWays, vertex);
+            } else {
+                taskQuantity = list.size();
+                result = list;
+            }
+        }
+        return result;
+
+    }
+
+    public static Map<Integer, List<List<SimpleVertex>>> getAllWaysForEachVertexByDegrease(int matrix[][]){
+
+        Map<Integer, List<List<SimpleVertex>>> result = new HashMap<Integer, List<List<SimpleVertex>>>();
+
+        for (int nextRow = 0; nextRow < matrix.length; nextRow++) {
+            result.put(nextRow, getAllWayByDegrease(matrix, nextRow));
+        }
 
         return result;
 
     }
 
-
-    private static List<List<SimpleVertex>> getAllWayForCurrentVertex( int matrix[][], int currentVertexID, int dest){
+    private static List<List<SimpleVertex>> getAllWayByDegrease(int matrix[][],  int currentVertexID){
 
         List<List<SimpleVertex>> result = new ArrayList<List<SimpleVertex>>();
-
         Stack<SimpleVertex> vertexStack = new Stack<SimpleVertex>();
-
         System.out.println("===========================");
 
-        int col = 0;
-        int row = currentVertexID;
-        do{
+        int col = currentVertexID;
+        int row = 0;
 
-            while ( true ){
+        do {
 
-                if(isEmptyRow(matrix, row) ){
-                    List<ProcLink> verticalLink = getVerticalLink(matrix, row);
-                    for (int i = 0; i < matrix.length; i++) {
-                        int verticalConnection = matrix[i][row];
-                        if ( verticalConnection != 0 && i == dest){
-                            SimpleVertex simpleVertex = new SimpleVertex(row, i);
-                            vertexStack.push(simpleVertex);
-                            break;
-                        }
-                    }
+            while( true ) {
 
+                if ( isEmptyCol(matrix, col) ){
+                    vertexStack.push(new SimpleVertex(col, 0));
                     break;
                 }
 
-                if ( row == dest ) {
-//                    SimpleVertex simpleVertex = new SimpleVertex(0, row);
-//                    vertexStack.push(simpleVertex);
-                    System.out.println("destination found");
-                    break;
-                }
-
-                if ( matrix[row][col] != 0){
-                    SimpleVertex simpleVertex = new SimpleVertex(col, row);
-                    vertexStack.push(simpleVertex);
-                    row = col;
-                    col = 0;
-                } else {
-                    col ++;
+                if (matrix[row][col] != 0){
+                    vertexStack.push(new SimpleVertex(col, row));
+                    col = row;
+                    row = 0;
+                }else{
+                    row ++;
                 }
             }
 
             result.add(new ArrayList<SimpleVertex>(vertexStack));
 
-            while ( ! vertexStack.isEmpty() ){
+            while( ! vertexStack.isEmpty() ){
+
                 SimpleVertex simpleVertex = vertexStack.peek();
 
-                int nextCol = simpleVertex.getCol();
-                nextCol++;
+                int nextRow = simpleVertex.getRow();
+                nextRow++;
 
-                if ( ! isEmptyRestOfRow(matrix, simpleVertex.getRow(), nextCol) ){
+                if ( hasReferenceToRow(matrix, simpleVertex.getCol(), nextRow) ){
                     System.out.println("form if : vertex ["+simpleVertex.getRow()+"]["+simpleVertex.getCol()+"]");
                     simpleVertex = vertexStack.pop();
-                    col = nextCol;
-                    row = simpleVertex.getRow();
+                    row = nextRow;
+                    col = simpleVertex.getCol();
                     break;
                 }
                 System.out.println("vertex [" + simpleVertex.getRow() + "][" + simpleVertex.getCol() + "]");
                 vertexStack.pop();
-
             }
             System.out.println("-------------------------");
-
-        }while ( ! vertexStack.isEmpty() || !isEmptyRestOfRow(matrix, row, col));
+        }while( ! vertexStack.isEmpty() || hasReferenceToRow(matrix, col, row) );
 
         return result;
 
     }
+
+
+    private static boolean isEmptyCol( int[][] matrix, int inCol ){
+        for (int i = 0; i < matrix[inCol].length; i++) {
+            if (matrix[i][inCol] != 0)
+                return false;
+        }
+        return true;
+    }
+
 
     private static boolean isEmptyRow( int[][] matrix, int inRow ){
         for (int i = 0; i < matrix[inRow].length; i++) {
@@ -333,49 +316,9 @@ public class Test {
         return result;
     }
 
-    public static List<SimpleMetaData> getQueueVariant8(int[][] matrix, Integer[] vertex) {
-        List<SimpleMetaData> result = new ArrayList<SimpleMetaData>();
-
-        Map<Integer, List<List<SimpleVertex>>> allWaysForEachVertex = getAllWaysForEachVertex(matrix);
-        Map<Integer, List<List<Integer>>> criticalWayVertexID = convertSimpleVertexToVertexID(allWaysForEachVertex);
 
 
-        for (Map.Entry<Integer, List<List<Integer>>> waysForCurrVertex : criticalWayVertexID.entrySet()) {
-            List<Integer> list = getCriticalWayByTaskQuantity(waysForCurrVertex.getValue(), vertex);
-
-            int sum = 0;
-            String criticalWay = "";
-            for (Integer aList : list) {
-                sum += vertex[aList];
-                criticalWay += aList+"; ";
-            }
-            SimpleMetaData simpleMetaData = new SimpleMetaData(criticalWay, waysForCurrVertex.getKey(), sum, list.size());
-            simpleMetaData.setVertexID(list);
-            result.add(simpleMetaData);
-        }
-
-//        Collections.sort(result, new Comparator<SimpleMetaData>() {
-//            @Override
-//            public int compare(SimpleMetaData o1, SimpleMetaData o2) {
-//                if (o1.getVertexQuantity() > o2.getVertexQuantity()) {
-//                    return -1;
-//                } else if (o1.getVertexQuantity() < o2.getVertexQuantity()) {
-//                    return 1;
-//                } else if (o1.getVertexQuantity() == o2.getVertexQuantity()) {
-//                    if (o1.getCriticalWay() > o2.getCriticalWay()) {
-//                        return -1;
-//                    } else if (o1.getCriticalWay() < o2.getCriticalWay()) {
-//                        return 1;
-//                    }
-//                }
-//                return 0;
-//            }
-//        });
-
-        return result;
-    }
-
-    private static Map<Integer, List<List<Integer>>> convertSimpleVertexToVertexID(Map<Integer, List<List<SimpleVertex>>> criticalWay){
+    private static Map<Integer, List<List<Integer>>> convertSimpleVertexToVertexIDByDegrease(Map<Integer, List<List<SimpleVertex>>> criticalWay){
         Map<Integer, List<List<Integer>>> result = new HashMap<Integer, List<List<Integer>>>();
 
         for (Map.Entry<Integer, List<List<SimpleVertex>>> waysForCurrVertex : criticalWay.entrySet()){
@@ -385,7 +328,7 @@ public class Test {
 
                 List<Integer> idsList = new ArrayList<Integer>();
                 for (SimpleVertex e :list) {
-                    idsList.add(e.getRow());
+                    idsList.add(e.getCol());
 
                 }
                 wayList.add(idsList);
@@ -397,24 +340,7 @@ public class Test {
 
 
 
-    private static List<Integer> getCriticalWayByTaskQuantity(List<List<Integer>> criticalWays, Integer[] vertex){
-        List<Integer> result = new ArrayList<Integer>();
-        int taskQuantity = 0;
-        for (List<Integer> list : criticalWays) {
 
-            if (list.size() < taskQuantity)
-                continue;
-
-            if (list.size() == taskQuantity) {
-                result = getCriticalWayByTaskValue(criticalWays, vertex);
-            } else {
-                taskQuantity = list.size();
-                result = list;
-            }
-        }
-        return result;
-
-    }
 
 
     private static List<Integer> getCriticalWayByTaskValue(List<List<Integer>> criticalWays, Integer[] vertex){
@@ -491,71 +417,7 @@ public class Test {
 
     }
 
-    public static Map<Integer, List<List<SimpleVertex>>> getAllWaysForEachVertex(int matrix[][]){
 
-        Map<Integer, List<List<SimpleVertex>>> result = new HashMap<Integer, List<List<SimpleVertex>>>();
-
-        for (int nextRow = 0; nextRow < matrix.length; nextRow++) {
-            result.put(nextRow, getAllWayForGraphStart(matrix, nextRow));
-        }
-
-        return result;
-
-    }
-
-    private static List<List<SimpleVertex>> getAllWayForGraphStart(int matrix[][],  int currentVertexID){
-
-        List<List<SimpleVertex>> result = new ArrayList<List<SimpleVertex>>();
-
-        Stack<SimpleVertex> vertexStack = new Stack<SimpleVertex>();
-
-        System.out.println("===========================");
-
-
-
-        int col = currentVertexID;
-        int row = 0;
-
-        do {
-
-            while(  hasReferenceToRow(matrix, col, row) ) {
-
-                if (matrix[row][col] != 0){
-                    vertexStack.push(new SimpleVertex(col, row));
-                    col = row;
-                    row = 0;
-                }else{
-                    row ++;
-                }
-            }
-
-            result.add(new ArrayList<SimpleVertex>(vertexStack));
-
-            while( ! vertexStack.isEmpty() ){
-
-                SimpleVertex simpleVertex = vertexStack.peek();
-
-                int nextRow = simpleVertex.getRow();
-                nextRow++;
-
-                if ( ! hasReferenceToRow(matrix, simpleVertex.getRow(), nextRow) ){
-                    System.out.println("form if : vertex ["+simpleVertex.getRow()+"]["+simpleVertex.getCol()+"]");
-                    simpleVertex = vertexStack.pop();
-                    row = nextRow;
-                    col = simpleVertex.getCol();
-                    break;
-                }
-                System.out.println("vertex [" + simpleVertex.getRow() + "][" + simpleVertex.getCol() + "]");
-                vertexStack.pop();
-            }
-
-
-
-        }while( ! vertexStack.isEmpty() );
-
-        return result;
-
-    }
 
 
 

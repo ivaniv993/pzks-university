@@ -47,6 +47,8 @@ public class Test1 {
 
         from.setProcPassed(true);
         Stack<ProcLink> currentWay =  new Stack<ProcLink>();
+        Stack<Processor> currentProcessors =  new Stack<Processor>();
+        currentProcessors.push(from);
         do {
             while (true) {
 
@@ -70,6 +72,7 @@ public class Test1 {
 
 
                     currentFrom.setProcPassed(true);
+                    currentProcessors.push(currentFrom);
                     link.setPassed(true);
                     currentWay.push(link);
                     if (link.getSource() == to || link.getDest() == to) {
@@ -92,63 +95,78 @@ public class Test1 {
 
             listOfWay.add(new ArrayList<ProcLink>(currentWay));
 
-            List<ProcLink> links;
 
-            Processor lastProc = to;
 
-            do {
+            // rollback
+            List<ProcLink> curLinks;
 
-                lastProc.setProcPassed(false);
-                ProcLink lastLink = currentWay.pop();
-                Processor prevProc = lastLink.getDest();
-                if (prevProc == lastProc)
+            ProcLink lastLink = currentWay.pop();
+            Processor  lastProc = currentProcessors.pop();
+
+            Processor curProc = lastLink.getDest();
+            if (curProc == lastProc)
+                curProc = lastLink.getSource();
+
+            curLinks = curProc.getLinks();
+
+            Processor prevProc = currentProcessors.peek();
+
+            while( allProcessPassed(curLinks, prevProc, curProc) && ! currentWay.isEmpty()){
+
+                lastProc = curProc;
+                curProc = prevProc;
+                curLinks  = curProc.getLinks();
+
+                lastLink = currentWay.pop();
+                prevProc = lastLink.getDest();
+                if (prevProc == curProc)
                     prevProc = lastLink.getSource();
 
-                links = prevProc.getLinks();
 
-                ProcLink prevLink = currentWay.peek();
-                links.remove(prevLink);
 
-                if (allLinksAndProcessPassed(links, prevProc)) {
-                    releaseAllLinks(links);
 
-                    from = prevLink.getDest();
-                    if (from == prevProc)
-                        from = prevLink.getSource();
 
-                } else {
-                    from = prevProc;
-                    lastProc = prevProc;
-                }
-
-                System.out.println("rollback");
-
-            } while ( allLinksAndProcessPassed(from.getLinks(), from) );
+            } ;
 
 
         }while( ! currentWay.isEmpty() );
     }
 
-    public static boolean allLinksAndProcessPassed(List<ProcLink> links, Processor from){
+    public static boolean allLinksPassed(List<ProcLink> curLinks, Processor prevProc){
 
-        for (ProcLink procLink : links ){
-            if ( ! procLink.isPassed() )
-                return false;
-            if (from != procLink.getDest())
-                if ( ! procLink.getDest().isProcPassed())
-                    return false;
-            if (from != procLink.getSource())
-                if( ! procLink.getSource().isProcPassed())
-                    return false;
+        for (ProcLink procLink : curLinks ){
+            if ( prevProc != procLink.getDest() && prevProc != procLink.getSource() ) {
+                if ( ! procLink.isPassed()){
+                        return false;
+                    }
+            }
         }
         return true;
 
     }
 
-    public static void releaseAllLinks(List<ProcLink> links){
+    public static boolean allProcessPassed(List<ProcLink> curLinks, Processor prevProc, Processor curProc){
+
+        for (ProcLink procLink : curLinks ){
+            if (prevProc != procLink.getDest() && prevProc != procLink.getSource()){
+                if ( procLink.getDest() != curProc && ! procLink.getDest().isProcPassed() )
+                    return false;
+                if ( procLink.getSource() != curProc && ! procLink.getSource().isProcPassed() )
+                    return false;
+            }
+
+        }
+        return true;
+
+    }
+
+    public static void releaseAllVertex(List<ProcLink> links, Stack<Processor> processors){
 
         for (ProcLink procLink : links ){
-            procLink.setPassed(false);
+            if (! processors.contains(procLink.getDest())) {
+                procLink.getDest().setProcPassed(false);
+            } else if ( ! processors.contains(procLink.getSource()) )
+                procLink.getSource().setProcPassed(false);
         }
 
     }
