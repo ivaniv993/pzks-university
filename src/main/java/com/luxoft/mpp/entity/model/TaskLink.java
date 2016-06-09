@@ -19,6 +19,15 @@ public class TaskLink {
 
     private int transferTime;
 
+    public TaskLink( TaskLink taskLink ){
+        if (taskLink == null) {
+            return;
+        }
+        this.from = taskLink.from;
+        this.to = this.to;
+        this.transferTime = taskLink.transferTime;
+    }
+
     public TaskLink(Task from, Task to, int transferTime) {
         this.from = from;
         this.to = to;

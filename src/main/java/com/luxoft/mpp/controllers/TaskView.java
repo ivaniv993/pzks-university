@@ -157,9 +157,6 @@ public class TaskView implements Serializable {
 
         } while( taskServiceImpl.isLoop(lm) || !taskServiceImpl.findHangingVertex(lm).isEmpty() || !taskServiceImpl.hasWayToLastVertex(lm) );
 
-
-//        countCorrelation();
-
         System.out.println("Vertex");
         for (int e : vertex){
             System.out.print(e + ", ");
@@ -237,7 +234,6 @@ public class TaskView implements Serializable {
                 }
             }
         }
-        taskServiceImpl.saveCSGraph( lm, vertex );
         orderVertex(model);
         RequestContext.getCurrentInstance().update("form");
         RequestContext.getCurrentInstance().update("generate_graph");
@@ -250,6 +246,8 @@ public class TaskView implements Serializable {
         lm = readFile("D://IdeaProjects/pzks/pzks-university/src/main/resources/ts.txt");
         vertex = readVertexFile("D://IdeaProjects/pzks/pzks-university/src/main/resources/vertex.txt");
 
+        if (lm.length<1 || vertex.length<1)
+            return;
         for (int i = 0; i < vertex.length; i++) {
 
             TaskElement taskElement = new TaskElement(i, vertex[i]);
@@ -281,7 +279,6 @@ public class TaskView implements Serializable {
                 }
             }
         }
-        taskServiceImpl.saveCSGraph( lm, vertex );
         orderVertex(model);
         RequestContext.getCurrentInstance().update("form");
         RequestContext.getCurrentInstance().update("generate_graph");
@@ -293,10 +290,14 @@ public class TaskView implements Serializable {
         BufferedReader br = null;
         try{
             br = new BufferedReader(new FileReader(path));
-            String sCurrentLine = null;
-            while (sCurrentLine == null) {
-                sCurrentLine = br.readLine();
+            String sCurrentLine;
+            do {
+                sCurrentLine=br.readLine();
                 System.out.println(sCurrentLine);
+            }while(br.readLine() != null);
+
+            if (sCurrentLine == null) {
+                return result;
             }
 
             String[] row = sCurrentLine.split(";");
@@ -322,9 +323,13 @@ public class TaskView implements Serializable {
 
             br = new BufferedReader(new FileReader(path));
             String sCurrentLine = null;
-            while (sCurrentLine == null) {
-                sCurrentLine = br.readLine();
+            do{
+                sCurrentLine=br.readLine();
                 System.out.println(sCurrentLine);
+            }while ( br.readLine()  != null);
+
+            if (sCurrentLine == null) {
+                return result;
             }
 
             String[] row = sCurrentLine.split(";");

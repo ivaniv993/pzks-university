@@ -3,7 +3,6 @@ package com.luxoft.mpp.controllers;
 import javax.annotation.PostConstruct;
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import javax.faces.bean.ManagedBean;
@@ -82,7 +81,6 @@ public class ModelingView implements Serializable {
         System.out.println("\n________Test graph___________");
 
         createOhlcModel1();
-//        createOhlcModel2();
     }
 
     public List<Processor> createMockCS(){
@@ -132,28 +130,9 @@ public class ModelingView implements Serializable {
     private void createOhlcModel1(){
         //init data
         queueVariant = new ArrayList<SimpleMetaData>();
-        int[][] lm = {
-                {0,0,0,0,2,0},
-                {0,0,0,0,3,0},
-                {0,0,0,0,4,0},
-                {0,0,0,0,0,5},
-                {0,0,0,0,0,6},
-                {0,0,0,0,0,0}
-        };
+        int[][] lm = new int[0][0];
         Integer[] vertex = new Integer[6];
-        vertex[0] = 1;
-        vertex[1] = 2;
-        vertex[2] = 3;
-        vertex[3] = 4;
-        vertex[4] = 5;
-        vertex[5] = 6;
-
-        int[][] matrix =
-                {{0,1,0,0},//0
-                 {1,0,1,0},//1
-                 {0,1,0,1},//2
-                 {0,0,1,0} //3
-                };
+        int[][] matrix = new int[0][0];
 
         matrix = readFile("D://IdeaProjects/pzks/pzks-university/src/main/resources/cs.txt");
         lm = readFile("D://IdeaProjects/pzks/pzks-university/src/main/resources/ts.txt");
@@ -165,13 +144,14 @@ public class ModelingView implements Serializable {
 
         queueVariant = taskServiceImpl.getQueueVariant3(lm, vertex);
 
-        List<Processor> processors = grantModelingService.modeling(computerGraph, taskGraph, matrix, queueVariant);
+        List<Processor> processors = grantModelingService.nearbyModeling(computerGraph, taskGraph, queueVariant, matrix);
 
 
+        ohlcModel2 = new OhlcChartModel();
         ohlcModel = new OhlcChartModel();
 
         for (Processor proc : processors){
-            for (TimeUnit timeUnit : proc.getTimeLine() ){
+            for (TimeUnit timeUnit : proc.getWorkingLine() ){
                 if (  ! timeUnit.isIdleTime())
 //                    Task task = (Task)timeUnit;
                     ohlcModel.add(new OhlcChartSeries( proc.getID(),
@@ -179,14 +159,30 @@ public class ModelingView implements Serializable {
                             (double)timeUnit.getTo()+0.1,
                             (double)timeUnit.getFrom(),
                             (double)timeUnit.getFrom()+0.1 ));
-
             }
-
         }
+
+        for (Processor proc : processors){
+            for (TimeUnit timeUnit : proc.getTransferLine() ){
+                if (  ! timeUnit.isIdleTime())
+//                    Task task = (Task)timeUnit;
+                    ohlcModel2.add(new OhlcChartSeries( proc.getID(),
+                            (double)timeUnit.getTo(),
+                            (double)timeUnit.getTo()+0.1,
+                            (double)timeUnit.getFrom(),
+                            (double)timeUnit.getFrom()+0.1 ));
+            }
+        }
+
+        ohlcModel2.setAnimate(true);
+        ohlcModel2.setCandleStick(true);
+        ohlcModel2.setTitle("Transfers");
+        ohlcModel2.getAxis(AxisType.X).setLabel("Processors");
+        ohlcModel2.getAxis(AxisType.Y).setLabel("Time");
 
         ohlcModel.setAnimate(true);
         ohlcModel.setCandleStick(true);
-        ohlcModel.setTitle("Chart");
+        ohlcModel.setTitle("Tasks");
         ohlcModel.getAxis(AxisType.X).setLabel("Processors");
         ohlcModel.getAxis(AxisType.Y).setLabel("Time");
     }

@@ -6,10 +6,7 @@ import edu.princeton.cs.algorithms.DirectedEdge;
 import edu.princeton.cs.algorithms.FloydWarshall;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Created by xXx on 6/8/2016.
@@ -32,8 +29,6 @@ public class GrantModelingService {
             System.out.println("Current task : "+task.getID());
             if ( taskHasRelatives(task) ) {
 
-
-
                 List<TaskLink> inTaskLinks = task.getInLink();
                 int transferTime = 0;
                 for (TaskLink inTaskLink : inTaskLinks) {
@@ -50,13 +45,13 @@ public class GrantModelingService {
 
                     TaskLink link = getLinkBetweenTasks(relativeTask, task);
 
-                    if ( (relativeProc.getCurrentTime()+link.getTransferTime() * size) > transferTime  ) {
-                        transferTime = link.getTransferTime() * size+relativeProc.getCurrentTime();
+                    if ( (relativeProc.getCurrentWorkingTime()+link.getTransferTime() * size) > transferTime  ) {
+                        transferTime = link.getTransferTime() * size+relativeProc.getCurrentWorkingTime();
                     }
                 }
 
-                if (procCandidate.getCurrentTime() < transferTime){
-                    TimeUnit idleTime = new TimeUnit(transferTime-procCandidate.getCurrentTime());
+                if (procCandidate.getCurrentWorkingTime() < transferTime){
+                    TimeUnit idleTime = new TimeUnit(transferTime-procCandidate.getCurrentWorkingTime());
                     procCandidate.addTimeLine(idleTime, true);
                 }
                 procCandidate.addTimeLine(task, false);
@@ -67,23 +62,7 @@ public class GrantModelingService {
 
                 task.setOnProcessor(procCandidate);
                 procCandidate.addTimeLine(task, false);
-                List<Processor> emptyProcessors = findEmptyProcessors(processors);
-//                if ( ! emptyProcessors.isEmpty() ) {
-//
-//                    //set on  empty processor
-////                    Processor proc = getProcessorByConnectivityAndFreedom(emptyProcessors);
-////                    System.out.println("EMPTY PROC WITH BIGGER CONNECTIVITY : "+proc.getID());
-//                    task.setOnProcessor(proc);
-//                    proc.addTimeLine(task, false);
-//
-//                } else {
-//                    //set proccessor with smaller task
-////                    Processor proc = findAnyProcessorWithSmallerTasks(processors);
-////                    System.out.println("EMPTY PROC WITH SMALLER TASKS : "+proc.getID());
-//                    task.setOnProcessor(proc);
-//                    proc.addTimeLine(task, false);
-//
-//                }
+
 
             }
         }
@@ -91,13 +70,193 @@ public class GrantModelingService {
     }
 
 
-    private boolean existEmptyProcessors(List<Processor> processors, int curTime){
 
-        for (Processor proc : processors )
-            if (proc.getCurrentTime() <= curTime )
-                return true;
-        return false;
+    public List<Processor> nearbyModeling(List<Processor> processors,
+                                           List<Task> tasksGraph,
+                                           List<SimpleMetaData> queue,
+                                           int[][] matrixCS ){
+
+        List<Processor> result = new ArrayList<Processor>();
+
+        for (SimpleMetaData next : queue ){
+
+            Task task = getTaskByID(tasksGraph, next.getVertexId());
+
+            if (taskHasRelatives(task)){
+
+                Map<Integer, List<Processor> > processorGraphMap = new HashMap<Integer, List<Processor>>();
+                Map<Integer, List<Task> > tasksGraphMap = new HashMap<Integer, List<Task>>();
+
+                System.out.println("|===================|");
+                int maxTime = Integer.MAX_VALUE;
+                for ( Processor procCandidate : processors) {
+
+                    int timeOfFinishParentTask = 0;
+                    List<Processor> buffProcessors = new ArrayList<Processor>();
+                    List<Task> buffTasks = new ArrayList<Task>();
+                    // make snapshot of state
+                    makeSnapshot(processors, buffProcessors, tasksGraph, buffTasks);
+                    //set current operand to snapshot
+                    procCandidate = getProcessById(buffProcessors, procCandidate.getID());
+                    task = getTaskByID(buffTasks, task.getID());
+
+                    List<TaskLink> inTaskLinks = task.getInLink();
+                    //-------------------------------------------------------------
+                    String log = "Parent tasks on processors : ";
+                    for (TaskLink inTaskLink : inTaskLinks)
+                        log += "["+inTaskLink.getFrom().getOnProcessor().getID()+"]";
+                    System.out.println(log);
+
+                    System.out.println("Candidate proc : "+procCandidate.getID());
+                    //--------------------------------------------------------------
+
+
+                    for (TaskLink inTaskLink : inTaskLinks) {
+
+                        Processor from = inTaskLink.getFrom().getOnProcessor();
+                        int transferDuration = inTaskLink.getTransferTime();
+                        Iterable<DirectedEdge> way = searchShooterWay(matrixCS, from.getID(), procCandidate.getID());
+
+                        System.out.println(way.toString());
+
+                        // get time when parent task finish (current time for current proc)
+                        timeOfFinishParentTask = from.getTimeOfFinishTask( inTaskLink.getFrom() );
+                        for (DirectedEdge edge : way ){
+                            Processor proc = getProcessById(buffProcessors, edge.from());
+                            int startOfTransfer = proc.searchBeginForTransfer(transferDuration, timeOfFinishParentTask);
+                            int endOfTransfer = startOfTransfer + transferDuration;
+
+                            System.out.println("Transfer on proc :"+proc.getID()+"; start :"+startOfTransfer+"; end :"+endOfTransfer);
+                            TimeUnit transferUnit = new TimeUnit(startOfTransfer, endOfTransfer, transferDuration, false );
+                            transferUnit.setMessage("{task :"+task.getID()+" [from :"+edge.from()+"][to :"+edge.to()+"]}");
+                            proc.addTransferUnit(transferUnit);
+
+                            timeOfFinishParentTask = endOfTransfer;
+                        }
+
+                    }
+                    task.setOnProcessor(procCandidate);
+                    if (procCandidate.getCurrentWorkingTime() > timeOfFinishParentTask )
+                        timeOfFinishParentTask = procCandidate.getCurrentWorkingTime();
+                    procCandidate.addToWorkingLine(task, timeOfFinishParentTask, false);
+                    System.out.println("TASK with id : "+task.getID());
+
+                    int maxComputingTime = getMaxWorkingTimeFromAllProc(buffProcessors);
+                    processorGraphMap.put(maxComputingTime, buffProcessors);
+                    tasksGraphMap.put(maxComputingTime, buffTasks);
+                    System.out.println("------------- max time : "+maxComputingTime);
+                    if (maxTime > maxComputingTime)
+                        maxTime = maxComputingTime;
+                }
+
+                tasksGraph = tasksGraphMap.get(maxTime);
+                processors = processorGraphMap.get(maxTime);
+
+
+                System.out.println("|===================|");
+
+            } else {
+
+                List<Processor> emptyProcessors = getEmptyProcessors(processors);
+                if ( ! emptyProcessors.isEmpty() ) {
+
+                    //set on  empty processor
+                    Processor proc = getProcessorByConnectivityAndFreedom(emptyProcessors);
+                    System.out.println("EMPTY PROC WITH BIGGER CONNECTIVITY : "+proc.getID());
+                    task.setOnProcessor(proc);
+                    proc.addToWorkingLine(task, 0, false);
+                    System.out.println("(EMPTY PROC WITH BIGGER CONNECTIVITY) TASK with id : "+task.getID());
+
+                } else {
+                    //set proccessor with smaller task
+                    Processor proc = findAnyProcessorWithSmallerTasks(processors);
+                    System.out.println("EMPTY PROC WITH SMALLER TASKS : "+proc.getID());
+                    task.setOnProcessor(proc);
+                    int from = proc.getCurrentWorkingTime();
+                    proc.addToWorkingLine(task, from, false);
+                    System.out.println("(EMPTY PROC WITH SMALLER TASKS) TASK with id : "+task.getID());
+
+                }
+            }
+        }
+        return processors;
     }
+
+    private int getMaxWorkingTimeFromAllProc( List<Processor> processors ){
+        int result = 0;
+        for (Processor proc : processors ){
+            if (proc.getCurrentWorkingTime() > result )
+                result = proc.getCurrentWorkingTime();
+        }
+        return result;
+    }
+
+    private void makeSnapshot( List<Processor> procSource, List<Processor> procDestination,
+                               List<Task> tasksSource, List<Task> tasksDestination){
+
+        //initialization
+        for ( Processor proc : procSource){
+            procDestination.add(new Processor(proc));
+        }
+
+        for ( Task task : tasksSource){
+            tasksDestination.add(new Task(task));
+        }
+
+        //init procSource
+        for (int i = 0; i < procSource.size(); i++) {
+
+            // TODO proclink ...
+
+            // time line
+            List< TimeUnit > newWorkingLine = new ArrayList<TimeUnit>();
+            for ( TimeUnit timeUnit : procSource.get(i).getWorkingLine() ){
+                newWorkingLine.add(new TimeUnit(timeUnit));
+            }
+            procDestination.get(i).setWorkingLine(newWorkingLine);
+
+            //transfer line
+            LinkedList< TimeUnit > newTransferLine = new LinkedList<TimeUnit>();
+            for ( TimeUnit timeUnit : procSource.get(i).getTransferLine() ){
+                newTransferLine.add( new TimeUnit(timeUnit) );
+            }
+            procDestination.get(i).setTransferLine(newTransferLine);
+
+            // proc tasksSource
+            List<Task> newTasks = new ArrayList<Task>();
+            for ( Task task : procSource.get(i).getTasks() ){
+                newTasks.add( new Task(task) );
+            }
+            procDestination.get(i).setTasks(newTasks);
+
+        }
+
+        // init tasksSource
+        for (int i = 0; i < tasksSource.size(); i++) {
+
+            if ( tasksSource.get(i).getOnProcessor() != null) {
+                Processor onProcessor = getProcessById(procDestination, tasksSource.get(i).getOnProcessor().getID() );
+                tasksDestination.get(i).setOnProcessor(onProcessor);
+
+            }
+
+            List<TaskLink> inputLinks = new ArrayList<TaskLink>();
+            for (TaskLink taskLink : tasksSource.get(i).getInLink()) {
+                inputLinks.add(new TaskLink(taskLink));
+            }
+            tasksDestination.get(i).setInLink(inputLinks);
+
+
+            List<TaskLink> outputLink = new ArrayList<TaskLink>();
+            for (TaskLink taskLink : tasksSource.get(i).getOutLink()) {
+                outputLink.add(new TaskLink(taskLink));
+            }
+            tasksDestination.get(i).setOutLink(outputLink);
+
+        }
+
+    }
+
 
     private int getWayLength( Iterable<DirectedEdge> iterable){
         int l = 0;
@@ -106,16 +265,6 @@ public class GrantModelingService {
         return l;
     }
 
-    private Task getTaskOnProcessorRelativeWith(Task task, Processor processor){
-
-        for (Task taskOnProc : processor.getTasks()){
-            for (TaskLink outLink : taskOnProc.getOutLink() ){
-                if (outLink.getTo() == task )
-                    return taskOnProc;
-            }
-        }
-        throw new IllegalStateException("Cant find task");
-    }
 
     private TaskLink getLinkBetweenTasks( Task from, Task to ){
 
@@ -126,6 +275,7 @@ public class GrantModelingService {
         }
         throw new IllegalStateException("Cant find link");
     }
+
 
     private Iterable<DirectedEdge> searchShooterWay(int [][] lm, int from, int to){
 
@@ -144,13 +294,6 @@ public class GrantModelingService {
     }
 
 
-    private int getDurationOfTransition( List<ProcLink> way, int linkDuration){
-
-        return way.size()*linkDuration;
-
-    }
-
-
     private Task getTaskByID( List<Task> tasks , int id){
 
         for ( Task t :  tasks ){
@@ -161,61 +304,8 @@ public class GrantModelingService {
 
     }
 
-    private List<Processor> findProcessorsWithRelativeTask(Task task){
 
-        List<Processor> result = new ArrayList<Processor>();
-        List<TaskLink> inputTaskLinks = task.getInLink();
-
-        for ( TaskLink  inputLink : inputTaskLinks ){
-
-            Task fromTask = inputLink.getFrom();
-
-            if ( ! fromTask.isOnProcessor() )
-                throw new IllegalStateException("Task not on processor; task : "+fromTask.getID());
-            Processor processor = fromTask.getOnProcessor();
-            result.add(processor);
-        }
-        return result;
-    }
-
-    private TaskLink getLinkBetweenTaskAndTaskOnProcessor(Processor onProcessor, Task toTask){
-
-        List<TaskLink> inputTaskLinks = toTask.getInLink();
-
-        TaskLink result = null;
-
-        for (TaskLink taskLink : inputTaskLinks ) {
-
-            Task buff = taskLink.getFrom();
-
-            if (! buff.isOnProcessor()) throw new IllegalStateException("Input task must bee on processor");
-
-            if ( buff.getOnProcessor() == onProcessor ){
-                result =  taskLink;
-            }
-
-        }
-
-        if (result == null) {
-            throw new IllegalStateException("task must bee on processor");
-        }
-        return result;
-
-    }
-
-    private Processor getProcessorWithSmallerTimeFromRelative(List<Processor> processors){
-
-        Processor result = processors.get(0);
-        for ( Processor proc : processors ){
-            if (result.getCurrentTime() < proc.getCurrentTime())
-                result = proc;
-        }
-        return result;
-
-    }
-
-
-    private List<Processor> findEmptyProcessors( List<Processor> processors ){
+    private List<Processor> getEmptyProcessors(List<Processor> processors){
 
         List<Processor> result = new ArrayList<Processor>();
         for (Processor p : processors ){
@@ -235,7 +325,7 @@ public class GrantModelingService {
 
         Processor result = allProcessors.get(0);
         for ( Processor  p : allProcessors ){
-            if (p.getCurrentTime() < result.getCurrentTime())
+            if (p.getCurrentWorkingTime() < result.getCurrentWorkingTime())
                 result = p;
         }
         return result;
@@ -262,56 +352,6 @@ public class GrantModelingService {
         }
         throw new IllegalStateException("Wrong id");
 
-    }
-
-    public List<Processor> createMockCS(){
-
-        List< Processor > result = new ArrayList<Processor>();
-
-        int permit = 2;
-
-        Processor
-                p0 = new Processor(0),
-                p1 = new Processor(1),
-                p2 = new Processor(2),
-                p3 = new Processor(3),
-                p4 = new Processor(4),
-                p5 = new Processor(5);
-
-
-        int[][] matrix =
-                {{0,1,0,0,0,1},//0
-                        {1,0,1,1,0,0},//1
-                        {0,1,0,1,1,0},//2
-                        {0,1,1,0,1,1},//3
-                        {0,0,1,1,0,1},//4
-                        {1,0,0,1,1,0},//5
-                };
-        ProcLink
-                link01 = new ProcLink(0, 1, permit),
-                link05 = new ProcLink(0, 5, permit),
-
-                link12 = new ProcLink(1, 2, permit),
-                link13 = new ProcLink(1, 3, permit),
-
-                link23 = new ProcLink(2, 3, permit),
-                link24 = new ProcLink(2, 4, permit),
-
-                link34 = new ProcLink(3, 4, permit),
-                link35 = new ProcLink(3, 5, permit),
-
-                link45 = new ProcLink(4, 5, permit);
-
-        Collections.addAll(p0.getLinks(), link01, link05);
-        Collections.addAll(p1.getLinks(), link01, link12, link13);
-        Collections.addAll(p2.getLinks(), link12, link23, link24);
-        Collections.addAll(p3.getLinks(), link13, link23, link34, link35);
-        Collections.addAll(p4.getLinks(), link24, link34, link45);
-        Collections.addAll(p5.getLinks(), link35, link45, link05);
-
-        Collections.addAll(result, p0, p1, p2, p3, p4, p5);
-
-        return result;
     }
 
 }

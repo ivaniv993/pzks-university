@@ -1,6 +1,7 @@
 package com.luxoft.mpp.entity.model;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -10,9 +11,56 @@ public class Processor {
 
     public Processor(){}
 
+    public Processor(Processor p ){
+
+        if (p == null) {
+            return;
+        }
+        this.ID = p.ID;
+        this.procPassed = p.procPassed;
+    }
+
     private int ID;
 
     private boolean procPassed;
+
+    private LinkedList<TimeUnit> transferLine = new LinkedList<TimeUnit>();
+
+    public int searchBeginForTransfer(int transferDuration, int currentTime){
+
+        if ( transferLine.isEmpty() )
+            return currentTime;
+
+        int finishTransfer = currentTime+transferDuration;
+        for ( TimeUnit timeUnit : transferLine ){
+            if ( ! timeUnit.isIdleTime() ){
+
+                if ( currentTime <= timeUnit.getFrom() && finishTransfer <= timeUnit.getFrom() ||
+                     currentTime >= timeUnit.getTo()  && finishTransfer >= timeUnit.getTo()
+                        ){
+
+                    return timeUnit.getTo();
+                }
+
+            }
+        }
+
+        // return end of last transfer
+        return transferLine.getLast().getTo();
+
+    }
+
+    public void addTransferUnit(TimeUnit timeUnit ){
+        transferLine.addLast(timeUnit);
+    }
+
+    public LinkedList<TimeUnit> getTransferLine() {
+        return transferLine;
+    }
+
+    public void setTransferLine(LinkedList<TimeUnit> transferLine) {
+        this.transferLine = transferLine;
+    }
 
     public boolean isProcPassed() {
         return procPassed;
@@ -24,12 +72,12 @@ public class Processor {
 
     private List<Task> tasks = new ArrayList<Task>();
 
-    public List<TimeUnit> getTimeLine() {
-        return timeLine;
+    public List<TimeUnit> getWorkingLine() {
+        return workingLine;
     }
 
-    public void setTimeLine(List<TimeUnit> timeLine) {
-        this.timeLine = timeLine;
+    public void setWorkingLine(List<TimeUnit> workingLine) {
+        this.workingLine = workingLine;
     }
 
     public List<Task> getTasks() {
@@ -40,7 +88,7 @@ public class Processor {
         this.tasks = tasks;
     }
 
-    private List<TimeUnit> timeLine = new ArrayList<TimeUnit>();
+    private List<TimeUnit> workingLine = new ArrayList<TimeUnit>();
 
     private List<ProcLink> links = new ArrayList<ProcLink>();
 
@@ -95,20 +143,43 @@ public class Processor {
                 "ID=" + ID + '}';
     }
 
-    public int getCurrentTime(){
+    public int getCurrentWorkingTime(){
         int result = 0;
-        for ( TimeUnit t : timeLine){
-            result += t.getTimeDuration();
+        for ( TimeUnit t : workingLine){
+            if( result < t.getTo() )
+                result = t.getTo();
         }
         return result;
     }
 
+    @Deprecated
     public void addTimeLine(Task task, boolean idleTime){
 
-        int from = getCurrentTime();
-        TimeUnit timeUnit = new TimeUnit(from, from + task.getTimeDuration(), task.getTimeDuration(), idleTime);
-        timeLine.add(timeUnit);
+        int from = getCurrentWorkingTime();
+        TimeUnit timeUnit = new TimeUnit(task.getID(), from, from + task.getTimeDuration(), task.getTimeDuration(), idleTime);
+        workingLine.add(timeUnit);
         tasks.add(task);
+
+    }
+
+    public void addToWorkingLine( Task task, int from, boolean idleTime ){
+
+        TimeUnit timeUnit = new TimeUnit(task.getID(), from, from + task.getTimeDuration(), task.getTimeDuration(), idleTime);
+        workingLine.add(timeUnit);
+        tasks.add(task);
+
+    }
+
+
+    public int getTimeOfFinishTask( Task task ){
+
+        if (! tasks.contains(task)) throw new IllegalStateException("Task not on processor");
+
+        for ( TimeUnit taskOnProc : workingLine ){
+            if (taskOnProc.getId() == task.getID())
+                return taskOnProc.getTo();
+        }
+        throw new IllegalStateException("cant find task");
 
     }
 }

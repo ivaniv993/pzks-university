@@ -239,10 +239,10 @@ public class ModelingServiceImpl implements ModelingService{
 //                IdleTime idleTime = new IdleTime(0);
 //                for ( Map.Entry<Processor, IdleTime> entry : processorTimes.entrySet()){
 //
-//                    int longestTransition = entry.getKey().getCurrentTime() + entry.getValue().getTime();
+//                    int longestTransition = entry.getKey().getCurrentWorkingTime() + entry.getValue().getTime();
 //
-//                    if ( longestTransition > procCandidate.getCurrentTime() ){
-//                        idleTime = new IdleTime(longestTransition-procCandidate.getCurrentTime());
+//                    if ( longestTransition > procCandidate.getCurrentWorkingTime() ){
+//                        idleTime = new IdleTime(longestTransition-procCandidate.getCurrentWorkingTime());
 //                    }
 //
 //                }
@@ -276,8 +276,8 @@ public class ModelingServiceImpl implements ModelingService{
 //
 //
 //                    // synchronize current time
-//                    if ( currentTime < proc.getCurrentTime() )
-//                        currentTime = proc.getCurrentTime();
+//                    if ( currentTime < proc.getCurrentWorkingTime() )
+//                        currentTime = proc.getCurrentWorkingTime();
 //
 //                }
 //
@@ -333,7 +333,7 @@ public class ModelingServiceImpl implements ModelingService{
 
         Processor result = allProcessors.get(0);
         for ( Processor  p : allProcessors ){
-            if (p.getCurrentTime() < result.getCurrentTime())
+            if (p.getCurrentWorkingTime() < result.getCurrentWorkingTime())
                 result = p;
         }
         return result;
@@ -425,7 +425,7 @@ public class ModelingServiceImpl implements ModelingService{
 
         Processor result = processors.get(0);
         for ( Processor proc : processors ){
-            if (result.getCurrentTime() < proc.getCurrentTime())
+            if (result.getCurrentWorkingTime() < proc.getCurrentWorkingTime())
                 result = proc;
         }
         return result;

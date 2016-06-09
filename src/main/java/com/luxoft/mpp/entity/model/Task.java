@@ -18,6 +18,14 @@ public class Task{
 
     private Processor onProcessor;
 
+    public Task( Task task ){
+        if (task == null) {
+            return;
+        }
+        this.ID = task.ID;
+        this.timeDuration = task.timeDuration;
+    }
+
     public Task(int timeDuration) {
         this.timeDuration = timeDuration;
     }
