@@ -27,7 +27,7 @@
 
     <p:layout style="min-width:400px;min-height:200px;" id="main-layout">
         <p:layoutUnit position="north" size="150" resizable="true" closable="true" collapsible="true">
-            <p:commandButton value="Update" id="save" icon="ui-icon-disk"
+            <p:commandButton value="Update" id="save" icon="ui-icon-disk" actionListener="#{modelingView.update}"
                             style="right: 15%;left: 40%"/>
         </p:layoutUnit>
 
@@ -35,6 +35,9 @@
 
 
             <p:chart type="ohlc" model="#{modelingView.ohlcModel}" style="width:600px;height:500px"/>
+        </p:layoutUnit>
+        <p:layoutUnit position="west"  size="550" minSize="500" maxSize="600" style="height: 400px">
+
         </p:layoutUnit>
     </p:layout>
 </h:body>

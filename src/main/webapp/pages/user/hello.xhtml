@@ -31,19 +31,7 @@
         </p:layoutUnit>
     </p:layout>
 
-    <h:form id="form">
-        <p:growl id="msgs" showDetail="true" />
 
-        <p:diagram value="#{diagramEditableView.model}" style="height:600px" styleClass="ui-widget-content" var="el">
-            <f:facet name="element">
-                <h:outputText value="#{el.name}" style="display:block;margin-top:1em;"/>
-                <p:graphicImage name="demo/images/#{el.image}" />
-            </f:facet>
-            <p:ajax event="connect" listener="#{diagramEditableView.onConnect}" />
-            <p:ajax event="disconnect" listener="#{diagramEditableView.onDisconnect}" />
-            <p:ajax event="connectionChange" listener="#{diagramEditableView.onConnectionChange}" />
-        </p:diagram>
-    </h:form>
 
 
     /* Demo CSS */

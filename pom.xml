@@ -54,6 +54,18 @@
             <version>9.1-901-1.jdbc4</version>
         </dependency>
 
+        <dependency>
+            <groupId>commons-graph</groupId>
+            <artifactId>commons-graph</artifactId>
+            <version>0.8.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.googlecode.princeton-java-algorithms</groupId>
+            <artifactId>algorithms</artifactId>
+            <version>4.0.1</version>
+        </dependency>
+
         <!--Hibernate JPA Support-->
         <dependency>
             <groupId>org.hibernate</groupId>

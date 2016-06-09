@@ -11,7 +11,7 @@ import java.util.List;
  */
 public interface ModelingService {
 
-    List<Processor> createMockCS();
+    List<Processor> createMockCS(int[][] lm, int permit);
 
     List<Task> createTaskGraph(int[][] linkMatrix, Integer[] vertex);
 

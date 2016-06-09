@@ -2,6 +2,9 @@ package com.luxoft.mpp.service;
 
 import com.luxoft.mpp.entity.model.*;
 //import com.sun.javafx.sg.prism.NGShape;
+import edu.princeton.cs.algorithms.AdjMatrixEdgeWeightedDigraph;
+import edu.princeton.cs.algorithms.DirectedEdge;
+import edu.princeton.cs.algorithms.FloydWarshall;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -13,52 +16,25 @@ import java.util.*;
 public class ModelingServiceImpl implements ModelingService{
 
 
-    public List<Processor> createMockCS(){
+    public List<Processor> createMockCS(int[][] lm, int permit){
 
         List< Processor > result = new ArrayList<Processor>();
 
-        int permit = 2;
+        Processor[] processors = new Processor[lm.length];
+        for (int i = 0; i < lm.length; i++) {
+            processors[i] = new Processor(i);
+        }
 
-        Processor
-                p0 = new Processor(0),
-                p1 = new Processor(1),
-                p2 = new Processor(2),
-                p3 = new Processor(3),
-                p4 = new Processor(4),
-                p5 = new Processor(5);
-
-
-        int[][] matrix =
-               {{0,1,0,0,0,1},//0
-                {0,0,1,1,0,0},//1
-                {0,0,0,1,1,0},//2
-                {0,0,0,0,1,1},//3
-                {0,0,0,0,0,1},//4
-                {0,0,0,0,0,0},//5
-                };
-        ProcLink
-                link01 = new ProcLink(0, 1, permit),
-                link05 = new ProcLink(0, 5, permit),
-
-                link12 = new ProcLink(1, 2, permit),
-                link13 = new ProcLink(1, 3, permit),
-
-                link23 = new ProcLink(2, 3, permit),
-                link24 = new ProcLink(2, 4, permit),
-
-                link34 = new ProcLink(3, 4, permit),
-                link35 = new ProcLink(3, 5, permit),
-
-                link45 = new ProcLink(4, 5, permit);
-
-        Collections.addAll(p0.getLinks(), link01, link05 );
-        Collections.addAll(p1.getLinks(), link01, link12, link13);
-        Collections.addAll(p2.getLinks(), link12, link23, link24);
-        Collections.addAll(p3.getLinks(), link13, link23, link34, link35);
-        Collections.addAll(p4.getLinks(), link24, link34);
-        Collections.addAll(p5.getLinks(), link35, link45);
-
-        Collections.addAll(result, p0, p1, p2, p3, p4, p5);
+        for (int i = 0; i < lm.length; i++) {
+            for (int j = i; j < lm[i].length; j++) {
+                if ( lm[i][j] != 0 ){
+                    ProcLink link = new ProcLink( processors[i], processors[j], permit);
+                    processors[i].getLinks().add(link);
+                    processors[j].getLinks().add(link);
+                }
+            }
+            result.add(processors[i]);
+        }
 
         return result;
     }
@@ -225,131 +201,105 @@ public class ModelingServiceImpl implements ModelingService{
 
     public List<Processor> modeling(List<Processor> processors, List<Task> tasksGraph, int[][] matrixCS,  List<SimpleMetaData> queue ){
 
-        int currentTime = 0;
-        for (SimpleMetaData elem : queue){
-            int id = elem.getVertexId();
-            Task task = getTaskByID(tasksGraph, id);
-
-            if ( hasInputLink(task) ){
-
-                // if relative tasks already on processors
-
-                List<Processor> relativeProcessors = findProcessorsWithRelativeTask(task);
-
-                Processor procCandidate = getProcessorWithSmallerTimeFromRelative(relativeProcessors);
-
-                List<Processor> bufList = new ArrayList<Processor>(relativeProcessors);
-                bufList.remove(procCandidate);
-
-                int source = procCandidate.getID();
-
-                Map<Processor, IdleTime > processorTimes = new HashMap<Processor, IdleTime>();
-                for ( Processor procDestination : bufList ) {
-                    int destination = procDestination.getID();
-
-                    System.out.println("[source= "+source+"][dest = "+destination+"]");
-                    List<List<ProcLink>> allWays = getAllWayForProcessors(matrixCS, source, destination);
-                    TaskLink taskLink = getLinkBetweenTaskAndTaskOnProcessor(procDestination, task);
-                    List<ProcLink> shorterWay = getShorterTransitionWay(allWays, taskLink.getTransferTime());
-                    int transferTime = getDurationOfTransition(shorterWay, taskLink.getTransferTime());
-
-
-                    IdleTime idleTime = new IdleTime(transferTime);
-
-                    processorTimes.put(procDestination, idleTime);
-                }
-
-                //synchronize processors
-                IdleTime idleTime = new IdleTime(0);
-                for ( Map.Entry<Processor, IdleTime> entry : processorTimes.entrySet()){
-
-                    int longestTransition = entry.getKey().getAllTime() + entry.getValue().getTime();
-
-                    if ( longestTransition > procCandidate.getAllTime() ){
-                        idleTime = new IdleTime(longestTransition-procCandidate.getAllTime());
-                    }
-
-                }
-                procCandidate.addTimeLine(idleTime);
-
-                task.setOnProcessor(procCandidate);
-                procCandidate.addTimeLine(task);
-
-
-            } else {
-
-
-
-                List<Processor> emptyProcessors = findEmptyProcessors(processors);
-                if ( ! emptyProcessors.isEmpty() ) {
-
-                    //set on  empty processor
-                    Processor proc = getProcessorByConnectivityAndFreedom(emptyProcessors);
-                    task.setOnProcessor(proc);
-                    proc.addTimeLine(task);
-
-                    // synchronize current time
-                    if (currentTime < task.getTimeDuration())
-                        currentTime = task.getTimeDuration();
-
-                } else {
-                    //set proccessor with smaller task
-                    Processor proc = findAnyProcessorWithSmallerTasks(processors);
-                    task.setOnProcessor(proc);
-                    proc.addTimeLine(task);
-
-
-                    // synchronize current time
-                    if ( currentTime < proc.getAllTime() )
-                        currentTime = proc.getAllTime();
-
-                }
-
-            }
-        }
+//        int currentTime = 0;
+//        for (SimpleMetaData elem : queue){
+//            int id = elem.getVertexId();
+//            Task task = getTaskByID(tasksGraph, id);
+//
+//            if ( hasInputLink(task) ){
+//
+//                // if relative tasks already on processors
+//
+//                List<Processor> relativeProcessors = findProcessorsWithRelativeTask(task);
+//
+//                Processor procCandidate = getProcessorWithSmallerTimeFromRelative(relativeProcessors);
+//
+//                List<Processor> bufList = new ArrayList<Processor>(relativeProcessors);
+//                bufList.remove(procCandidate);
+//
+//                int source = procCandidate.getID();
+//
+//                Map<Processor, IdleTime > processorTimes = new HashMap<Processor, IdleTime>();
+//                for ( Processor procDestination : bufList ) {
+//                    int destination = procDestination.getID();
+//
+//                    System.out.println("[source= "+source+"][dest = "+destination+"]");
+//                    List<List<ProcLink>> allWays = getAllWayForProcessors(matrixCS, source, destination);
+//                    TaskLink taskLink = getLinkBetweenTaskAndTaskOnProcessor(procDestination, task);
+//                    List<ProcLink> shorterWay = getShorterTransitionWay(allWays, taskLink.getTransferTime());
+//                    int transferTime = getDurationOfTransition(shorterWay, taskLink.getTransferTime());
+//
+//
+//                    IdleTime idleTime = new IdleTime(transferTime);
+//
+//                    processorTimes.put(procDestination, idleTime);
+//                }
+//
+//                //synchronize processors
+//                IdleTime idleTime = new IdleTime(0);
+//                for ( Map.Entry<Processor, IdleTime> entry : processorTimes.entrySet()){
+//
+//                    int longestTransition = entry.getKey().getCurrentTime() + entry.getValue().getTime();
+//
+//                    if ( longestTransition > procCandidate.getCurrentTime() ){
+//                        idleTime = new IdleTime(longestTransition-procCandidate.getCurrentTime());
+//                    }
+//
+//                }
+//                procCandidate.addTimeLine(idleTime);
+//
+//                task.setOnProcessor(procCandidate);
+//                procCandidate.addTimeLine(task);
+//
+//
+//            } else {
+//
+//
+//
+//                List<Processor> emptyProcessors = findEmptyProcessors(processors);
+//                if ( ! emptyProcessors.isEmpty() ) {
+//
+//                    //set on  empty processor
+//                    Processor proc = getProcessorByConnectivityAndFreedom(emptyProcessors);
+//                    task.setOnProcessor(proc);
+//                    proc.addTimeLine(task);
+//
+//                    // synchronize current time
+//                    if (currentTime < task.getTimeDuration())
+//                        currentTime = task.getTimeDuration();
+//
+//                } else {
+//                    //set proccessor with smaller task
+//                    Processor proc = findAnyProcessorWithSmallerTasks(processors);
+//                    task.setOnProcessor(proc);
+//                    proc.addTimeLine(task);
+//
+//
+//                    // synchronize current time
+//                    if ( currentTime < proc.getCurrentTime() )
+//                        currentTime = proc.getCurrentTime();
+//
+//                }
+//
+//            }
+//        }
         return processors;
     }
 
-    //TODO mind!!!!
-    private Processor getProcessorWithBiggerTimeOfTransmission( List<Processor> relativeProcessors, Task task, int[][] matrix ){
+    private Iterable<DirectedEdge> searchShooterWay(int [][] lm, int from, int to){
 
-
-        Processor result = relativeProcessors.get(0);
-        List<ProcLink> shorterWay;
-        int time = 100000;
-
-        for (int i = 1; i < relativeProcessors.size(); i++) {
-
-
-            Processor procCandidate = relativeProcessors.get(i);
-
-            int source  = procCandidate.getID();
-
-            List<Processor> bufList = new ArrayList<Processor>(relativeProcessors);
-            bufList.remove(procCandidate);
-
-            for (Processor procDestination : bufList){
-
-                int destination = procDestination.getID();
-                List<List<ProcLink>> allWays = getAllWayForProcessors(matrix, source, destination);
-
-                TaskLink taskLink = getLinkBetweenTaskAndTaskOnProcessor(procDestination, task);
-                shorterWay = getShorterTransitionWay(allWays, taskLink.getTransferTime());
-
-                int bufTime = getDurationOfTransition(shorterWay, taskLink.getTransferTime());
-
-                if (time > (bufTime+procDestination.getAllTime())){
-                    time = bufTime+procDestination.getAllTime();
-                    result = procCandidate;
-
+        AdjMatrixEdgeWeightedDigraph adjMatrix = new AdjMatrixEdgeWeightedDigraph(lm.length);
+        for (int i = 0; i < lm.length; i++) {
+            for (int j = 0; j < lm[i].length; j++) {
+                if (lm[i][j] != 0 ) {
+                    adjMatrix.addEdge(new DirectedEdge(i, j, 1));
                 }
-
-
             }
-
         }
-        return result;
 
+        FloydWarshall floyd = new FloydWarshall(adjMatrix);
+
+        return floyd.path(from, to);
     }
 
 //    public List<List<ProcLink>>
@@ -383,7 +333,7 @@ public class ModelingServiceImpl implements ModelingService{
 
         Processor result = allProcessors.get(0);
         for ( Processor  p : allProcessors ){
-            if (p.getAllTime() < result.getAllTime())
+            if (p.getCurrentTime() < result.getCurrentTime())
                 result = p;
         }
         return result;
@@ -475,7 +425,7 @@ public class ModelingServiceImpl implements ModelingService{
 
         Processor result = processors.get(0);
         for ( Processor proc : processors ){
-            if (result.getAllTime() < proc.getAllTime())
+            if (result.getCurrentTime() < proc.getCurrentTime())
                 result = proc;
         }
         return result;

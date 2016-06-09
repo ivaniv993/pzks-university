@@ -29,7 +29,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
-import java.io.Serializable;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -90,6 +90,8 @@ public class TaskView implements Serializable {
         connector.setPaintStyle("{strokeStyle:'#98AFC7', lineWidth:3}");
         connector.setHoverPaintStyle("{strokeStyle:'#5C738B'}");
         model.setDefaultConnector(connector);
+
+        initFromFile();
 
         id = 0;
 
@@ -240,6 +242,102 @@ public class TaskView implements Serializable {
         RequestContext.getCurrentInstance().update("form");
         RequestContext.getCurrentInstance().update("generate_graph");
 
+    }
+
+
+    private void initFromFile(){
+
+        lm = readFile("D://IdeaProjects/pzks/pzks-university/src/main/resources/ts.txt");
+        vertex = readVertexFile("D://IdeaProjects/pzks/pzks-university/src/main/resources/vertex.txt");
+
+        for (int i = 0; i < vertex.length; i++) {
+
+            TaskElement taskElement = new TaskElement(i, vertex[i]);
+
+            Element element = new Element(taskElement);
+            EndPoint endPoint = createDotEndPoint(EndPointAnchor.AUTO_DEFAULT);
+            element.setDraggable(true);
+            endPoint.setTarget(true);
+            element.addEndPoint(endPoint);
+
+            EndPoint beginPoint = createRectangleEndPoint(EndPointAnchor.BOTTOM);
+            beginPoint.setSource(true);
+            element.addEndPoint(beginPoint);
+
+            model.addElement(element);
+        }
+
+        for (int i = 0; i < lm.length; i++) {
+            for (int j = 0; j < lm[i].length; j++) {
+                if (lm[i][j] != 0){
+                    Element source = getElementByDataId(i);
+                    Element target = getElementByDataId(j);
+                    Connection connection = createConnection(
+                            source.getEndPoints().get(1),
+                            target.getEndPoints().get(0), String.valueOf(lm[i][j]));
+
+                    model.connect(connection);
+
+                }
+            }
+        }
+        taskServiceImpl.saveCSGraph( lm, vertex );
+        orderVertex(model);
+        RequestContext.getCurrentInstance().update("form");
+        RequestContext.getCurrentInstance().update("generate_graph");
+
+    }
+
+    private int[][] readFile(String path){
+        int[][] result = new int[0][0];
+        BufferedReader br = null;
+        try{
+            br = new BufferedReader(new FileReader(path));
+            String sCurrentLine = null;
+            while (sCurrentLine == null) {
+                sCurrentLine = br.readLine();
+                System.out.println(sCurrentLine);
+            }
+
+            String[] row = sCurrentLine.split(";");
+            result = new int[row.length][row.length];
+            for (int i = 0; i < row.length; i++) {
+                String[] cell = row[i].split(",");
+                for (int j = 0; j < cell.length; j++) {
+                    result[i][j] = Integer.valueOf(cell[j]);
+                }
+
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    private Integer[] readVertexFile(String path){
+        Integer[] result = new Integer[0];
+        BufferedReader br = null;
+        try {
+
+            br = new BufferedReader(new FileReader(path));
+            String sCurrentLine = null;
+            while (sCurrentLine == null) {
+                sCurrentLine = br.readLine();
+                System.out.println(sCurrentLine);
+            }
+
+            String[] row = sCurrentLine.split(";");
+            result = new Integer[row.length];
+            for (int j = 0; j < row.length; j++) {
+                result[j] = Integer.valueOf(row[j]);
+            }
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 
     private double generateGeneralValueForLinks(Integer[] vertex, double correlation){
@@ -500,6 +598,42 @@ public class TaskView implements Serializable {
 
     public void saveGraph(){
         System.out.println("save Graph");
+        System.out.println("save Graph");
+
+        try {
+
+            File file = new File("D://IdeaProjects/pzks/pzks-university/src/main/resources/ts.txt");
+            File fileVertex = new File("D://IdeaProjects/pzks/pzks-university/src/main/resources/vertex.txt");
+
+            FileWriter fw = new FileWriter(file.getAbsoluteFile());
+            BufferedWriter bw = new BufferedWriter(fw);
+            for (int i = 0; i < lm.length; i++) {
+
+                for (int j = 0; j < lm.length; j++) {
+                    bw.write(lm[i][j]+"");
+                    if (j != lm.length-1)
+                        bw.write(",");
+                }
+                bw.write(";");
+            }
+            bw.flush();
+            bw.close();
+
+            FileWriter fwVertex = new FileWriter(fileVertex.getAbsoluteFile());
+            BufferedWriter bwVertex = new BufferedWriter(fwVertex);
+
+            for (int i = 0; i < vertex.length; i++) {
+                bwVertex.write(vertex[i]+";");
+            }
+            bwVertex.flush();
+            bwVertex.close();
+
+
+            System.out.println("Done");
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void countCorrelation(){

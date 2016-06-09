@@ -9,6 +9,16 @@ public class SimpleMetaData {
 
     private String list;
 
+    public int getValue() {
+        return value;
+    }
+
+    public void setValue(int value) {
+        this.value = value;
+    }
+
+    private int value;
+
     private int vertexId;
 
     private int criticalWay;

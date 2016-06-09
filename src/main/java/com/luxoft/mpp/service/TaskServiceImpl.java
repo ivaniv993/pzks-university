@@ -304,6 +304,8 @@ public class TaskServiceImpl implements TaskService {
             }
             SimpleMetaData simpleMetaData = new SimpleMetaData(criticalWay, waysForCurrVertex.getKey(), sum, list.size());
             simpleMetaData.setVertexID(list);
+
+            simpleMetaData.setValue(vertex[simpleMetaData.getVertexId()]);
             result.add(simpleMetaData);
         }
 
@@ -314,6 +316,12 @@ public class TaskServiceImpl implements TaskService {
                     return 1;
                 } else if (o1.getVertexQuantity() < o2.getVertexQuantity()) {
                     return -1;
+                } else if (o1.getVertexQuantity() == o2.getVertexQuantity()){
+                    if (o1.getValue() > o2.getValue()) {
+                        return -1;
+                    } else if (o1.getValue() < o2.getValue()) {
+                        return 1;
+                    }
                 }
                 return 0;
             }

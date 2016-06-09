@@ -1,7 +1,7 @@
 package com.luxoft.mpp.controllers;
 
 import javax.annotation.PostConstruct;
-import java.io.Serializable;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -11,9 +11,9 @@ import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 
 import com.luxoft.mpp.entity.model.*;
+import com.luxoft.mpp.service.GrantModelingService;
 import com.luxoft.mpp.service.ModelingService;
 import com.luxoft.mpp.service.TaskService;
-//import javafx.print.Collation;
 import org.primefaces.model.chart.AxisType;
 import org.primefaces.model.chart.OhlcChartModel;
 import org.primefaces.model.chart.OhlcChartSeries;
@@ -24,11 +24,11 @@ public class ModelingView implements Serializable {
 
     private int[][] matrix =
                    {{0,1,0,0,0,1},//0
-                    {0,0,1,1,0,0},//1
-                    {0,0,0,1,1,0},//2
-                    {0,0,0,0,1,1},//3
-                    {0,0,0,0,0,1},//4
-                    {0,0,0,0,0,0},//5
+                    {1,0,1,1,0,0},//1
+                    {0,1,0,1,1,0},//2
+                    {0,1,1,0,1,1},//3
+                    {0,0,1,1,0,1},//4
+                    {1,0,0,1,1,0},//5
             };
 
 
@@ -42,6 +42,9 @@ public class ModelingView implements Serializable {
 
     @ManagedProperty("#{modelingServiceImpl}")
     private ModelingService modelingServiceImpl;
+
+    @ManagedProperty("#{grantModelingService}")
+    private GrantModelingService grantModelingService;
 
     @PostConstruct
     public void init() {
@@ -57,6 +60,27 @@ public class ModelingView implements Serializable {
     }
 
     private void createOhlcModels() {
+
+        int[][] bufMatrix = new int[matrix.length][matrix.length];
+        for (int i = 0; i < matrix.length; i++) {
+            for (int j = 0; j < matrix.length; j++) {
+                for (int k = 0; k < matrix.length; k++) {
+                    bufMatrix[j][k] = Math.min(bufMatrix[j][k], (matrix[j][i]+matrix[i][k]) );
+                }
+            }
+        }
+
+        System.out.println("\n________Test graph___________");
+
+        for (int i = 0; i < bufMatrix.length; i++) {
+            for (int j = 0; j < bufMatrix.length; j++) {
+                System.out.print(bufMatrix[i][j] + ", ");
+            }
+            System.out.println();
+        }
+
+        System.out.println("\n________Test graph___________");
+
         createOhlcModel1();
 //        createOhlcModel2();
     }
@@ -109,64 +133,127 @@ public class ModelingView implements Serializable {
         //init data
         queueVariant = new ArrayList<SimpleMetaData>();
         int[][] lm = {
-                {0,1,0,2,0},
-                {0,0,0,2,3},
-                {0,0,0,0,3},
-                {0,0,0,0,0},
-                {0,0,0,0,0}
+                {0,0,0,0,2,0},
+                {0,0,0,0,3,0},
+                {0,0,0,0,4,0},
+                {0,0,0,0,0,5},
+                {0,0,0,0,0,6},
+                {0,0,0,0,0,0}
         };
-        Integer[] vertex = new Integer[5];
-        vertex[0] = 4;
+        Integer[] vertex = new Integer[6];
+        vertex[0] = 1;
         vertex[1] = 2;
-        vertex[2] = 5;
-        vertex[3] = 3;
-        vertex[4] = 4;
+        vertex[2] = 3;
+        vertex[3] = 4;
+        vertex[4] = 5;
+        vertex[5] = 6;
+
+        int[][] matrix =
+                {{0,1,0,0},//0
+                 {1,0,1,0},//1
+                 {0,1,0,1},//2
+                 {0,0,1,0} //3
+                };
+
+        matrix = readFile("D://IdeaProjects/pzks/pzks-university/src/main/resources/cs.txt");
+        lm = readFile("D://IdeaProjects/pzks/pzks-university/src/main/resources/ts.txt");
+        vertex = readVertexFile("D://IdeaProjects/pzks/pzks-university/src/main/resources/vertex.txt");
 
         List<Task> taskGraph = modelingServiceImpl.createTaskGraph(lm, vertex);
-        List<Processor> computerGraph = modelingServiceImpl.createMockCS();
+        List<Processor> computerGraph = modelingServiceImpl.createMockCS(matrix, 2);
         computerGraph = modelingServiceImpl.sortByConnectivity(computerGraph);
 
         queueVariant = taskServiceImpl.getQueueVariant3(lm, vertex);
 
-        List<Processor> processors = modelingServiceImpl.modeling(computerGraph, taskGraph, matrix, queueVariant);
+        List<Processor> processors = grantModelingService.modeling(computerGraph, taskGraph, matrix, queueVariant);
 
 
         ohlcModel = new OhlcChartModel();
 
-        ohlcModel.add(new OhlcChartSeries(1, 130.52, 133.56, 126.04, 126.97));
-        ohlcModel.add(new OhlcChartSeries(1, 143.82, 144.56, 136.04, 136.97));
-        ohlcModel.add(new OhlcChartSeries(2, 138.7, 139.68, 135.18, 135.4));
-        ohlcModel.add(new OhlcChartSeries(3, 143.46, 144.66, 139.79, 140.02));
-        ohlcModel.add(new OhlcChartSeries(4, 140.67, 143.56, 132.88, 142.44));
-        ohlcModel.add(new OhlcChartSeries(4, 136.01, 139.5, 134.53, 139.48));
-        ohlcModel.add(new OhlcChartSeries(5, 124.76, 135.9, 124.55, 135.81));
-        ohlcModel.add(new OhlcChartSeries(5, 123.73, 129.31, 121.57, 122.5));
+        for (Processor proc : processors){
+            for (TimeUnit timeUnit : proc.getTimeLine() ){
+                if (  ! timeUnit.isIdleTime())
+//                    Task task = (Task)timeUnit;
+                    ohlcModel.add(new OhlcChartSeries( proc.getID(),
+                            (double)timeUnit.getTo(),
+                            (double)timeUnit.getTo()+0.1,
+                            (double)timeUnit.getFrom(),
+                            (double)timeUnit.getFrom()+0.1 ));
 
-        ohlcModel.setTitle("OHLC Chart");
-        ohlcModel.getAxis(AxisType.X).setLabel("Year");
-        ohlcModel.getAxis(AxisType.Y).setLabel("Price Change $K/Unit");
-    }
+            }
 
-
-
-    private void createOhlcModel2(){
-        ohlcModel2 = new OhlcChartModel();
-        ohlcModel2.setAnimate(true);
-
-        for( int i=1 ; i < 41 ; i++) {
-            ohlcModel2.add(new OhlcChartSeries(i, Math.random() * 80 + 80, Math.random() * 50 + 110, Math.random() * 20 + 80, Math.random() * 80 + 80));
         }
-        ohlcModel2.add(new OhlcChartSeries(1,
-                 30,
-                 50,
-                 80,
-                 90));
-        ohlcModel2.setTitle("Candlestick");
-        ohlcModel2.setCandleStick(true);
-        ohlcModel2.getAxis(AxisType.X).setLabel("Sector");
-        ohlcModel2.getAxis(AxisType.Y).setLabel("Index Value");
+
+        ohlcModel.setAnimate(true);
+        ohlcModel.setCandleStick(true);
+        ohlcModel.setTitle("Chart");
+        ohlcModel.getAxis(AxisType.X).setLabel("Processors");
+        ohlcModel.getAxis(AxisType.Y).setLabel("Time");
     }
 
+    private void update(){
+
+        matrix = readFile("D://IdeaProjects/pzks/pzks-university/src/main/resources/cs.txt");
+        int[][] lm = readFile("D://IdeaProjects/pzks/pzks-university/src/main/resources/ts.txt");
+        Integer[] vertex = readVertexFile("D://IdeaProjects/pzks/pzks-university/src/main/resources/vertex.txt");
+
+        List<Task> taskGraph = modelingServiceImpl.createTaskGraph(lm, vertex);
+        List<Processor> computerGraph = modelingServiceImpl.createMockCS(matrix, 2);
+        computerGraph = modelingServiceImpl.sortByConnectivity(computerGraph);
+    }
+
+
+    private int[][] readFile(String path){
+        int[][] result = new int[0][0];
+        BufferedReader br = null;
+        try{
+            br = new BufferedReader(new FileReader(path));
+            String sCurrentLine = null;
+            while (sCurrentLine == null) {
+                sCurrentLine = br.readLine();
+                System.out.println(sCurrentLine);
+            }
+
+            String[] row = sCurrentLine.split(";");
+            result = new int[row.length][row.length];
+            for (int i = 0; i < row.length; i++) {
+                String[] cell = row[i].split(",");
+                for (int j = 0; j < cell.length; j++) {
+                    result[i][j] = Integer.valueOf(cell[j]);
+                }
+
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    private Integer[] readVertexFile(String path){
+        Integer[] result = new Integer[0];
+        BufferedReader br = null;
+        try {
+
+            br = new BufferedReader(new FileReader(path));
+            String sCurrentLine = null;
+            while (sCurrentLine == null) {
+                sCurrentLine = br.readLine();
+                System.out.println(sCurrentLine);
+            }
+
+            String[] row = sCurrentLine.split(";");
+            result = new Integer[row.length];
+            for (int j = 0; j < row.length; j++) {
+                result[j] = Integer.valueOf(row[j]);
+            }
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
 
     public TaskService getTaskServiceImpl() {
         return taskServiceImpl;
@@ -185,10 +272,12 @@ public class ModelingView implements Serializable {
         this.modelingServiceImpl = modelingServiceImpl;
     }
 
+    public GrantModelingService getGrantModelingService() {
+        return grantModelingService;
+    }
 
-
-
-
-
+    public void setGrantModelingService(GrantModelingService grantModelingService) {
+        this.grantModelingService = grantModelingService;
+    }
 
 }

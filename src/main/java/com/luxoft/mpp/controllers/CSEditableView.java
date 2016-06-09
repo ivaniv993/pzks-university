@@ -5,6 +5,8 @@ package com.luxoft.mpp.controllers;
  */
 
 import com.luxoft.mpp.service.TaskService;
+import com.luxoft.mpp.service.TestCSGraphService;
+import edu.princeton.cs.algorithms.*;
 import org.primefaces.context.RequestContext;
 import org.primefaces.event.diagram.ConnectEvent;
 import org.primefaces.event.diagram.ConnectionChangeEvent;
@@ -19,6 +21,7 @@ import org.primefaces.model.diagram.endpoint.EndPoint;
 import org.primefaces.model.diagram.endpoint.EndPointAnchor;
 import org.primefaces.model.diagram.endpoint.RectangleEndPoint;
 import org.primefaces.model.diagram.overlay.ArrowOverlay;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
@@ -26,7 +29,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
-import java.io.Serializable;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -39,18 +42,8 @@ public class CSEditableView implements Serializable {
 
     private boolean suspendEvent;
 
-    private Element sourceElement, targetElement;
-
-    public TaskService getTaskServiceImpl() {
-        return taskServiceImpl;
-    }
-
-    public void setTaskServiceImpl(TaskService taskServiceImpl) {
-        this.taskServiceImpl = taskServiceImpl;
-    }
-
-    @ManagedProperty("#{taskServiceImpl}")
-    private TaskService taskServiceImpl;
+    @ManagedProperty("#{testCSGraphService}")
+    private TestCSGraphService testCSGraphService;
 
     private int[][] lm = new int[0][0];
     private Integer[] vertex = new Integer[0];
@@ -85,18 +78,40 @@ public class CSEditableView implements Serializable {
             }
             System.out.println();
         }
+
+        Graph graph = new Graph(lm.length);
+        for (int i = 0; i < lm.length; i++) {
+            for (int j = 0; j < lm[i].length; j++) {
+                if (lm[i][j] != 0 ) {
+                    graph.addEdge(i, j);
+                }
+            }
+        }
+
+        boolean allConnected = true;
+        DepthFirstSearch search = new DepthFirstSearch(graph, 0);
+        for (int i = 0; i < lm.length; i++) {
+            if ( ! search.marked(i)) {
+                allConnected = false;
+                break;
+            }
+        }
+
+
+        testCSGraphService.testGraph(lm);
+
         System.out.println("\n________Test graph___________");
 
-        if (!taskServiceImpl.findHangingVertex(lm).isEmpty() || !taskServiceImpl.testCSGraph(lm)){
+        if (allConnected){
             FacesContext context = FacesContext.getCurrentInstance();
 
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Warning", "Your graph have handing nodes "));
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Success", "All is good"));
             RequestContext.getCurrentInstance().update("form:msgs");
 
         }else{
             FacesContext context = FacesContext.getCurrentInstance();
 
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Success", "All is good"));
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Warning", "Your graph have handing nodes "));
             RequestContext.getCurrentInstance().update("form:msgs");
         }
 
@@ -110,12 +125,11 @@ public class CSEditableView implements Serializable {
             FacesContext.getCurrentInstance().addMessage(null, msg);
 
             RequestContext.getCurrentInstance().update("form:msgs");
-        }
-        else {
+        } else {
             suspendEvent = false;
         }
         updateTaskModel(((NetworkElement)event.getSourceElement().getData()).getId(),
-                ((NetworkElement)event.getTargetElement().getData()).getId(), 777);
+                ((NetworkElement)event.getTargetElement().getData()).getId(), 1);
     }
 
     public void onDisconnect(DisconnectEvent event) {
@@ -173,6 +187,29 @@ public class CSEditableView implements Serializable {
 
     public void saveGraph(){
         System.out.println("save Graph");
+
+        try {
+
+            File file = new File("D://IdeaProjects/pzks/pzks-university/src/main/resources/cs.txt");
+
+            FileWriter fw = new FileWriter(file.getAbsoluteFile());
+            BufferedWriter bw = new BufferedWriter(fw);
+            for (int i = 0; i < lm.length; i++) {
+
+                for (int j = 0; j < lm.length; j++) {
+                    bw.write(lm[i][j]+"");
+                    if (j != lm.length-1)
+                        bw.write(",");
+                }
+                bw.write(";");
+            }
+            bw.close();
+
+            System.out.println("Done");
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private EndPoint createDotEndPoint(EndPointAnchor anchor) {
@@ -217,7 +254,8 @@ public class CSEditableView implements Serializable {
             int source =  Integer.valueOf(sourceId);
             int target =  Integer.valueOf(targetId);
 
-            lm[source][target] = 777;
+            lm[source][target] = 1;
+            lm[target][source] = 1;
         }
     }
 
@@ -236,7 +274,16 @@ public class CSEditableView implements Serializable {
         }
 
         lm[from][to] = value;
+        lm[to][from] = value;
 
+    }
+
+    public TestCSGraphService getTestCSGraphService() {
+        return testCSGraphService;
+    }
+
+    public void setTestCSGraphService(TestCSGraphService testCSGraphService) {
+        this.testCSGraphService = testCSGraphService;
     }
 
     public class NetworkElement implements Serializable {

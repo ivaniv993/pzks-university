@@ -95,8 +95,7 @@ public class Processor {
                 "ID=" + ID + '}';
     }
 
-    // TODO remake with time unit
-    public int getAllTime(){
+    public int getCurrentTime(){
         int result = 0;
         for ( TimeUnit t : timeLine){
             result += t.getTimeDuration();
@@ -104,10 +103,10 @@ public class Processor {
         return result;
     }
 
-    public void addTimeLine(Task task){
+    public void addTimeLine(Task task, boolean idleTime){
 
-        int from = getAllTime();
-        TimeUnit timeUnit = new TimeUnit(from, task.getTimeDuration());
+        int from = getCurrentTime();
+        TimeUnit timeUnit = new TimeUnit(from, from + task.getTimeDuration(), task.getTimeDuration(), idleTime);
         timeLine.add(timeUnit);
         tasks.add(task);
 

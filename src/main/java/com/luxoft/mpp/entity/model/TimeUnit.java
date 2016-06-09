@@ -3,11 +3,23 @@ package com.luxoft.mpp.entity.model;
 /**
  * Created by xXx on 6/7/2016.
  */
-public class TimeUnit {
+public class TimeUnit extends Task {
+
+    private int time, from, to;
 
     private boolean idleTime;
 
-    private int time, from, to;
+    private String message;
+
+
+
+    public boolean isIdleTime() {
+        return idleTime;
+    }
+
+    public void setIdleTime(boolean idleTime) {
+        this.idleTime = idleTime;
+    }
 
     public int getFrom() {
         return from;
@@ -25,10 +37,11 @@ public class TimeUnit {
         this.to = to;
     }
 
-    public TimeUnit(int to, int from) {
-
+    public TimeUnit(int from, int to, int time, boolean idleTime ) {
         this.to = to;
         this.from = from;
+        this.time = time;
+        this.idleTime = idleTime;
     }
 
     public TimeUnit() {
@@ -40,9 +53,26 @@ public class TimeUnit {
         this.time = time;
     }
 
+    @Override
+    public String toString() {
+        return "TimeUnit{" +
+                ", from=" + from +
+                ", to=" + to +
+                ", idleTime=" + idleTime +
+                '}';
+    }
+
     public int getTime() {
 
         return time;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 
     public void setTime(int time) {
@@ -51,10 +81,6 @@ public class TimeUnit {
 
     public int getTimeDuration(){
         return time;
-    }
-
-    public boolean isIdleTime(){
-        return idleTime;
     }
 
 }

@@ -14,7 +14,7 @@ public class Test1 {
 
         List<Processor> processors = createMockCS();
 
-        List<List<ProcLink>> listOfWay = new ArrayList<List<ProcLink>>();
+        List<List<Processor>> listOfWay = new ArrayList<List<Processor>>();
         Stack<ProcLink> currentWay = new Stack<ProcLink>();
 
         Stack<Processor> procWay = new Stack<Processor>();
@@ -43,7 +43,7 @@ public class Test1 {
     }
 
 
-    private static void findShooterWayBetweenProcessors(Processor from, Processor to, List<List<ProcLink>> listOfWay){
+    private static void findShooterWayBetweenProcessors(Processor from, Processor to, List<List<Processor>> listOfWay){
 
         from.setProcPassed(true);
         Stack<ProcLink> currentWay =  new Stack<ProcLink>();
@@ -67,11 +67,9 @@ public class Test1 {
                     Processor currentFrom = link.getDest();
                     if (currentFrom == from)
                         currentFrom = link.getSource();
-                    if (hasPassedThisProcessor(currentWay, currentFrom))
+
+                    if (currentProcessors.contains( currentFrom ))
                         continue;
-
-
-
 
                     link.setPassed(true);
                     currentWay.push(link);
@@ -95,7 +93,7 @@ public class Test1 {
 
             }
 
-            listOfWay.add(new ArrayList<ProcLink>(currentWay));
+            listOfWay.add(new ArrayList<Processor>(currentProcessors));
 
             // rollback
             while( ! currentProcessors.isEmpty() ){
@@ -107,10 +105,30 @@ public class Test1 {
                 List<Processor> passedLinksAndProc = getPassedLinksAndProc(lastProc);
                 List<Processor> notPassedLinksAndProc = getNotPassedLinksAndProc(lastProc);
                 List<Processor> passedOnlyProc = getPassedOnlyProc(lastProc);
+                List<Processor> passedOnlyLinks = getPassedOnlyLinks(lastProc);
+
 
                 if ( ! notPassedLinksAndProc.isEmpty() ){
-//                    Processor
+
+                    Processor prevProc = passedLinksAndProc.get(0);
+                    releaseAllProcessorsWithoutPrev(links, lastProc, prevProc);
+                    break;
+
                 } else {
+
+                    Processor prevProc = passedLinksAndProc.get(0);
+
+                    from = currentProcessors.pop();
+                    currentWay.pop();
+
+                    for ( ProcLink procLink : links ){
+                        if ( procLink.getDest() == prevProc || procLink.getSource() == prevProc ){
+//                            procLink
+                        }
+
+                    }
+
+
 
                 }
 
@@ -121,6 +139,24 @@ public class Test1 {
     }
 
 
+
+    private static void releaseAllProcessorsWithoutPrev(List<ProcLink> passedProcAndLinks,
+                                          Processor curProc, Processor prevProc){
+
+        for ( ProcLink link : passedProcAndLinks ){
+
+            if ( (link.getDest() == curProc && link.getSource() == prevProc) ||
+                 (link.getDest() == prevProc && link.getSource() == curProc) ){
+                continue;
+            }
+
+            Processor buffProc = link.getSource();
+            if ( buffProc == curProc )
+                buffProc = link.getDest();
+
+            buffProc.setProcPassed(false);
+        }
+    }
 
 
 
@@ -155,6 +191,21 @@ public class Test1 {
     }
 
     private static List<Processor> getPassedOnlyProc(Processor currentProcessors){
+
+        List<Processor> result = new ArrayList<Processor>();
+        for ( ProcLink link : currentProcessors.getLinks() ){
+            Processor oppositeProcessor = link.getDest();
+            if ( oppositeProcessor == currentProcessors )
+                oppositeProcessor = link.getSource();
+
+            if ( ! link.isPassed() && oppositeProcessor.isProcPassed() )
+                result.add(oppositeProcessor);
+        }
+        return result;
+
+    }
+
+    private static List<Processor> getPassedOnlyLinks(Processor currentProcessors){
 
         List<Processor> result = new ArrayList<Processor>();
         for ( ProcLink link : currentProcessors.getLinks() ){

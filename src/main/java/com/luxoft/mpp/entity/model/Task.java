@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * Created by xXx on 6/4/2016.
  */
-public class Task extends TimeUnit{
+public class Task{
 
     private List<TaskLink> inLink = new ArrayList<TaskLink>();
 
@@ -17,6 +17,10 @@ public class Task extends TimeUnit{
     private int ID;
 
     private Processor onProcessor;
+
+    public Task(int timeDuration) {
+        this.timeDuration = timeDuration;
+    }
 
     public Task(List<TaskLink> inLink, List<TaskLink> outLink, int timeDuration, int ID) {
         this.inLink = inLink;
@@ -40,12 +44,6 @@ public class Task extends TimeUnit{
                 ", ID=" + ID +
                 '}';
     }
-
-    @Override
-    public boolean isIdleTime(){
-        return false;
-    }
-
 
     public boolean isOnProcessor() {
         return onProcessor != null;
@@ -90,8 +88,6 @@ public class Task extends TimeUnit{
     public void setID(int ID) {
         this.ID = ID;
     }
-
-
 
 
 }
