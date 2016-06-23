@@ -88,7 +88,7 @@ public class GrantModelingService {
                 Map<Integer, List<Task> > tasksGraphMap = new HashMap<Integer, List<Task>>();
 
                 System.out.println("|===================|");
-                int maxTime = Integer.MAX_VALUE;
+                int maxTime = 0;//Integer.MAX_VALUE;
                 for ( Processor procCandidate : processors) {
 
                     int timeOfFinishParentTask = 0;
@@ -123,12 +123,12 @@ public class GrantModelingService {
                         timeOfFinishParentTask = from.getTimeOfFinishTask( inTaskLink.getFrom() );
                         for (DirectedEdge edge : way ){
                             Processor proc = getProcessById(buffProcessors, edge.from());
-                            int startOfTransfer = proc.searchBeginForTransfer(transferDuration, timeOfFinishParentTask);
+                            int startOfTransfer = findTimeToStart(buffProcessors, transferDuration, timeOfFinishParentTask);
                             int endOfTransfer = startOfTransfer + transferDuration;
 
                             System.out.println("Transfer on proc :"+proc.getID()+"; start :"+startOfTransfer+"; end :"+endOfTransfer);
                             TimeUnit transferUnit = new TimeUnit(startOfTransfer, endOfTransfer, transferDuration, false );
-                            transferUnit.setMessage("{task :"+task.getID()+" [from :"+edge.from()+"][to :"+edge.to()+"]}");
+                            transferUnit.setMessage("{task :"+inTaskLink.getFrom().getID()+" [from :"+edge.from()+ "][to :"+edge.to()+"]}");
                             proc.addTransferUnit(transferUnit);
 
                             timeOfFinishParentTask = endOfTransfer;
@@ -145,7 +145,7 @@ public class GrantModelingService {
                     processorGraphMap.put(maxComputingTime, buffProcessors);
                     tasksGraphMap.put(maxComputingTime, buffTasks);
                     System.out.println("------------- max time : "+maxComputingTime);
-                    if (maxTime > maxComputingTime)
+                    if (maxTime < maxComputingTime)
                         maxTime = maxComputingTime;
                 }
 
@@ -180,6 +180,16 @@ public class GrantModelingService {
             }
         }
         return processors;
+    }
+
+
+    public int findTimeToStart(List<Processor> processors, int transferDuration, int timeOfFinishParentTask){
+        int result = 0;
+        for (Processor proc : processors ){
+            if (result < proc.searchBeginForTransfer(transferDuration, timeOfFinishParentTask))
+                result = proc.searchBeginForTransfer(transferDuration, timeOfFinishParentTask);
+        }
+        return result;
     }
 
     private int getMaxWorkingTimeFromAllProc( List<Processor> processors ){
